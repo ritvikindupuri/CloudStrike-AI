@@ -20,27 +20,23 @@ export function PowerShellSimulator() {
     const { runAttack, loading: isSimulating } = useAttackSimulation();
     const [generationPrompt, setGenerationPrompt] = useState("");
     const [scriptContent, setScriptContent] = useState(
-`# Welcome to the CIDS Attack Simulator!
-# This is a fully editable editor. You have two options:
+`# The script to be simulated will appear here.
+# You can:
+# 1. Use the AI generator below to create a cloud-native attack script.
+# 2. Type or paste your own script directly into this editor.
 #
-# 1. Generate an attack script with AI:
-#    Use the input field below to describe a cloud-native attack.
-#
-# 2. Write or paste your own script:
-#    You can type directly into this window or paste any PowerShell/shell script.
-#
-# Once your script is ready, click "Run Simulation" to analyze its impact.`
+# When ready, click "Run Simulation".`
     );
     const [isGenerating, setIsGenerating] = useState(false);
 
     const { toast } = useToast();
 
     const handleRunSimulation = () => {
-        if (!scriptContent.trim()) {
+        if (!scriptContent.trim() || scriptContent.startsWith('# The script to be simulated')) {
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: 'Script content cannot be empty.',
+                description: 'Script content cannot be empty. Please generate or write a script first.',
             });
             return;
         }
@@ -80,72 +76,77 @@ export function PowerShellSimulator() {
             <header>
                 <h1 className="text-3xl font-bold tracking-tight">Attack Simulator</h1>
                 <p className="text-muted-foreground">
-                    Use AI to generate and simulate cloud-native attack scripts in a virtual environment.
+                    Generate or write a cloud-native attack script, then simulate its impact on your infrastructure.
                 </p>
             </header>
-            <div className="font-mono rounded-lg border bg-gray-900 text-white shadow-lg">
+            <div className="font-mono rounded-lg border bg-gray-900 text-white shadow-lg flex flex-col flex-grow">
                 {/* Terminal Header */}
-                <div className="px-4 py-2 border-b border-gray-700 flex items-center">
+                <div className="px-4 py-2 border-b border-gray-700 flex items-center flex-shrink-0">
                     <div className="flex space-x-2">
                         <div className="w-3 h-3 rounded-full bg-red-500"></div>
                         <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                         <div className="w-3 h-3 rounded-full bg-green-500"></div>
                     </div>
-                    <p className="ml-4 text-sm text-gray-300">CIDS Terminal - /bin/bash</p>
+                    <p className="ml-4 text-sm text-gray-300">CIDS Attack Editor - /bin/bash</p>
                 </div>
                 
                 {/* Terminal Body */}
-                <div className="p-4">
+                <div className="p-4 flex flex-col flex-grow">
                     <Textarea 
-                        placeholder="AI will generate an attack script here..."
-                        className="h-72 w-full bg-transparent border-0 rounded-none text-green-400 font-mono text-sm resize-none focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                        placeholder="Your attack script goes here..."
+                        className="flex-grow w-full bg-transparent border-0 rounded-none text-green-400 font-mono text-sm resize-none focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
                         value={scriptContent}
                         onChange={(e) => setScriptContent(e.target.value)}
                     />
 
-                    {/* AI Prompt Input */}
-                    <form onSubmit={handleGenerateScript}>
-                        <div className="flex items-center gap-2 mt-4">
-                            <span className="text-blue-400">CIDS:\&gt;</span>
-                            <Input 
-                                placeholder='e.g., "ransomware for S3 bucket"'
-                                className="flex-1 bg-gray-800 border-gray-700 rounded-md h-9 text-white focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
-                                value={generationPrompt}
-                                onChange={(e) => setGenerationPrompt(e.target.value)}
-                                disabled={isGenerating}
-                            />
-                            <Button type="submit" variant="secondary" size="sm" disabled={isGenerating || !generationPrompt}>
-                                {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
-                                Generate Script
-                            </Button>
-                        </div>
-                    </form>
-
-                     <div className="mt-2">
-                        <p className="text-xs text-gray-400">Try one of these:</p>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                             {samplePrompts.map((prompt) => (
-                                <button
-                                    key={prompt}
-                                    className="text-xs text-gray-300 bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded-md transition-colors"
-                                    onClick={() => setGenerationPrompt(prompt)}
+                    {/* Controls at the bottom */}
+                    <div className="mt-4 border-t border-gray-700 pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                             <div>
+                                <label className="text-sm font-medium text-gray-300 block mb-2">1. Get Script: Generate with AI</label>
+                                <form onSubmit={handleGenerateScript} className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Bot className="h-5 w-5 text-blue-400 flex-shrink-0"/>
+                                        <Input 
+                                            placeholder='Describe a cloud attack...'
+                                            className="flex-1 bg-gray-800 border-gray-700 rounded-md h-9 text-white focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                                            value={generationPrompt}
+                                            onChange={(e) => setGenerationPrompt(e.target.value)}
+                                            disabled={isGenerating}
+                                        />
+                                        <Button type="submit" variant="secondary" size="sm" disabled={isGenerating || !generationPrompt}>
+                                            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Generate'}
+                                        </Button>
+                                    </div>
+                                     <div className="flex flex-wrap gap-2">
+                                        {samplePrompts.slice(0, 3).map((prompt) => (
+                                            <button
+                                                key={prompt}
+                                                type="button"
+                                                className="text-xs text-gray-300 bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded-md transition-colors"
+                                                onClick={() => setGenerationPrompt(prompt)}
+                                            >
+                                                {prompt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </form>
+                             </div>
+                             
+                             <div className="flex flex-col justify-start">
+                                <label className="text-sm font-medium text-gray-300 block mb-2">2. Run Simulation</label>
+                                <Button 
+                                    onClick={handleRunSimulation} 
+                                    disabled={isSimulating || isGenerating}
+                                    size="lg"
+                                    className="bg-primary hover:bg-primary/90 w-full"
                                 >
-                                    {prompt}
-                                </button>
-                            ))}
+                                    {isSimulating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Terminal className="mr-2 h-4 w-4" />}
+                                    {isSimulating ? 'Simulating...' : 'Simulate Script from Editor'}
+                                </Button>
+                                <p className="text-xs text-gray-400 mt-2 text-center">This will analyze the script in the editor above and generate a full impact report.</p>
+                             </div>
                         </div>
-                    </div>
-
-                    <div className="flex w-full items-center justify-end mt-6 border-t border-gray-700 pt-4">
-                        <Button 
-                            onClick={handleRunSimulation} 
-                            disabled={isSimulating || isGenerating}
-                            size="lg"
-                            className="bg-primary hover:bg-primary/90"
-                        >
-                            {isSimulating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Terminal className="mr-2 h-4 w-4" />}
-                            {isSimulating ? 'Simulating...' : 'Run Simulation'}
-                        </Button>
                     </div>
                 </div>
             </div>
