@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { MainLayout } from '@/components/main-layout';
+import { AttackSimulationProvider } from '@/context/attack-simulation-context';
 
 export const metadata: Metadata = {
   title: 'CIDS - Cloud Intrusion Detection',
@@ -22,9 +23,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider defaultOpen={true}>
-            <MainLayout>{children}</MainLayout>
-        </SidebarProvider>
+        <AttackSimulationProvider>
+          <SidebarProvider defaultOpen={true}>
+              <MainLayout>{children}</MainLayout>
+          </SidebarProvider>
+        </AttackSimulationProvider>
         <Toaster />
       </body>
     </html>

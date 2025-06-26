@@ -1,52 +1,57 @@
 'use client';
-import { ArrowUp, CheckCircle, PieChart, Shield } from 'lucide-react';
+import { ArrowUp, CheckCircle, PieChart, Shield, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
-const stats = [
-  {
-    title: "Number of Events (24h)",
-    value: "23,518",
-    change: "+12.5%",
-    icon: <ArrowUp className="h-4 w-4" />,
-    changeColor: "text-green-600",
-    borderColor: "border-blue-500",
-  },
-  {
-    title: "Active Threats",
-    value: "47",
-    change: "+8 new",
-    icon: <ArrowUp className="h-4 w-4" />,
-    changeColor: "text-red-600",
-    borderColor: "border-pink-500",
-  },
-  {
-    title: "Blocked Attacks",
-    value: "1,247",
-    change: "Auto-blocked",
-    icon: <Shield className="h-4 w-4" />,
-    changeColor: "text-green-600",
-    borderColor: "border-emerald-500",
-  },
-  {
-    title: "Detection Accuracy",
-    value: "99.7%",
-    change: "Optimal",
-    icon: <CheckCircle className="h-4 w-4" />,
-    changeColor: "text-green-600",
-    borderColor: "border-amber-500",
-  },
-];
-
-const analysisCards = [
-    { title: "Top 10 Process.exe", iconBg: "bg-blue-500" },
-    { title: "Top 10 event.exe", iconBg: "bg-emerald-500" },
-    { title: "Top 5 BOT connections", iconBg: "bg-violet-500" },
-];
-
+import { useAttackSimulation } from '@/context/attack-simulation-context';
+import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 export function Dashboard() {
+    const { metrics, simulationRun, loading } = useAttackSimulation();
+
+    const stats = metrics ? [
+      {
+        title: "Number of Events (24h)",
+        value: metrics.totalEvents,
+        change: "+12.5%",
+        icon: <ArrowUp className="h-4 w-4" />,
+        changeColor: "text-green-600",
+        borderColor: "border-blue-500",
+      },
+      {
+        title: "Active Threats",
+        value: metrics.activeThreats,
+        change: "+8 new",
+        icon: <ArrowUp className="h-4 w-4" />,
+        changeColor: "text-red-600",
+        borderColor: "border-pink-500",
+      },
+      {
+        title: "Blocked Attacks",
+        value: metrics.blockedAttacks,
+        change: "Auto-blocked",
+        icon: <Shield className="h-4 w-4" />,
+        changeColor: "text-green-600",
+        borderColor: "border-emerald-500",
+      },
+      {
+        title: "Detection Accuracy",
+        value: metrics.detectionAccuracy,
+        change: "Optimal",
+        icon: <CheckCircle className="h-4 w-4" /> ,
+        changeColor: "text-green-600",
+        borderColor: "border-amber-500",
+      },
+    ] : [];
+
+    const analysisCards = [
+        { title: "Top 10 Process.exe", iconBg: "bg-blue-500" },
+        { title: "Top 10 event.exe", iconBg: "bg-emerald-500" },
+        { title: "Top 5 BOT connections", iconBg: "bg-violet-500" },
+    ];
+
+
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <header className="flex flex-wrap items-center justify-between gap-4">
@@ -58,9 +63,20 @@ export function Dashboard() {
                 </div>
                 <div className="flex items-center space-x-4">
                      <div className="hidden md:block text-right">
-                        <p className="text-sm font-semibold">23,518 <span className="font-normal text-xs text-muted-foreground">EVENTS</span></p>
-                        <p className="text-sm font-semibold">47 <span className="font-normal text-xs text-muted-foreground">ACTIVE THREATS</span></p>
-                        <p className="text-sm font-semibold">1,247 <span className="font-normal text-xs text-muted-foreground">BLOCKED</span></p>
+                        {loading && (
+                            <>
+                                <Skeleton className="h-4 w-24 mb-2" />
+                                <Skeleton className="h-4 w-28 mb-2" />
+                                <Skeleton className="h-4 w-20" />
+                            </>
+                        )}
+                        {simulationRun && metrics && !loading && (
+                            <>
+                                <p className="text-sm font-semibold">{metrics.totalEvents} <span className="font-normal text-xs text-muted-foreground">EVENTS</span></p>
+                                <p className="text-sm font-semibold">{metrics.activeThreats} <span className="font-normal text-xs text-muted-foreground">ACTIVE THREATS</span></p>
+                                <p className="text-sm font-semibold">{metrics.blockedAttacks} <span className="font-normal text-xs text-muted-foreground">BLOCKED</span></p>
+                            </>
+                        )}
                     </div>
                     <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm">
                         <span className="relative flex h-2.5 w-2.5 mr-2.5">
@@ -72,8 +88,32 @@ export function Dashboard() {
                     </Button>
                 </div>
             </header>
+
+            {!simulationRun && (
+                 <Card className="md:col-span-2 lg:col-span-4 bg-blue-50 border-blue-200">
+                    <CardContent className="p-6 flex items-center gap-4">
+                        <Info className="h-8 w-8 text-blue-600"/>
+                        <div>
+                           <h3 className="font-semibold text-blue-800">Welcome to the CIDS Dashboard</h3>
+                           <p className="text-sm text-blue-700">No simulation is running. Please go to the <Link href="/powershell-simulator" className="font-medium underline">Attack Simulator</Link> to start an attack and populate the dashboard with data.</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {stats.map((stat) => (
+                {simulationRun && loading && Array.from({ length: 4 }).map((_, i) => (
+                    <Card key={i} className="border-t-4 border-gray-200 shadow-sm">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                           <Skeleton className="h-4 w-32" />
+                        </CardHeader>
+                        <CardContent>
+                            <Skeleton className="h-8 w-24 mb-2" />
+                            <Skeleton className="h-4 w-20" />
+                        </CardContent>
+                    </Card>
+                ))}
+                {!loading && stats.map((stat) => (
                      <Card key={stat.title} className={`border-t-4 ${stat.borderColor} shadow-sm`}>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
@@ -98,7 +138,7 @@ export function Dashboard() {
                             <CardTitle className="text-base font-semibold">{card.title}</CardTitle>
                         </CardHeader>
                         <CardContent className="h-48 flex items-center justify-center text-muted-foreground">
-                           <p className="text-sm">Chart data unavailable</p>
+                           <p className="text-sm">{!simulationRun ? 'Data unavailable' : 'Chart data unavailable'}</p>
                         </CardContent>
                     </Card>
                 ))}
