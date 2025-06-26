@@ -1,17 +1,17 @@
 'use client';
-import { useState } from 'react';
+import * as React from 'react';
 import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan, Copy, FlaskConical, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useAttackSimulation, ChartData } from '@/context/attack-simulation-context';
+import { useAttackSimulation } from '@/context/attack-simulation-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { useToast } from '@/hooks/use-toast';
-import { analyzeDefense } from '@/ai/flows/analyze-defense-flow';
-import type { AnalyzeDefenseOutput } from '@/ai/flows/analyze-defense-flow';
+import { analyzeInteraction } from '@/ai/flows/analyze-interaction-flow';
+import type { AnalyzeInteractionOutput, InteractionStep } from '@/ai/flows/analyze-interaction-flow';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Progress } from '@/components/ui/progress';
 
@@ -35,8 +35,9 @@ const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: stri
 export function Dashboard() {
     const { metrics, simulationRun, loading, chartData, analysis, originalScript } = useAttackSimulation();
     const { toast } = useToast();
-    const [isTestingDefense, setIsTestingDefense] = useState(false);
-    const [defenseResult, setDefenseResult] = useState<AnalyzeDefenseOutput | null>(null);
+    const [isTestingDefense, setIsTestingDefense] = React.useState(false);
+    const [defenseResult, setDefenseResult] = React.useState<AnalyzeInteractionOutput | null>(null);
+    const [displayedLog, setDisplayedLog] = React.useState<InteractionStep[]>([]);
 
     const getRiskBadgeVariant = (score: number): "destructive" | "secondary" | "outline" => {
         if (score > 75) return 'destructive';
@@ -63,8 +64,9 @@ export function Dashboard() {
         }
         setIsTestingDefense(true);
         setDefenseResult(null);
+        setDisplayedLog([]); // Clear old log
         try {
-            const result = await analyzeDefense({
+            const result = await analyzeInteraction({
                 attackScript: originalScript,
                 defenseScript: analysis.suggestedCountermeasure
             });
@@ -76,10 +78,27 @@ export function Dashboard() {
                 title: "Analysis Error",
                 description: "Failed to test the countermeasure.",
             });
-        } finally {
-            setIsTestingDefense(false);
+             setIsTestingDefense(false);
         }
     };
+    
+    React.useEffect(() => {
+        if (isTestingDefense && defenseResult?.interactionLog) {
+            setIsTestingDefense(false);
+            
+            let i = 0;
+            const intervalId = setInterval(() => {
+                if (i < defenseResult.interactionLog.length) {
+                    setDisplayedLog(prev => [...prev, defenseResult.interactionLog[i]]);
+                    i++;
+                } else {
+                    clearInterval(intervalId);
+                }
+            }, 750); 
+
+            return () => clearInterval(intervalId);
+        }
+    }, [defenseResult, isTestingDefense]);
 
     const stats = metrics ? [
       {
@@ -291,42 +310,109 @@ export function Dashboard() {
                 </div>
                 </>
             )}
-             <AlertDialog open={!!defenseResult} onOpenChange={() => setDefenseResult(null)}>
-                <AlertDialogContent className="max-w-2xl">
+             <AlertDialog open={isTestingDefense || !!defenseResult} onOpenChange={(open) => {
+                if (!open) {
+                    setIsTestingDefense(false);
+                    setDefenseResult(null);
+                    setDisplayedLog([]);
+                }
+             }}>
+                <AlertDialogContent className="max-w-6xl w-full h-[90vh] flex flex-col">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
                             <FlaskConical className="h-5 w-5" />
-                            Countermeasure Test Results
+                            Countermeasure Engagement Analysis
                         </AlertDialogTitle>
-                        <AlertDialogDescription>
-                            The AI has analyzed the effectiveness of the suggested defense script against the original attack.
-                        </AlertDialogDescription>
+                        {isTestingDefense && (
+                            <AlertDialogDescription>
+                                The AI is simulating the engagement... please wait.
+                            </AlertDialogDescription>
+                        )}
+                        {!isTestingDefense && defenseResult && (
+                            <AlertDialogDescription>
+                                The AI has analyzed the effectiveness of the defense script against the attack.
+                            </AlertDialogDescription>
+                        )}
                     </AlertDialogHeader>
-                    {defenseResult && (
-                        <div className="space-y-4 pt-2">
-                            <div>
-                                <h4 className="font-semibold mb-1 text-sm">Effectiveness Score</h4>
-                                <Progress value={defenseResult.effectivenessScore} className="w-full h-3" />
-                                <p className="text-right font-bold text-base mt-1">{defenseResult.effectivenessScore}/100</p>
+                    
+                    {isTestingDefense && (
+                         <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center">
+                                <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+                                <p className="font-semibold mt-4">Simulating Engagement</p>
+                                <p className="text-sm text-muted-foreground">Analyzing attack vectors and defense posture...</p>
                             </div>
-                            <div>
-                                <h4 className="font-semibold text-sm">Outcome Summary</h4>
-                                <p className="text-sm text-muted-foreground leading-relaxed">{defenseResult.outcomeSummary}</p>
+                         </div>
+                    )}
+                    
+                    {!isTestingDefense && defenseResult && (
+                        <div className="flex-1 grid md:grid-cols-2 gap-4 overflow-hidden">
+                            {/* Left Side: Scripts and New Countermeasure */}
+                            <div className="space-y-4 flex flex-col overflow-hidden">
+                                <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+                                    <div>
+                                        <h4 className="font-semibold text-sm mb-1">Attack Script</h4>
+                                        <pre className="text-xs text-muted-foreground font-mono bg-muted p-2 rounded-md overflow-auto h-32 whitespace-pre-wrap">{originalScript}</pre>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-sm mb-1">Original Defense</h4>
+                                        <pre className="text-xs text-muted-foreground font-mono bg-muted p-2 rounded-md overflow-auto h-32 whitespace-pre-wrap">{analysis?.suggestedCountermeasure}</pre>
+                                    </div>
+                                </div>
+                                <div className="flex-1 flex flex-col overflow-hidden">
+                                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm flex-shrink-0">
+                                        Improved Countermeasure
+                                        <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => handleCopy(defenseResult.modifiedDefenseScript, 'improved countermeasure script')}>
+                                            <Copy className="h-4 w-4" />
+                                            <span className="sr-only">Copy improved countermeasure</span>
+                                        </Button>
+                                    </h4>
+                                    <pre className="text-sm text-muted-foreground font-mono bg-muted p-3 rounded-md overflow-auto flex-1 whitespace-pre-wrap">{defenseResult.modifiedDefenseScript}</pre>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm">
-                                    Improved Countermeasure
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => handleCopy(defenseResult.modifiedDefenseScript, 'improved countermeasure script')}>
-                                        <Copy className="h-4 w-4" />
-                                        <span className="sr-only">Copy improved countermeasure</span>
-                                    </Button>
-                                </h4>
-                                <pre className="text-sm text-muted-foreground font-mono bg-muted p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap">{defenseResult.modifiedDefenseScript}</pre>
+
+                            {/* Right Side: Results and Live Log */}
+                            <div className="space-y-4 flex flex-col overflow-hidden">
+                                <div className="p-4 bg-muted/50 rounded-lg">
+                                    <h4 className="font-semibold text-sm">Outcome Summary</h4>
+                                    <p className="text-sm text-muted-foreground leading-relaxed mt-1">{defenseResult.outcomeSummary}</p>
+                                    <h4 className="font-semibold mb-1 text-sm mt-3">Effectiveness Score</h4>
+                                    <Progress value={defenseResult.effectivenessScore} className="w-full h-3" />
+                                    <p className="text-right font-bold text-base mt-1">{defenseResult.effectivenessScore}/100</p>
+                                </div>
+
+                                <div className="flex-1 flex flex-col overflow-hidden">
+                                    <h4 className="font-semibold text-sm flex-shrink-0 mb-2">Live Interaction Log</h4>
+                                    <div className="p-3 bg-gray-900 text-white rounded-md font-mono text-xs overflow-y-auto flex-1">
+                                        {displayedLog.map((log) => (
+                                            <div key={log.step} className="mb-2 last:mb-0 flex items-start whitespace-pre-wrap">
+                                                <span className="text-gray-500 mr-3">{log.step.toString().padStart(2, '0')}</span>
+                                                <span className={`mr-3 font-bold ${log.action === 'Attack' ? 'text-red-400' : log.action === 'Defense' ? 'text-green-400' : 'text-blue-400'}`}>
+                                                    [{log.action.toUpperCase()}]
+                                                </span>
+                                                <p className="flex-1">
+                                                    <span>{log.description} </span>
+                                                    <span className="text-yellow-400">{'->'} {log.result}</span>
+                                                </p>
+                                            </div>
+                                        ))}
+                                         {displayedLog.length > 0 && displayedLog.length < defenseResult.interactionLog.length && (
+                                            <div className="flex items-center">
+                                                <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                                                <span>Analyzing...</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
-                    <AlertDialogFooter>
-                        <AlertDialogAction onClick={() => setDefenseResult(null)}>Close</AlertDialogAction>
+                    <AlertDialogFooter className="pt-4 flex-shrink-0">
+                        <AlertDialogAction onClick={() => {
+                           setIsTestingDefense(false);
+                           setDefenseResult(null);
+                           setDisplayedLog([]);
+                        }}>Close</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
