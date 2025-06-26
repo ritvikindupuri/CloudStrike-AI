@@ -230,7 +230,7 @@ export function Dashboard() {
                         <div className="grid md:grid-cols-2 gap-6">
                              <div>
                                 <h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-muted-foreground" />Technical Breakdown</h4>
-                                <pre className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md overflow-x-auto">{analysis.technicalBreakdown}</pre>
+                                <pre className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md overflow-x-auto whitespace-pre-wrap">{analysis.technicalBreakdown}</pre>
                             </div>
                              <div>
                                 <h4 className="font-semibold mb-2 flex items-center gap-2">
@@ -246,7 +246,7 @@ export function Dashboard() {
                                         </Button>
                                      </div>
                                 </h4>
-                                <pre className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md overflow-x-auto">{analysis.suggestedCountermeasure}</pre>
+                                <pre className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md overflow-x-auto whitespace-pre-wrap">{analysis.suggestedCountermeasure}</pre>
                             </div>
                         </div>
                     </CardContent>
@@ -321,7 +321,7 @@ export function Dashboard() {
                                         <span className="sr-only">Copy improved countermeasure</span>
                                     </Button>
                                 </h4>
-                                <pre className="text-sm text-muted-foreground font-mono bg-muted p-3 rounded-md overflow-x-auto max-h-48">{defenseResult.modifiedDefenseScript}</pre>
+                                <pre className="text-sm text-muted-foreground font-mono bg-muted p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap">{defenseResult.modifiedDefenseScript}</pre>
                             </div>
                         </div>
                     )}
