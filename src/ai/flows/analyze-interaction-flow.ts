@@ -60,10 +60,11 @@ First, provide a final analysis of the engagement:
 3.  **modifiedDefenseScript**: An improved version of the defense script that addresses any identified weaknesses.
 
 Second, and most importantly, generate a step-by-step **interactionLog**. Simulate the attacker's actions and the defender's responses chronologically. Each step should be a distinct action.
+- For each step in the \`interactionLog\`, the \`description\` must be a concise, single-sentence summary of the action taken, **referencing the specific command or line from the script where possible.**
 - An **Attack** action is a command from the attack script being executed.
 - A **Defense** action is a command from the defense script being executed or a pre-existing policy that blocks an attack.
 - A **System** action can be used for context, like "Simulation starting".
-- The log should clearly show cause and effect. For example, the defense script's action should logically follow an attacker's action.
+- The log must clearly show cause and effect. The \`result\` should state the immediate outcome (e.g., 'Success', 'Blocked by Rule X', 'No Effect').
 
 Provide the entire output in the specified JSON format.
 `,
