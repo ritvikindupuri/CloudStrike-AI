@@ -26,6 +26,12 @@ const SecurityEventSchema = z.object({
 });
 export type SecurityEvent = z.infer<typeof SecurityEventSchema>;
 
+const ChartDataPointSchema = z.object({
+    name: z.string().describe('The name of the entity (e.g., process name, event name, IP address).'),
+    count: z.number().describe('The number of occurrences.'),
+});
+export type ChartDataPoint = z.infer<typeof ChartDataPointSchema>;
+
 const SimulateAttackOutputSchema = z.object({
     events: z.array(SecurityEventSchema).describe('A list of 20-30 security events generated as a result of the simulated attack.'),
     metrics: z.object({
@@ -34,6 +40,9 @@ const SimulateAttackOutputSchema = z.object({
         blockedAttacks: z.string().describe('The number of attacks automatically blocked, e.g., "1,247".'),
         detectionAccuracy: z.string().describe('The detection accuracy of the system as a percentage, e.g., "99.7%".'),
     }).describe('Key metrics for the dashboard, reflecting the impact of the attack.'),
+    topProcesses: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "process.exe" names and their counts.'),
+    topEvents: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "event.exe" names and their counts.'),
+    botConnections: z.array(ChartDataPointSchema).describe('A list of the top 5 bot IP addresses and their connection counts.'),
 });
 export type SimulateAttackOutput = z.infer<typeof SimulateAttackOutputSchema>;
 
@@ -56,7 +65,12 @@ Based on this attack, generate a list of 20 to 30 diverse security events. These
 
 Also, generate plausible dashboard metrics that reflect the scale and nature of the attack. The metrics should tell a story consistent with the generated events. Ensure the numbers are high to reflect a serious incident.
 
-Provide the output in the specified JSON format.
+Finally, generate data for the following charts based on the simulated attack:
+- A list of the top 10 most frequent "process.exe" names and their counts.
+- A list of the top 10 most frequent "event.exe" names and their counts.
+- A list of the top 5 bot IP addresses (use realistic but fake IPs) and their connection counts.
+
+Provide the entire output in the specified JSON format.
 `,
 });
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { simulateAttack, SimulateAttackOutput, SecurityEvent } from '@/ai/flows/analyze-attack-risk';
+import { simulateAttack, SimulateAttackOutput, SecurityEvent, ChartDataPoint } from '@/ai/flows/analyze-attack-risk';
 import { useToast } from '@/hooks/use-toast';
 
 interface AttackMetrics {
@@ -11,11 +11,18 @@ interface AttackMetrics {
     detectionAccuracy: string;
 }
 
+export interface ChartData {
+    topProcesses: ChartDataPoint[];
+    topEvents: ChartDataPoint[];
+    botConnections: ChartDataPoint[];
+}
+
 interface AttackSimulationState {
     simulationRun: boolean;
     loading: boolean;
     events: SecurityEvent[];
     metrics: AttackMetrics | null;
+    chartData: ChartData | null;
     runAttack: (attackType: string, description: string) => Promise<void>;
 }
 
@@ -26,21 +33,28 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
     const [loading, setLoading] = useState(false);
     const [events, setEvents] = useState<SecurityEvent[]>([]);
     const [metrics, setMetrics] = useState<AttackMetrics | null>(null);
+    const [chartData, setChartData] = useState<ChartData | null>(null);
     const { toast } = useToast();
 
     const runAttack = async (attackType: string, description: string) => {
         setLoading(true);
-        setSimulationRun(true); // Mark that a simulation is starting/has run
+        setSimulationRun(true); 
 
         // Clear previous data immediately
         setEvents([]);
         setMetrics(null);
+        setChartData(null);
 
         try {
             const result: SimulateAttackOutput = await simulateAttack({ attackType, description });
             
             setEvents(result.events);
             setMetrics(result.metrics);
+            setChartData({
+                topProcesses: result.topProcesses,
+                topEvents: result.topEvents,
+                botConnections: result.botConnections
+            });
 
             toast({
                 title: "Simulation Complete",
@@ -64,6 +78,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         loading,
         events,
         metrics,
+        chartData,
         runAttack,
     };
 

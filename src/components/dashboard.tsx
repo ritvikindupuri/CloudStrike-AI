@@ -1,14 +1,33 @@
 'use client';
-import { ArrowUp, CheckCircle, PieChart, Shield, Info } from 'lucide-react';
+import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useAttackSimulation } from '@/context/attack-simulation-context';
+import { useAttackSimulation, ChartData } from '@/context/attack-simulation-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+
+
+const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: string, nameKey: string }) => (
+    <ResponsiveContainer width="100%" height="100%">
+        <ChartContainer config={{}} className="h-full w-full">
+            <BarChart data={data} layout="vertical" margin={{ left: 10, right: 10, top: 10, bottom: 10 }}>
+                <Tooltip
+                    cursor={{ fill: 'hsl(var(--accent))' }}
+                    content={<ChartTooltipContent hideLabel />}
+                />
+                <XAxis type="number" dataKey={dataKey} hide />
+                <YAxis type="category" dataKey={nameKey} width={80} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
+                <Bar dataKey={dataKey} fill="hsl(var(--primary))" radius={4} barSize={12} />
+            </BarChart>
+        </ChartContainer>
+    </ResponsiveContainer>
+);
 
 export function Dashboard() {
-    const { metrics, simulationRun, loading } = useAttackSimulation();
+    const { metrics, simulationRun, loading, chartData } = useAttackSimulation();
 
     const stats = metrics ? [
       {
@@ -46,9 +65,9 @@ export function Dashboard() {
     ] : [];
 
     const analysisCards = [
-        { title: "Top 10 Process.exe", iconBg: "bg-blue-500" },
-        { title: "Top 10 event.exe", iconBg: "bg-emerald-500" },
-        { title: "Top 5 BOT connections", iconBg: "bg-violet-500" },
+        { title: "Top 10 Process.exe", iconBg: "bg-blue-500", data: chartData?.topProcesses, nameKey: "name", dataKey: "count" },
+        { title: "Top 10 event.exe", iconBg: "bg-emerald-500", data: chartData?.topEvents, nameKey: "name", dataKey: "count" },
+        { title: "Top 5 BOT connections", iconBg: "bg-violet-500", data: chartData?.botConnections, nameKey: "name", dataKey: "count" },
     ];
 
 
@@ -113,7 +132,7 @@ export function Dashboard() {
                         </CardContent>
                     </Card>
                 ))}
-                {!loading && stats.map((stat) => (
+                {!loading && metrics && stats.map((stat) => (
                      <Card key={stat.title} className={`border-t-4 ${stat.borderColor} shadow-sm`}>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
@@ -133,12 +152,20 @@ export function Dashboard() {
                      <Card key={card.title} className="shadow-sm">
                         <CardHeader className="flex flex-row items-center gap-3 space-y-0">
                             <div className={`rounded-lg p-2 ${card.iconBg}`}>
-                                <PieChart className="h-5 w-5 text-white" />
+                                <BarChart3 className="h-5 w-5 text-white" />
                             </div>
                             <CardTitle className="text-base font-semibold">{card.title}</CardTitle>
                         </CardHeader>
-                        <CardContent className="h-48 flex items-center justify-center text-muted-foreground">
-                           <p className="text-sm">{!simulationRun ? 'Data unavailable' : 'Chart data unavailable'}</p>
+                        <CardContent className="h-48">
+                           {simulationRun && loading && <Skeleton className="h-full w-full" />}
+                           {simulationRun && !loading && card.data && card.data.length > 0 && (
+                               <SimpleBarChart data={card.data} dataKey={card.dataKey} nameKey={card.nameKey} />
+                           )}
+                           {(!simulationRun || (!loading && (!card.data || card.data.length === 0))) && (
+                                <div className="h-full flex items-center justify-center text-muted-foreground">
+                                    <p className="text-sm">Data unavailable</p>
+                                </div>
+                           )}
                         </CardContent>
                     </Card>
                 ))}
