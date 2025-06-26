@@ -19,7 +19,7 @@ const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: stri
                     content={<ChartTooltipContent hideLabel />}
                 />
                 <XAxis type="number" dataKey={dataKey} hide />
-                <YAxis type="category" dataKey={nameKey} width={130} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
+                <YAxis type="category" dataKey={nameKey} width={180} tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
                 <Bar dataKey={dataKey} fill="hsl(var(--primary))" radius={4} barSize={12} />
             </BarChart>
         </ChartContainer>
@@ -220,7 +220,7 @@ export function Dashboard() {
                                 </div>
                                 <CardTitle className="text-base font-semibold">{card.title}</CardTitle>
                             </CardHeader>
-                            <CardContent className="h-48">
+                            <CardContent className="h-64">
                                {card.data && card.data.length > 0 ? (
                                    <SimpleBarChart data={card.data} dataKey={card.dataKey} nameKey={card.nameKey} />
                                ) : (
