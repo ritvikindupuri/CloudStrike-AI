@@ -30,7 +30,7 @@ const attacks = [
 ];
 
 
-export function PowerShellSimulator() {
+export function AttackSimulator() {
     const { runAttack, loading } = useAttackSimulation();
     const [selectedAttack, setSelectedAttack] = useState(attacks[0]);
 

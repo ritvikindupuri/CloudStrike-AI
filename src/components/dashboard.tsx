@@ -1,5 +1,5 @@
 'use client';
-import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert } from 'lucide-react';
+import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -113,33 +113,40 @@ export function Dashboard() {
                     </Button>
                 </div>
             </header>
-
-            {!simulationRun && (
-                 <Card className="md:col-span-2 lg:col-span-4 bg-blue-50 border-blue-200">
-                    <CardContent className="p-6 flex items-center gap-4">
-                        <Info className="h-8 w-8 text-blue-600"/>
+            
+            {!simulationRun && !loading && (
+                <Card className="md:col-span-2 lg:col-span-4 bg-blue-50 border-blue-200 shadow-none">
+                    <CardContent className="p-6 flex flex-col items-center justify-center text-center gap-4 min-h-[400px]">
+                        <Info className="h-12 w-12 text-blue-600 shrink-0"/>
                         <div>
-                           <h3 className="font-semibold text-blue-800">Welcome to the CIDS Dashboard</h3>
-                           <p className="text-sm text-blue-700">No simulation is running. Please go to the <Link href="/powershell-simulator" className="font-medium underline">Attack Simulator</Link> to start an attack and populate the dashboard with data.</p>
+                             <h2 className="text-xl font-semibold text-blue-800">Welcome to the CIDS Demo</h2>
+                            <p className="text-blue-700 mt-1">This is an interactive Cloud Intrusion Detection System powered by AI.
+                            <br /> Go to the <Link href="/powershell-simulator" className="font-medium underline">Attack Simulator</Link> to run a scenario and see the dashboard populate with live data.</p>
                         </div>
                     </CardContent>
                 </Card>
             )}
 
             {simulationRun && loading && (
-                <Card className="md:col-span-2 lg:col-span-4">
-                    <CardHeader>
-                        <Skeleton className="h-6 w-1/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Skeleton className="h-20 w-full" />
-                        <Skeleton className="h-20 w-full" />
-                    </CardContent>
-                </Card>
+                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <Card key={i}><CardHeader><Skeleton className="h-5 w-3/4" /></CardHeader><CardContent><Skeleton className="h-8 w-1/2 mb-2" /><Skeleton className="h-4 w-1/4" /></CardContent></Card>
+                    ))}
+                    <Card className="md:col-span-2 lg:col-span-4">
+                        <CardHeader>
+                            <Skeleton className="h-6 w-1/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <Skeleton className="h-20 w-full" />
+                            <Skeleton className="h-20 w-full" />
+                        </CardContent>
+                    </Card>
+                </div>
             )}
 
             {simulationRun && !loading && analysis && (
+                <>
                 <Card className="md:col-span-2 lg:col-span-4">
                     <CardHeader className="flex flex-row justify-between items-start">
                         <div>
@@ -181,58 +188,46 @@ export function Dashboard() {
                         </div>
                     </CardContent>
                 </Card>
-            )}
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {simulationRun && loading && Array.from({ length: 4 }).map((_, i) => (
-                    <Card key={i} className="border-t-4 border-gray-200 shadow-sm">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                           <Skeleton className="h-4 w-32" />
-                        </CardHeader>
-                        <CardContent>
-                            <Skeleton className="h-8 w-24 mb-2" />
-                            <Skeleton className="h-4 w-20" />
-                        </CardContent>
-                    </Card>
-                ))}
-                {!loading && metrics && stats.map((stat) => (
-                     <Card key={stat.title} className={`border-t-4 ${stat.borderColor} shadow-sm`}>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold">{stat.value}</div>
-                            <p className={`text-xs ${stat.changeColor} flex items-center gap-1 mt-1 font-semibold`}>
-                                {stat.icon}
-                                {stat.change}
-                            </p>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {analysisCards.map((card) => (
-                     <Card key={card.title} className="shadow-sm">
-                        <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                            <div className={`rounded-lg p-2 ${card.iconBg}`}>
-                                <BarChart3 className="h-5 w-5 text-white" />
-                            </div>
-                            <CardTitle className="text-base font-semibold">{card.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="h-48">
-                           {simulationRun && loading && <Skeleton className="h-full w-full" />}
-                           {simulationRun && !loading && card.data && card.data.length > 0 && (
-                               <SimpleBarChart data={card.data} dataKey={card.dataKey} nameKey={card.nameKey} />
-                           )}
-                           {(!simulationRun || (!loading && (!card.data || card.data.length === 0))) && (
-                                <div className="h-full flex items-center justify-center text-muted-foreground">
-                                    <p className="text-sm">Data unavailable</p>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {metrics && stats.map((stat) => (
+                         <Card key={stat.title} className={`border-t-4 ${stat.borderColor} shadow-sm`}>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-3xl font-bold">{stat.value}</div>
+                                <p className={`text-xs ${stat.changeColor} flex items-center gap-1 mt-1 font-semibold`}>
+                                    {stat.icon}
+                                    {stat.change}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {analysisCards.map((card) => (
+                         <Card key={card.title} className="shadow-sm">
+                            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                                <div className={`rounded-lg p-2 ${card.iconBg}`}>
+                                    <BarChart3 className="h-5 w-5 text-white" />
                                 </div>
-                           )}
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+                                <CardTitle className="text-base font-semibold">{card.title}</CardTitle>
+                            </CardHeader>
+                            <CardContent className="h-48">
+                               {card.data && card.data.length > 0 ? (
+                                   <SimpleBarChart data={card.data} dataKey={card.dataKey} nameKey={card.nameKey} />
+                               ) : (
+                                    <div className="h-full flex items-center justify-center text-muted-foreground">
+                                        <p className="text-sm">Data unavailable</p>
+                                    </div>
+                               )}
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+                </>
+            )}
         </main>
     )
 }

@@ -26,7 +26,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     const menuItems = [
         { href: '/', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/security-events', label: 'Security Events', icon: ShieldAlert },
-        { href: '/powershell-simulator', label: 'PowerShell Simulator', icon: Terminal },
+        { href: '/powershell-simulator', label: 'Attack Simulator', icon: Terminal },
         { href: '/ml-analysis', label: 'ML Analysis', icon: BrainCircuit },
         { href: '/cloud-services', label: 'Cloud Services', icon: Cloud },
         { href: '/reports', label: 'Reports', icon: FileText },

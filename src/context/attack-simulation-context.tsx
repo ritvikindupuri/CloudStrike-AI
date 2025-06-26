@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { simulateAttack, SimulateAttackOutput, SecurityEvent, ChartDataPoint, AttackAnalysis } from '@/ai/flows/simulate-attack-flow';
+import { simulateAttack } from '@/ai/flows/simulate-attack-flow';
+import type { SimulateAttackOutput, SecurityEvent, ChartDataPoint, AttackAnalysis } from '@/ai/flows/simulate-attack-flow';
 import { useToast } from '@/hooks/use-toast';
 
 interface AttackMetrics {
