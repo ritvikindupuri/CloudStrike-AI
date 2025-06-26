@@ -22,6 +22,11 @@ const attacks = [
         name: "Credential Stuffing",
         description: "A cyberattack in which stolen account credentials, typically consisting of lists of usernames and/or email addresses and the corresponding passwords, are used to gain unauthorized access to user accounts through large-scale automated login requests."
     },
+    {
+        value: "sql-injection",
+        name: "SQL Injection",
+        description: "An attack that attempts to use malicious SQL code for backend database manipulation to access information that was not intended to be displayed. This may include sensitive company data, user lists or private customer details."
+    }
 ];
 
 
@@ -50,7 +55,7 @@ export function PowerShellSimulator() {
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue={attacks[0].value} className="w-full" onValueChange={(v) => setSelectedAttack(attacks.find(a => a.value === v)!)}>
-                        <TabsList className="grid w-full grid-cols-3">
+                        <TabsList className="grid w-full grid-cols-4">
                             {attacks.map(attack => (
                                 <TabsTrigger key={attack.value} value={attack.value}>{attack.name}</TabsTrigger>
                             ))}
