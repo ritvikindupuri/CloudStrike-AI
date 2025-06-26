@@ -38,7 +38,7 @@ export function Dashboard() {
     const stats = metrics ? [
       {
         title: "Number of Events (24h)",
-        value: metrics.totalEvents,
+        value: metrics.totalEvents.toLocaleString(),
         change: "+12.5%",
         icon: <ArrowUp className="h-4 w-4" />,
         changeColor: "text-green-600",
@@ -46,7 +46,7 @@ export function Dashboard() {
       },
       {
         title: "Active Threats",
-        value: metrics.activeThreats,
+        value: metrics.activeThreats.toLocaleString(),
         change: "+8 new",
         icon: <ArrowUp className="h-4 w-4" />,
         changeColor: "text-red-600",
@@ -54,7 +54,7 @@ export function Dashboard() {
       },
       {
         title: "Blocked Attacks",
-        value: metrics.blockedAttacks,
+        value: metrics.blockedAttacks.toLocaleString(),
         change: "Auto-blocked",
         icon: <Shield className="h-4 w-4" />,
         changeColor: "text-green-600",
@@ -97,9 +97,9 @@ export function Dashboard() {
                         )}
                         {simulationRun && metrics && !loading && (
                             <>
-                                <p className="text-sm font-semibold">{metrics.totalEvents} <span className="font-normal text-xs text-muted-foreground">EVENTS</span></p>
-                                <p className="text-sm font-semibold">{metrics.activeThreats} <span className="font-normal text-xs text-muted-foreground">ACTIVE THREATS</span></p>
-                                <p className="text-sm font-semibold">{metrics.blockedAttacks} <span className="font-normal text-xs text-muted-foreground">BLOCKED</span></p>
+                                <p className="text-sm font-semibold">{metrics.totalEvents.toLocaleString()} <span className="font-normal text-xs text-muted-foreground">EVENTS</span></p>
+                                <p className="text-sm font-semibold">{metrics.activeThreats.toLocaleString()} <span className="font-normal text-xs text-muted-foreground">ACTIVE THREATS</span></p>
+                                <p className="text-sm font-semibold">{metrics.blockedAttacks.toLocaleString()} <span className="font-normal text-xs text-muted-foreground">BLOCKED</span></p>
                             </>
                         )}
                     </div>

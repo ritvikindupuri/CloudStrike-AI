@@ -44,9 +44,9 @@ const SimulateAttackOutputSchema = z.object({
     analysis: AnalysisSchema.describe("A detailed analysis of the simulated attack, including summaries, risk score, and recommended actions."),
     events: z.array(SecurityEventSchema).describe('A list of 20-30 security events generated as a result of the simulated attack.'),
     metrics: z.object({
-        totalEvents: z.string().describe('The total number of events generated in a 24-hour-style format, e.g., "23,518". This should be a high number to reflect the attack.'),
-        activeThreats: z.string().describe('The number of active threats detected, e.g., "47".'),
-        blockedAttacks: z.string().describe('The number of attacks automatically blocked, e.g., "1,247".'),
+        totalEvents: z.number().describe('The total number of events generated as an integer. This should be a high number to reflect the attack.'),
+        activeThreats: z.number().describe('The number of active threats detected as an integer.'),
+        blockedAttacks: z.number().describe('The number of attacks automatically blocked as an integer.'),
         detectionAccuracy: z.string().describe('The detection accuracy of the system as a percentage, e.g., "99.7%".'),
     }).describe('Key metrics for the dashboard, reflecting the impact of the attack.'),
     topProcesses: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "process.exe" names and their counts.'),
@@ -78,7 +78,7 @@ First, create a detailed threat analysis for this attack. This analysis must inc
 
 Next, based on this attack, generate a list of 20 to 30 diverse security events. These events must be a direct consequence of the attack. For example, a DDoS attack would generate events related to traffic spikes, resource exhaustion, and firewall blocks. A credential stuffing attack would generate many failed login attempts followed by a potential successful but anomalous login.
 
-Then, generate plausible dashboard metrics that reflect the scale and nature of the attack. The metrics should tell a story consistent with the generated events and the analysis. Ensure the numbers are high to reflect a serious incident.
+Then, generate plausible dashboard metrics that reflect the scale and nature of the attack. The metrics should tell a story consistent with the generated events and the analysis. Ensure the numbers are high to reflect a serious incident. These must be integers.
 
 Finally, generate data for the following charts based on the simulated attack:
 - A list of the top 10 most frequent "process.exe" names and their counts.

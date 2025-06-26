@@ -6,9 +6,9 @@ import type { SimulateAttackOutput, SecurityEvent, ChartDataPoint, AttackAnalysi
 import { useToast } from '@/hooks/use-toast';
 
 interface AttackMetrics {
-    totalEvents: string;
-    activeThreats: string;
-    blockedAttacks: string;
+    totalEvents: number;
+    activeThreats: number;
+    blockedAttacks: number;
     detectionAccuracy: string;
 }
 
