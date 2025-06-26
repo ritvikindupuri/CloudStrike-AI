@@ -13,13 +13,13 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: string, nameKey: string }) => (
     <ResponsiveContainer width="100%" height="100%">
         <ChartContainer config={{}} className="h-full w-full">
-            <BarChart data={data} layout="vertical" margin={{ left: 10, right: 10, top: 10, bottom: 10 }}>
+            <BarChart data={data} layout="vertical" margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
                 <Tooltip
                     cursor={{ fill: 'hsl(var(--accent))' }}
                     content={<ChartTooltipContent hideLabel />}
                 />
                 <XAxis type="number" dataKey={dataKey} hide />
-                <YAxis type="category" dataKey={nameKey} width={80} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
+                <YAxis type="category" dataKey={nameKey} width={130} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
                 <Bar dataKey={dataKey} fill="hsl(var(--primary))" radius={4} barSize={12} />
             </BarChart>
         </ChartContainer>
