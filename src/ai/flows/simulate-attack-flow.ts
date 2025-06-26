@@ -36,7 +36,7 @@ const CloudResourceSchema = z.object({
 export type CloudResource = z.infer<typeof CloudResourceSchema>;
 
 const ChartDataPointSchema = z.object({
-    name: z.string().describe('The name of the entity (e.g., process name, event name, IP address).'),
+    name: z.string().describe('The name of the entity (e.g., process name, event name).'),
     count: z.number().describe('The number of occurrences.'),
 });
 export type ChartDataPoint = z.infer<typeof ChartDataPointSchema>;
@@ -62,7 +62,6 @@ const SimulateAttackOutputSchema = z.object({
     affectedResources: z.array(CloudResourceSchema).describe('A list of 5-10 specific cloud resources that would be affected by this script, including their provider and status.'),
     topProcesses: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "process.exe" names and their counts that would result from this script.'),
     topEvents: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "event.exe" names and their counts that would result from this script.'),
-    botConnections: z.array(ChartDataPointSchema).describe('A list of the top 5 bot IP addresses and their connection counts that would result from this script.'),
 });
 export type SimulateAttackOutput = z.infer<typeof SimulateAttackOutputSchema>;
 
@@ -90,7 +89,7 @@ Based on your analysis of this script, generate a complete simulation output. Th
 3.  **Affected Cloud Resources**: A list of 5 to 10 specific, realistically named cloud resources that would be directly affected by the script's execution. Assign a relevant security status to each.
 4.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment. When possible, make the event descriptions specific and reference relevant cybersecurity frameworks like MITRE ATT&CK (e.g., 'T1059.001: PowerShell Execution' or 'Data Exfiltration via C2 Channel').
 5.  **Dashboard Metrics**: Plausible metrics (total events, active threats, etc.) reflecting the script's impact. The numbers should be high integers to reflect a serious incident.
-6.  **Chart Data**: Top processes, events, and connections that would be observed as a result of the script's execution.
+6.  **Chart Data**: Top processes and events that would be observed as a result of the script's execution.
 
 Provide the entire output in the specified JSON format.
 `,

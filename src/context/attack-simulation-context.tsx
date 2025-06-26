@@ -17,7 +17,6 @@ interface AttackMetrics {
 export interface ChartData {
     topProcesses: ChartDataPoint[];
     topEvents: ChartDataPoint[];
-    botConnections: ChartDataPoint[];
 }
 
 interface AttackSimulationState {
@@ -65,7 +64,6 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
             setChartData({
                 topProcesses: result.topProcesses,
                 topEvents: result.topEvents,
-                botConnections: result.botConnections
             });
 
             toast({

@@ -83,7 +83,6 @@ export function Dashboard() {
     const analysisCards = [
         { title: "Top 10 Process.exe", iconBg: "bg-blue-500", data: chartData?.topProcesses, nameKey: "name", dataKey: "count" },
         { title: "Top 10 event.exe", iconBg: "bg-emerald-500", data: chartData?.topEvents, nameKey: "name", dataKey: "count" },
-        { title: "Top 5 BOT connections", iconBg: "bg-violet-500", data: chartData?.botConnections, nameKey: "name", dataKey: "count" },
     ];
 
 
@@ -227,7 +226,7 @@ export function Dashboard() {
                         </Card>
                     ))}
                 </div>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2">
                     {analysisCards.map((card) => (
                          <Card key={card.title} className="shadow-sm">
                             <CardHeader className="flex flex-row items-center gap-3 space-y-0">
