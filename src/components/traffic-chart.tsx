@@ -1,92 +1,75 @@
 'use client';
 
-import { Line, LineChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
-import { BarChart } from 'lucide-react';
+import { useState } from 'react';
+import type { AnalyzeAttackRiskOutput } from '@/ai/flows/analyze-attack-risk';
+import { runAttackAnalysis } from '@/lib/actions';
+import { useToast } from '@/hooks/use-toast';
+import { AttackSimulator } from '@/components/attack-simulator';
+import { RiskAnalysis } from '@/components/risk-analysis';
+import { SimulationHistory } from '@/components/simulation-history';
 
-interface TrafficChartProps {
-  data: any[];
+export interface SimulationRecord {
+  id: string;
+  timestamp: string;
+  attackType: string;
+  attackIntensity: number;
+  riskScore: number;
 }
 
-const chartConfig = {
-  traffic: {
-    label: "Traffic (PPS)",
-    color: "hsl(var(--primary))",
-  },
-} satisfies ChartConfig;
+export function Dashboard() {
+  const [simulationState, setSimulationState] = useState<'idle' | 'running' | 'finished'>('idle');
+  const [analysisResult, setAnalysisResult] = useState<AnalyzeAttackRiskOutput | null>(null);
+  const [simulationHistory, setSimulationHistory] = useState<SimulationRecord[]>([]);
+  const { toast } = useToast();
 
-export function generateNormalData() {
-  return Array.from({ length: 30 }, (_, i) => ({
-    time: `${i}s`,
-    traffic: Math.floor(Math.random() * (200 - 100 + 1) + 100),
-  }));
-}
+  const handleStartSimulation = async (attackType: string, attackIntensity: number) => {
+    setSimulationState('running');
+    setAnalysisResult(null);
 
-export function generateAttackData(intensity: number) {
-    const data = [];
-    const highPoint = 1500 + (intensity * 15); // Scale attack traffic with intensity
-    const lowPoint = 1000 + (intensity * 10);
-    for (let i = 0; i < 30; i++) {
-        let traffic;
-        if (i < 5) {
-            traffic = Math.floor(Math.random() * (200 - 100 + 1) + 100);
-        } else if (i < 25) {
-            traffic = Math.floor(Math.random() * (highPoint - lowPoint + 1) + lowPoint);
-        } else {
-            traffic = Math.floor(Math.random() * (200 - 100 + 1) + 100);
-        }
-        data.push({ time: `${i}s`, traffic });
+    try {
+      const result = await runAttackAnalysis({
+        attackType,
+        attackIntensity,
+      });
+
+      setAnalysisResult(result);
+      
+      const newRecord: SimulationRecord = {
+        id: new Date().toISOString(),
+        timestamp: new Date().toLocaleString(),
+        attackType,
+        attackIntensity,
+        riskScore: result.riskScore,
+      };
+      setSimulationHistory(prev => [newRecord, ...prev]);
+
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to analyze the attack risk. Please try again.',
+      });
+    } finally {
+      setSimulationState('finished');
     }
-    return data;
-}
+  };
 
-export function TrafficChart({ data }: TrafficChartProps) {
+  const handleReset = () => {
+    setSimulationState('idle');
+    setAnalysisResult(null);
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-            <BarChart className="text-primary"/>
-            Real-Time Network Traffic
-        </CardTitle>
-        <CardDescription>Visualization of network packets per second (simulated).</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[300px] w-full">
-            <ChartContainer config={chartConfig} className="h-full w-full">
-                <LineChart
-                    accessibilityLayer
-                    data={data}
-                    margin={{
-                        left: 12,
-                        right: 12,
-                    }}
-                >
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                        dataKey="time"
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                    />
-                    <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        domain={['auto', 'auto']}
-                    />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                    <Line
-                        dataKey="traffic"
-                        type="monotone"
-                        stroke="var(--color-traffic)"
-                        strokeWidth={2}
-                        dot={false}
-                    />
-                </LineChart>
-            </ChartContainer>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid gap-8 grid-cols-1 mx-auto max-w-3xl w-full">
+        <AttackSimulator
+          onStartSimulation={handleStartSimulation}
+          onReset={handleReset}
+          isLoading={simulationState === 'running'}
+          isFinished={simulationState === 'finished'}
+        />
+        <RiskAnalysis result={analysisResult} isLoading={simulationState === 'running'} />
+        <SimulationHistory history={simulationHistory} />
+    </div>
   );
 }

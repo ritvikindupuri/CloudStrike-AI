@@ -61,19 +61,15 @@ export function Dashboard() {
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
-      <div className="space-y-8">
+    <div className="grid gap-8 grid-cols-1 mx-auto max-w-3xl w-full">
         <AttackSimulator
           onStartSimulation={handleStartSimulation}
           onReset={handleReset}
           isLoading={simulationState === 'running'}
           isFinished={simulationState === 'finished'}
         />
-      </div>
-      <div className="space-y-8">
         <RiskAnalysis result={analysisResult} isLoading={simulationState === 'running'} />
         <SimulationHistory history={simulationHistory} />
-      </div>
     </div>
   );
 }
