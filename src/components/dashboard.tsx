@@ -83,9 +83,9 @@ export function Dashboard() {
     };
     
     React.useEffect(() => {
-        if (isTestingDefense && defenseResult?.interactionLog) {
-            setIsTestingDefense(false);
-            
+        if (defenseResult?.interactionLog && defenseResult.interactionLog.length > 0) {
+            setIsTestingDefense(false); // Hide the loader now that we have data
+
             let i = 0;
             const intervalId = setInterval(() => {
                 if (i < defenseResult.interactionLog.length) {
@@ -94,11 +94,11 @@ export function Dashboard() {
                 } else {
                     clearInterval(intervalId);
                 }
-            }, 750); 
+            }, 750);
 
             return () => clearInterval(intervalId);
         }
-    }, [defenseResult, isTestingDefense]);
+    }, [defenseResult]);
 
     const stats = metrics ? [
       {
@@ -396,7 +396,7 @@ export function Dashboard() {
                                                 </p>
                                             </div>
                                         ))}
-                                         {displayedLog.length > 0 && displayedLog.length < defenseResult.interactionLog.length && (
+                                         {displayedLog.length > 0 && defenseResult.interactionLog && displayedLog.length < defenseResult.interactionLog.length && (
                                             <div className="flex items-center">
                                                 <Loader2 className="h-3 w-3 animate-spin mr-2" />
                                                 <span>Analyzing...</span>
