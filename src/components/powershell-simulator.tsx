@@ -19,20 +19,13 @@ const samplePrompts = [
 export function PowerShellSimulator() {
     const { runAttack, loading: isSimulating } = useAttackSimulation();
     const [generationPrompt, setGenerationPrompt] = useState("");
-    const [scriptContent, setScriptContent] = useState(
-`# The script to be simulated will appear here.
-# You can:
-# 1. Use the AI generator below to create a cloud-native attack script.
-# 2. Type or paste your own script directly into this editor.
-#
-# When ready, click "Run Simulation".`
-    );
+    const [scriptContent, setScriptContent] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
 
     const { toast } = useToast();
 
     const handleRunSimulation = () => {
-        if (!scriptContent.trim() || scriptContent.startsWith('# The script to be simulated')) {
+        if (!scriptContent.trim()) {
             toast({
                 variant: 'destructive',
                 title: 'Error',
@@ -92,8 +85,12 @@ export function PowerShellSimulator() {
                 
                 {/* Terminal Body */}
                 <div className="p-4 flex flex-col flex-grow">
+                    <label htmlFor="script-editor" className="text-xs text-gray-400 uppercase tracking-wider mb-2">
+                        Script Editor (You can paste your own script directly here)
+                    </label>
                     <Textarea 
-                        placeholder="Your attack script goes here..."
+                        id="script-editor"
+                        placeholder={`# Paste your own script here, or use the AI generator below.\n# Example: Get-S3Object -BucketName "public-bucket" -Key "documents/secret.txt"`}
                         className="flex-grow w-full bg-transparent border-0 rounded-none text-green-400 font-mono text-sm resize-none focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
                         value={scriptContent}
                         onChange={(e) => setScriptContent(e.target.value)}
@@ -104,9 +101,6 @@ export function PowerShellSimulator() {
                         <div>
                              <h3 className="text-base font-semibold text-gray-300 mb-3">1. Provide Attack Script</h3>
                              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                                <p className="text-sm text-gray-400 mb-4">
-                                    The script in the editor above will be used for the simulation. You can either generate one with AI, or write/paste your own directly into the editor.
-                                </p>
                                 <label className="text-sm font-medium text-gray-300 block mb-2">Generate Script with AI</label>
                                 <form onSubmit={handleGenerateScript} className="space-y-3">
                                     <div className="flex items-center gap-2">
