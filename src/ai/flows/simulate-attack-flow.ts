@@ -7,6 +7,7 @@
  * - SimulateAttackInput - The input type for the simulateAttack function.
  * - SimulateAttackOutput - The return type for the simulateAttack function.
  * - SecurityEvent - The type for an individual security event.
+ * - CloudResource - The type for an individual cloud resource.
  */
 
 import { ai } from '@/ai/genkit';
@@ -25,6 +26,14 @@ const SecurityEventSchema = z.object({
     status: z.enum(['Investigating', 'Contained', 'Resolved', 'Action Required']).describe('The current status of the event.'),
 });
 export type SecurityEvent = z.infer<typeof SecurityEventSchema>;
+
+const CloudResourceSchema = z.object({
+    name: z.string().describe('A specific, realistic name for the cloud resource, e.g., "web-server-prod-01" or "customer-data-bucket".'),
+    provider: z.enum(['AWS', 'Azure', 'GCP']).describe('The cloud provider for the resource.'),
+    service: z.string().describe('The service type, e.g., "EC2 Instance", "Blob Storage", "Cloud Function".'),
+    status: z.enum(['Compromised', 'Vulnerable', 'Investigating', 'Protected']).describe('The security status of this resource as a result of the attack.'),
+});
+export type CloudResource = z.infer<typeof CloudResourceSchema>;
 
 const ChartDataPointSchema = z.object({
     name: z.string().describe('The name of the entity (e.g., process name, event name, IP address).'),
@@ -49,6 +58,7 @@ const SimulateAttackOutputSchema = z.object({
         blockedAttacks: z.number().describe('The number of attacks automatically blocked as an integer.'),
         detectionAccuracy: z.string().describe('The detection accuracy of the system as a percentage, e.g., "99.7%".'),
     }).describe('Key metrics for the dashboard, reflecting the impact of the attack script.'),
+    affectedResources: z.array(CloudResourceSchema).describe('A list of 5-10 specific cloud resources that would be affected by this script, including their provider and status.'),
     topProcesses: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "process.exe" names and their counts that would result from this script.'),
     topEvents: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "event.exe" names and their counts that would result from this script.'),
     botConnections: z.array(ChartDataPointSchema).describe('A list of the top 5 bot IP addresses and their connection counts that would result from this script.'),
@@ -75,9 +85,10 @@ Script to analyze:
 
 Based on your analysis of this script, generate a complete simulation output. This includes:
 1.  **Threat Analysis**: A detailed analysis including a risk score, executive summary, technical breakdown, and recommended actions. The analysis must be specific to the actions in the script.
-2.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment. When possible, make the event descriptions specific and reference relevant cybersecurity frameworks like MITRE ATT&CK (e.g., 'T1059.001: PowerShell Execution' or 'Data Exfiltration via C2 Channel').
-3.  **Dashboard Metrics**: Plausible metrics (total events, active threats, etc.) reflecting the script's impact. The numbers should be high integers to reflect a serious incident.
-4.  **Chart Data**: Top processes, events, and connections that would be observed as a result of the script's execution.
+2.  **Affected Cloud Resources**: A list of 5 to 10 specific, realistically named cloud resources that would be directly affected by the script's execution. Assign a relevant security status to each.
+3.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment. When possible, make the event descriptions specific and reference relevant cybersecurity frameworks like MITRE ATT&CK (e.g., 'T1059.001: PowerShell Execution' or 'Data Exfiltration via C2 Channel').
+4.  **Dashboard Metrics**: Plausible metrics (total events, active threats, etc.) reflecting the script's impact. The numbers should be high integers to reflect a serious incident.
+5.  **Chart Data**: Top processes, events, and connections that would be observed as a result of the script's execution.
 
 Provide the entire output in the specified JSON format.
 `,

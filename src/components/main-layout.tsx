@@ -4,6 +4,7 @@ import {
     ShieldAlert,
     Terminal,
     BrainCircuit,
+    Cloud,
 } from 'lucide-react';
 import {
     Sidebar,
@@ -24,6 +25,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     const menuItems = [
         { href: '/', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/security-events', label: 'Security Events', icon: ShieldAlert },
+        { href: '/cloud-services', label: 'Cloud Services', icon: Cloud },
         { href: '/powershell-simulator', label: 'Attack Simulator', icon: Terminal },
         { href: '/ml-analysis', label: 'ML Analysis', icon: BrainCircuit },
     ];
