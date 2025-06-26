@@ -100,16 +100,20 @@ export function PowerShellSimulator() {
                     />
 
                     {/* Controls at the bottom */}
-                    <div className="mt-4 border-t border-gray-700 pt-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                             <div>
-                                <label className="text-sm font-medium text-gray-300 block mb-2">1. Get Script: Generate with AI</label>
+                    <div className="mt-4 border-t border-gray-700 pt-4 space-y-8">
+                        <div>
+                             <h3 className="text-base font-semibold text-gray-300 mb-3">1. Provide Attack Script</h3>
+                             <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                                <p className="text-sm text-gray-400 mb-4">
+                                    The script in the editor above will be used for the simulation. You can either generate one with AI, or write/paste your own directly into the editor.
+                                </p>
+                                <label className="text-sm font-medium text-gray-300 block mb-2">Generate Script with AI</label>
                                 <form onSubmit={handleGenerateScript} className="space-y-3">
                                     <div className="flex items-center gap-2">
                                         <Bot className="h-5 w-5 text-blue-400 flex-shrink-0"/>
                                         <Input 
                                             placeholder='Describe a cloud attack...'
-                                            className="flex-1 bg-gray-800 border-gray-700 rounded-md h-9 text-white focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
+                                            className="flex-1 bg-gray-800 border-gray-600 rounded-md h-9 text-white focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
                                             value={generationPrompt}
                                             onChange={(e) => setGenerationPrompt(e.target.value)}
                                             disabled={isGenerating}
@@ -132,20 +136,20 @@ export function PowerShellSimulator() {
                                     </div>
                                 </form>
                              </div>
-                             
-                             <div className="flex flex-col justify-start">
-                                <label className="text-sm font-medium text-gray-300 block mb-2">2. Run Simulation</label>
-                                <Button 
-                                    onClick={handleRunSimulation} 
-                                    disabled={isSimulating || isGenerating}
-                                    size="lg"
-                                    className="bg-primary hover:bg-primary/90 w-full"
-                                >
-                                    {isSimulating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Terminal className="mr-2 h-4 w-4" />}
-                                    {isSimulating ? 'Simulating...' : 'Simulate Script from Editor'}
-                                </Button>
-                                <p className="text-xs text-gray-400 mt-2 text-center">This will analyze the script in the editor above and generate a full impact report.</p>
-                             </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-center">
+                            <h3 className="text-base font-semibold text-gray-300 mb-3">2. Run Simulation</h3>
+                            <Button 
+                                onClick={handleRunSimulation} 
+                                disabled={isSimulating || isGenerating}
+                                size="lg"
+                                className="bg-primary hover:bg-primary/90 w-full max-w-md"
+                            >
+                                {isSimulating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Terminal className="mr-2 h-4 w-4" />}
+                                {isSimulating ? 'Simulating...' : 'Simulate Script from Editor'}
+                            </Button>
+                            <p className="text-xs text-gray-400 mt-2 text-center">This will analyze the script in the editor above and generate a full impact report.</p>
                         </div>
                     </div>
                 </div>
