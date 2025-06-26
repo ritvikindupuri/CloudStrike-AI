@@ -12,13 +12,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AnalyzeAttackRiskInputSchema = z.object({
-  networkTrafficData: z
-    .string()
-    .describe('Network traffic data in a suitable format (e.g., JSON string).'),
   attackType: z.string().describe('Type of the DDoS attack (e.g., SYN flood, UDP flood).'),
   attackIntensity: z
     .number()
-    .describe('Intensity of the DDoS attack (e.g., packets per second).'),
+    .describe('Intensity of the DDoS attack on a scale of 1-100.'),
   otherParameters: z
     .string()
     .optional()
@@ -46,12 +43,12 @@ const analyzeAttackRiskPrompt = ai.definePrompt({
 
   Based on the following information about a simulated DDoS attack, assess the risk and provide a risk score (1-10) along with your reasoning.
 
-  Network Traffic Data: {{{networkTrafficData}}}
   Attack Type: {{{attackType}}}
-  Attack Intensity: {{{attackIntensity}}}
+  Attack Intensity: {{{attackIntensity}}}%
   Other Parameters: {{{otherParameters}}}
 
-  Provide a risk score and detailed reasoning for the score. Focus on the potential impact on network traffic and system stability.
+  The attack intensity is a percentage from 10 to 100.
+  Provide a risk score and detailed reasoning for the score. Focus on the potential impact on system stability.
   Ensure that the risk score is a number between 1 and 10.
 `,
 });

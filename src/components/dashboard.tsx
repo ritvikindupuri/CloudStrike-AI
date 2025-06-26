@@ -5,7 +5,6 @@ import type { AnalyzeAttackRiskOutput } from '@/ai/flows/analyze-attack-risk';
 import { runAttackAnalysis } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { AttackSimulator } from '@/components/attack-simulator';
-import { TrafficChart, generateAttackData, generateNormalData } from '@/components/traffic-chart';
 import { RiskAnalysis } from '@/components/risk-analysis';
 import { SimulationHistory } from '@/components/simulation-history';
 
@@ -19,7 +18,6 @@ export interface SimulationRecord {
 
 export function Dashboard() {
   const [simulationState, setSimulationState] = useState<'idle' | 'running' | 'finished'>('idle');
-  const [trafficData, setTrafficData] = useState(generateNormalData());
   const [analysisResult, setAnalysisResult] = useState<AnalyzeAttackRiskOutput | null>(null);
   const [simulationHistory, setSimulationHistory] = useState<SimulationRecord[]>([]);
   const { toast } = useToast();
@@ -27,15 +25,9 @@ export function Dashboard() {
   const handleStartSimulation = async (attackType: string, attackIntensity: number) => {
     setSimulationState('running');
     setAnalysisResult(null);
-    setTrafficData(generateAttackData(attackIntensity));
 
     try {
       const result = await runAttackAnalysis({
-        networkTrafficData: JSON.stringify({
-            packets_per_second: 1000 * attackIntensity,
-            source_ips: attackIntensity * 50,
-            protocol: attackType.split(' ')[0],
-        }),
         attackType,
         attackIntensity,
       });
@@ -65,20 +57,18 @@ export function Dashboard() {
 
   const handleReset = () => {
     setSimulationState('idle');
-    setTrafficData(generateNormalData());
     setAnalysisResult(null);
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
-      <div className="lg:col-span-2 space-y-8">
+    <div className="grid gap-8 lg:grid-cols-2">
+      <div className="space-y-8">
         <AttackSimulator
           onStartSimulation={handleStartSimulation}
           onReset={handleReset}
           isLoading={simulationState === 'running'}
           isFinished={simulationState === 'finished'}
         />
-        <TrafficChart data={trafficData} />
       </div>
       <div className="space-y-8">
         <RiskAnalysis result={analysisResult} isLoading={simulationState === 'running'} />
