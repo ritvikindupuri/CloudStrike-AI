@@ -21,14 +21,15 @@ export function PowerShellSimulator() {
     const [generationPrompt, setGenerationPrompt] = useState("");
     const [scriptContent, setScriptContent] = useState(
 `# Welcome to the CIDS Attack Simulator!
-# Use the prompt below to ask the AI to generate a cloud-native attack script.
+# This is a fully editable editor. You have two options:
 #
-# Example prompts:
-# - "Create a ransomware simulation for an S3 bucket"
-# - "Generate a script to discover public-facing EC2 instances"
-# - "Simulate credential theft from GCP instance metadata"
+# 1. Generate an attack script with AI:
+#    Use the input field below to describe a cloud-native attack.
 #
-# Once a script is generated, you can modify it and then click "Run Simulation".`
+# 2. Write or paste your own script:
+#    You can type directly into this window or paste any PowerShell/shell script.
+#
+# Once your script is ready, click "Run Simulation" to analyze its impact.`
     );
     const [isGenerating, setIsGenerating] = useState(false);
 
