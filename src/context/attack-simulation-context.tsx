@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { simulateAttack, SimulateAttackOutput, SecurityEvent, ChartDataPoint } from '@/ai/flows/analyze-attack-risk';
+import { simulateAttack, SimulateAttackOutput, SecurityEvent, ChartDataPoint, AttackAnalysis } from '@/ai/flows/simulate-attack-flow';
 import { useToast } from '@/hooks/use-toast';
 
 interface AttackMetrics {
@@ -23,6 +23,7 @@ interface AttackSimulationState {
     events: SecurityEvent[];
     metrics: AttackMetrics | null;
     chartData: ChartData | null;
+    analysis: AttackAnalysis | null;
     runAttack: (attackType: string, description: string) => Promise<void>;
 }
 
@@ -34,6 +35,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
     const [events, setEvents] = useState<SecurityEvent[]>([]);
     const [metrics, setMetrics] = useState<AttackMetrics | null>(null);
     const [chartData, setChartData] = useState<ChartData | null>(null);
+    const [analysis, setAnalysis] = useState<AttackAnalysis | null>(null);
     const { toast } = useToast();
 
     const runAttack = async (attackType: string, description: string) => {
@@ -44,10 +46,12 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         setEvents([]);
         setMetrics(null);
         setChartData(null);
+        setAnalysis(null);
 
         try {
             const result: SimulateAttackOutput = await simulateAttack({ attackType, description });
             
+            setAnalysis(result.analysis);
             setEvents(result.events);
             setMetrics(result.metrics);
             setChartData({
@@ -79,6 +83,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         events,
         metrics,
         chartData,
+        analysis,
         runAttack,
     };
 
