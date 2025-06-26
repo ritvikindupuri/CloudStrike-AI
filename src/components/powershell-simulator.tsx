@@ -171,12 +171,12 @@ export function PowerShellSimulator() {
                                 </form>
                              </div>
 
-                             <div className="flex justify-between items-center gap-4">
+                             <div className="flex flex-wrap gap-4">
                                 <Button 
                                     onClick={handleAnalyzeScript} 
                                     disabled={isAnalyzing || isGenerating || isSimulating || !scriptContent}
                                     variant="outline"
-                                    className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                                    className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white flex-1"
                                 >
                                     {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BrainCircuit className="mr-2 h-4 w-4" />}
                                     {isAnalyzing ? 'Analyzing...' : '2. Analyze Script'}
@@ -184,7 +184,6 @@ export function PowerShellSimulator() {
                                 <Button 
                                     onClick={handleRunSimulation} 
                                     disabled={isSimulating || isGenerating || !scriptContent}
-                                    size="lg"
                                     className="bg-primary hover:bg-primary/90 flex-1"
                                 >
                                     {isSimulating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Terminal className="mr-2 h-4 w-4" />}
