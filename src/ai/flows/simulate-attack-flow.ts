@@ -22,7 +22,7 @@ const SecurityEventSchema = z.object({
     id: z.string().describe('A unique event identifier, e.g., "EVT-001".'),
     timestamp: z.string().describe('The event timestamp in "YYYY-MM-DD HH:mm:ss" format.'),
     severity: z.enum(['Low', 'Medium', 'High', 'Critical']).describe('The severity of the event.'),
-    description: z.string().describe('A concise description of the event.'),
+    description: z.string().describe('A concise description of the event, referencing MITRE ATT&CK techniques where possible (e.g., "T1059.001: PowerShell Execution").'),
     status: z.enum(['Investigating', 'Contained', 'Resolved', 'Action Required']).describe('The current status of the event.'),
 });
 export type SecurityEvent = z.infer<typeof SecurityEventSchema>;
