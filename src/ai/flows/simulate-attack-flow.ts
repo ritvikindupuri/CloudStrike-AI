@@ -46,11 +46,12 @@ const AnalysisSchema = z.object({
     technicalBreakdown: z.string().describe("A detailed technical explanation of the attack vector, observed IOCs (Indicators of Compromise), and system behavior based on the provided script."),
     riskScore: z.number().min(0).max(100).describe("A risk score from 0 (low) to 100 (critical) based on the severity and potential impact of the provided script."),
     recommendedActions: z.array(z.string()).describe("A list of 3-5 concrete, actionable steps the security team should take to mitigate the threat from the provided script."),
+    suggestedCountermeasure: z.string().describe("A PowerShell or shell script that acts as a countermeasure to the attack. This should be a practical script that an administrator could run to help mitigate the threat (e.g., blocking IPs, terminating processes, reverting changes).")
 });
 export type AttackAnalysis = z.infer<typeof AnalysisSchema>;
 
 const SimulateAttackOutputSchema = z.object({
-    analysis: AnalysisSchema.describe("A detailed analysis of the simulated attack, including summaries, risk score, and recommended actions."),
+    analysis: AnalysisSchema.describe("A detailed analysis of the simulated attack, including summaries, risk score, recommended actions, and a countermeasure script."),
     events: z.array(SecurityEventSchema).describe('A list of 20-30 security events that would be generated if this script were executed in a cloud environment.'),
     metrics: z.object({
         totalEvents: z.number().describe('The total number of events generated as an integer. This should be a high number to reflect the attack.'),
@@ -74,7 +75,7 @@ const prompt = ai.definePrompt({
     name: 'simulateAttackPrompt',
     input: { schema: SimulateAttackInputSchema },
     output: { schema: SimulateAttackOutputSchema },
-    prompt: `You are a Cloud Intrusion Detection System (CIDS) simulator. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
+    prompt: `You are a Cloud Intrusion Detection System (CIDS) simulator and a senior security automation engineer. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
 
 First, meticulously analyze the following script to understand its intent, methodology, and potential impact. Determine the specific type of attack it is performing (e.g., Credential Dumping, Data Exfiltration, Port Scanning) and map its actions to the MITRE ATT&CK framework if possible.
 
@@ -85,10 +86,11 @@ Script to analyze:
 
 Based on your analysis of this script, generate a complete simulation output. This includes:
 1.  **Threat Analysis**: A detailed analysis including a risk score, executive summary, technical breakdown, and recommended actions. The analysis must be specific to the actions in the script.
-2.  **Affected Cloud Resources**: A list of 5 to 10 specific, realistically named cloud resources that would be directly affected by the script's execution. Assign a relevant security status to each.
-3.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment. When possible, make the event descriptions specific and reference relevant cybersecurity frameworks like MITRE ATT&CK (e.g., 'T1059.001: PowerShell Execution' or 'Data Exfiltration via C2 Channel').
-4.  **Dashboard Metrics**: Plausible metrics (total events, active threats, etc.) reflecting the script's impact. The numbers should be high integers to reflect a serious incident.
-5.  **Chart Data**: Top processes, events, and connections that would be observed as a result of the script's execution.
+2.  **Suggested Countermeasure**: Write a practical PowerShell or shell script that a security administrator could run to help mitigate the threat. For example, it could block IPs found in the attack, terminate malicious processes, or revert system changes. This must be a functional script.
+3.  **Affected Cloud Resources**: A list of 5 to 10 specific, realistically named cloud resources that would be directly affected by the script's execution. Assign a relevant security status to each.
+4.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment. When possible, make the event descriptions specific and reference relevant cybersecurity frameworks like MITRE ATT&CK (e.g., 'T1059.001: PowerShell Execution' or 'Data Exfiltration via C2 Channel').
+5.  **Dashboard Metrics**: Plausible metrics (total events, active threats, etc.) reflecting the script's impact. The numbers should be high integers to reflect a serious incident.
+6.  **Chart Data**: Top processes, events, and connections that would be observed as a result of the script's execution.
 
 Provide the entire output in the specified JSON format.
 `,

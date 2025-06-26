@@ -1,5 +1,5 @@
 'use client';
-import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -182,9 +182,15 @@ export function Dashboard() {
                                 </ul>
                             </div>
                         </div>
-                        <div>
-                            <h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-muted-foreground" />Technical Breakdown</h4>
-                            <p className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md">{analysis.technicalBreakdown}</p>
+                        <div className="grid md:grid-cols-2 gap-6">
+                             <div>
+                                <h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-muted-foreground" />Technical Breakdown</h4>
+                                <p className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md">{analysis.technicalBreakdown}</p>
+                            </div>
+                             <div>
+                                <h4 className="font-semibold mb-2 flex items-center gap-2"><ShieldBan className="h-4 w-4 text-muted-foreground" />Suggested Countermeasure</h4>
+                                <p className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md">{analysis.suggestedCountermeasure}</p>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
