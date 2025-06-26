@@ -47,6 +47,14 @@ Based on your analysis, provide the following:
 
 Provide the output in the specified JSON format.
 `,
+    config: {
+        safetySettings: [
+            {
+                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                threshold: 'BLOCK_ONLY_HIGH',
+            },
+        ],
+    },
 });
 
 const analyzeScriptFlow = ai.defineFlow(

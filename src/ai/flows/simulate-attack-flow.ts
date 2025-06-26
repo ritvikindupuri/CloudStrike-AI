@@ -94,6 +94,14 @@ Based on your analysis of this script, generate a complete simulation output. Th
 
 Provide the entire output in the specified JSON format.
 `,
+    config: {
+        safetySettings: [
+            {
+                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                threshold: 'BLOCK_ONLY_HIGH',
+            },
+        ],
+    },
 });
 
 const simulateAttackFlow = ai.defineFlow(

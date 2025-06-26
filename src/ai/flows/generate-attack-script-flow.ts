@@ -42,6 +42,14 @@ User Request: "{{{description}}}"
 
 Generate the script that simulates this attack.
 `,
+    config: {
+        safetySettings: [
+            {
+                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                threshold: 'BLOCK_ONLY_HIGH',
+            },
+        ],
+    },
 });
 
 const generateAttackScriptFlow = ai.defineFlow(
