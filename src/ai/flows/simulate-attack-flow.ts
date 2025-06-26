@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI flow to simulate a cyber attack based on a provided script and generate corresponding security events, metrics, and a detailed analysis.
@@ -65,7 +66,7 @@ const prompt = ai.definePrompt({
     output: { schema: SimulateAttackOutputSchema },
     prompt: `You are a Cloud Intrusion Detection System (CIDS) simulator. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
 
-First, meticulously analyze the following script to understand its intent, methodology, and potential impact. Determine the specific type of attack it is performing (e.g., Credential Stuffing, Data Exfiltration, DDoS, Ransomware execution).
+First, meticulously analyze the following script to understand its intent, methodology, and potential impact. Determine the specific type of attack it is performing (e.g., Credential Dumping, Data Exfiltration, Port Scanning) and map its actions to the MITRE ATT&CK framework if possible.
 
 Script to analyze:
 \`\`\`
@@ -74,7 +75,7 @@ Script to analyze:
 
 Based on your analysis of this script, generate a complete simulation output. This includes:
 1.  **Threat Analysis**: A detailed analysis including a risk score, executive summary, technical breakdown, and recommended actions. The analysis must be specific to the actions in the script.
-2.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment.
+2.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment. When possible, make the event descriptions specific and reference relevant cybersecurity frameworks like MITRE ATT&CK (e.g., 'T1059.001: PowerShell Execution' or 'Data Exfiltration via C2 Channel').
 3.  **Dashboard Metrics**: Plausible metrics (total events, active threats, etc.) reflecting the script's impact. The numbers should be high integers to reflect a serious incident.
 4.  **Chart Data**: Top processes, events, and connections that would be observed as a result of the script's execution.
 
