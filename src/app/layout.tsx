@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { MainLayout } from '@/components/main-layout';
 
 export const metadata: Metadata = {
   title: 'CIDS - Cloud Intrusion Detection',
@@ -22,7 +23,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <SidebarProvider defaultOpen={true}>
-            {children}
+            <MainLayout>{children}</MainLayout>
         </SidebarProvider>
         <Toaster />
       </body>
