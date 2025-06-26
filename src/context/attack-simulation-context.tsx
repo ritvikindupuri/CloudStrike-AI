@@ -27,6 +27,7 @@ interface AttackSimulationState {
     chartData: ChartData | null;
     analysis: AttackAnalysis | null;
     cloudResources: CloudResource[];
+    originalScript: string | null;
     runAttack: (script: string) => Promise<void>;
 }
 
@@ -40,6 +41,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
     const [chartData, setChartData] = useState<ChartData | null>(null);
     const [analysis, setAnalysis] = useState<AttackAnalysis | null>(null);
     const [cloudResources, setCloudResources] = useState<CloudResource[]>([]);
+    const [originalScript, setOriginalScript] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
 
@@ -53,6 +55,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         setChartData(null);
         setAnalysis(null);
         setCloudResources([]);
+        setOriginalScript(script);
 
         try {
             const result: SimulateAttackOutput = await simulateAttack({ script });
@@ -92,6 +95,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         chartData,
         analysis,
         cloudResources,
+        originalScript,
         runAttack,
     };
 

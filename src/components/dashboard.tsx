@@ -1,5 +1,6 @@
 'use client';
-import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan, Copy } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan, Copy, FlaskConical, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,10 @@ import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { useToast } from '@/hooks/use-toast';
+import { analyzeDefense } from '@/ai/flows/analyze-defense-flow';
+import type { AnalyzeDefenseOutput } from '@/ai/flows/analyze-defense-flow';
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Progress } from '@/components/ui/progress';
 
 
 const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: string, nameKey: string }) => (
@@ -28,8 +33,10 @@ const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: stri
 );
 
 export function Dashboard() {
-    const { metrics, simulationRun, loading, chartData, analysis } = useAttackSimulation();
+    const { metrics, simulationRun, loading, chartData, analysis, originalScript } = useAttackSimulation();
     const { toast } = useToast();
+    const [isTestingDefense, setIsTestingDefense] = useState(false);
+    const [defenseResult, setDefenseResult] = useState<AnalyzeDefenseOutput | null>(null);
 
     const getRiskBadgeVariant = (score: number): "destructive" | "secondary" | "outline" => {
         if (score > 75) return 'destructive';
@@ -43,6 +50,35 @@ export function Dashboard() {
             title: "Copied to Clipboard",
             description: `The ${type} has been copied.`,
         });
+    };
+    
+    const handleTestCountermeasure = async () => {
+        if (!originalScript || !analysis?.suggestedCountermeasure) {
+             toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Missing attack or defense script to test.",
+            });
+            return;
+        }
+        setIsTestingDefense(true);
+        setDefenseResult(null);
+        try {
+            const result = await analyzeDefense({
+                attackScript: originalScript,
+                defenseScript: analysis.suggestedCountermeasure
+            });
+            setDefenseResult(result);
+        } catch (error) {
+            console.error("Defense analysis failed:", error);
+            toast({
+                variant: "destructive",
+                title: "Analysis Error",
+                description: "Failed to test the countermeasure.",
+            });
+        } finally {
+            setIsTestingDefense(false);
+        }
     };
 
     const stats = metrics ? [
@@ -199,10 +235,16 @@ export function Dashboard() {
                              <div>
                                 <h4 className="font-semibold mb-2 flex items-center gap-2">
                                     <ShieldBan className="h-4 w-4 text-muted-foreground" />Suggested Countermeasure
-                                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(analysis.suggestedCountermeasure, 'countermeasure script')}>
-                                        <Copy className="h-4 w-4" />
-                                        <span className="sr-only">Copy countermeasure</span>
-                                    </Button>
+                                     <div className="flex items-center gap-1 ml-auto">
+                                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={handleTestCountermeasure} disabled={isTestingDefense}>
+                                            {isTestingDefense ? <Loader2 className="h-4 w-4 animate-spin" /> : <FlaskConical className="h-4 w-4" />}
+                                            <span className="sr-only">Test Countermeasure</span>
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(analysis.suggestedCountermeasure, 'countermeasure script')}>
+                                            <Copy className="h-4 w-4" />
+                                            <span className="sr-only">Copy countermeasure</span>
+                                        </Button>
+                                     </div>
                                 </h4>
                                 <pre className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md overflow-x-auto">{analysis.suggestedCountermeasure}</pre>
                             </div>
@@ -249,6 +291,45 @@ export function Dashboard() {
                 </div>
                 </>
             )}
+             <AlertDialog open={!!defenseResult} onOpenChange={() => setDefenseResult(null)}>
+                <AlertDialogContent className="max-w-2xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <FlaskConical className="h-5 w-5" />
+                            Countermeasure Test Results
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            The AI has analyzed the effectiveness of the suggested defense script against the original attack.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    {defenseResult && (
+                        <div className="space-y-4 pt-2">
+                            <div>
+                                <h4 className="font-semibold mb-1 text-sm">Effectiveness Score</h4>
+                                <Progress value={defenseResult.effectivenessScore} className="w-full h-3" />
+                                <p className="text-right font-bold text-base mt-1">{defenseResult.effectivenessScore}/100</p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-sm">Outcome Summary</h4>
+                                <p className="text-sm text-muted-foreground leading-relaxed">{defenseResult.outcomeSummary}</p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm">
+                                    Improved Countermeasure
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => handleCopy(defenseResult.modifiedDefenseScript, 'improved countermeasure script')}>
+                                        <Copy className="h-4 w-4" />
+                                        <span className="sr-only">Copy improved countermeasure</span>
+                                    </Button>
+                                </h4>
+                                <pre className="text-sm text-muted-foreground font-mono bg-muted p-3 rounded-md overflow-x-auto max-h-48">{defenseResult.modifiedDefenseScript}</pre>
+                            </div>
+                        </div>
+                    )}
+                    <AlertDialogFooter>
+                        <AlertDialogAction onClick={() => setDefenseResult(null)}>Close</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </main>
     )
 }
