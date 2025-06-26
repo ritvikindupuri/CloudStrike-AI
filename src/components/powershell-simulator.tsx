@@ -113,7 +113,7 @@ export function PowerShellSimulator() {
                 </p>
             </header>
             <div className="grid gap-6 lg:grid-cols-2">
-                <div className="font-mono rounded-lg border bg-gray-900 text-white shadow-lg flex flex-col flex-grow">
+                <div className="font-mono rounded-lg border bg-gray-900 text-white shadow-lg flex flex-col">
                     {/* Terminal Header */}
                     <div className="px-4 py-2 border-b border-gray-700 flex items-center flex-shrink-0">
                         <div className="flex space-x-2">
