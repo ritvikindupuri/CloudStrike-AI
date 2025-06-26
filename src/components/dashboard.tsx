@@ -1,5 +1,5 @@
 'use client';
-import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan } from 'lucide-react';
+import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan, Copy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { useToast } from '@/hooks/use-toast';
 
 
 const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: string, nameKey: string }) => (
@@ -28,11 +29,20 @@ const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: stri
 
 export function Dashboard() {
     const { metrics, simulationRun, loading, chartData, analysis } = useAttackSimulation();
+    const { toast } = useToast();
 
     const getRiskBadgeVariant = (score: number): "destructive" | "secondary" | "outline" => {
         if (score > 75) return 'destructive';
         if (score > 40) return 'secondary';
         return 'outline';
+    };
+
+    const handleCopy = (text: string, type: string) => {
+        navigator.clipboard.writeText(text);
+        toast({
+            title: "Copied to Clipboard",
+            description: `The ${type} has been copied.`,
+        });
     };
 
     const stats = metrics ? [
@@ -185,11 +195,17 @@ export function Dashboard() {
                         <div className="grid md:grid-cols-2 gap-6">
                              <div>
                                 <h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-muted-foreground" />Technical Breakdown</h4>
-                                <p className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md">{analysis.technicalBreakdown}</p>
+                                <pre className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md overflow-x-auto">{analysis.technicalBreakdown}</pre>
                             </div>
                              <div>
-                                <h4 className="font-semibold mb-2 flex items-center gap-2"><ShieldBan className="h-4 w-4 text-muted-foreground" />Suggested Countermeasure</h4>
-                                <p className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md">{analysis.suggestedCountermeasure}</p>
+                                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                                    <ShieldBan className="h-4 w-4 text-muted-foreground" />Suggested Countermeasure
+                                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(analysis.suggestedCountermeasure, 'countermeasure script')}>
+                                        <Copy className="h-4 w-4" />
+                                        <span className="sr-only">Copy countermeasure</span>
+                                    </Button>
+                                </h4>
+                                <pre className="text-sm text-muted-foreground leading-relaxed font-mono bg-muted p-3 rounded-md overflow-x-auto">{analysis.suggestedCountermeasure}</pre>
                             </div>
                         </div>
                     </CardContent>
