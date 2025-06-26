@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview An AI flow to simulate a cyber attack and generate corresponding security events, metrics, and a detailed analysis.
+ * @fileOverview An AI flow to simulate a cyber attack based on a provided script and generate corresponding security events, metrics, and a detailed analysis.
  *
  * - simulateAttack - A function that handles the attack simulation process.
  * - SimulateAttackInput - The input type for the simulateAttack function.
@@ -12,8 +12,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 const SimulateAttackInputSchema = z.object({
-  attackType: z.string().describe('The type of attack to simulate (e.g., "DNS Flood", "HTTP Flood", "Credential Stuffing").'),
-  description: z.string().describe('A brief description of the attack being simulated.'),
+  script: z.string().describe('The PowerShell or shell script to simulate.'),
 });
 export type SimulateAttackInput = z.infer<typeof SimulateAttackInputSchema>;
 
@@ -33,25 +32,25 @@ const ChartDataPointSchema = z.object({
 export type ChartDataPoint = z.infer<typeof ChartDataPointSchema>;
 
 const AnalysisSchema = z.object({
-    executiveSummary: z.string().describe("A high-level summary of the attack and its business impact, suitable for a non-technical audience."),
-    technicalBreakdown: z.string().describe("A detailed technical explanation of the attack vector, observed IOCs (Indicators of Compromise), and system behavior."),
-    riskScore: z.number().min(0).max(100).describe("A risk score from 0 (low) to 100 (critical) based on the severity, potential impact, and data generated."),
-    recommendedActions: z.array(z.string()).describe("A list of 3-5 concrete, actionable steps the security team should take to mitigate this threat."),
+    executiveSummary: z.string().describe("A high-level summary of the attack and its business impact, suitable for a non-technical audience. This must be based on the provided script."),
+    technicalBreakdown: z.string().describe("A detailed technical explanation of the attack vector, observed IOCs (Indicators of Compromise), and system behavior based on the provided script."),
+    riskScore: z.number().min(0).max(100).describe("A risk score from 0 (low) to 100 (critical) based on the severity and potential impact of the provided script."),
+    recommendedActions: z.array(z.string()).describe("A list of 3-5 concrete, actionable steps the security team should take to mitigate the threat from the provided script."),
 });
 export type AttackAnalysis = z.infer<typeof AnalysisSchema>;
 
 const SimulateAttackOutputSchema = z.object({
     analysis: AnalysisSchema.describe("A detailed analysis of the simulated attack, including summaries, risk score, and recommended actions."),
-    events: z.array(SecurityEventSchema).describe('A list of 20-30 security events generated as a result of the simulated attack.'),
+    events: z.array(SecurityEventSchema).describe('A list of 20-30 security events that would be generated if this script were executed in a cloud environment.'),
     metrics: z.object({
         totalEvents: z.number().describe('The total number of events generated as an integer. This should be a high number to reflect the attack.'),
         activeThreats: z.number().describe('The number of active threats detected as an integer.'),
         blockedAttacks: z.number().describe('The number of attacks automatically blocked as an integer.'),
         detectionAccuracy: z.string().describe('The detection accuracy of the system as a percentage, e.g., "99.7%".'),
-    }).describe('Key metrics for the dashboard, reflecting the impact of the attack.'),
-    topProcesses: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "process.exe" names and their counts.'),
-    topEvents: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "event.exe" names and their counts.'),
-    botConnections: z.array(ChartDataPointSchema).describe('A list of the top 5 bot IP addresses and their connection counts.'),
+    }).describe('Key metrics for the dashboard, reflecting the impact of the attack script.'),
+    topProcesses: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "process.exe" names and their counts that would result from this script.'),
+    topEvents: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "event.exe" names and their counts that would result from this script.'),
+    botConnections: z.array(ChartDataPointSchema).describe('A list of the top 5 bot IP addresses and their connection counts that would result from this script.'),
 });
 export type SimulateAttackOutput = z.infer<typeof SimulateAttackOutputSchema>;
 
@@ -64,26 +63,20 @@ const prompt = ai.definePrompt({
     name: 'simulateAttackPrompt',
     input: { schema: SimulateAttackInputSchema },
     output: { schema: SimulateAttackOutputSchema },
-    prompt: `You are a Cloud Intrusion Detection System (CIDS) simulator. Your role is to generate realistic security data and a professional threat analysis based on a simulated cyber attack.
+    prompt: `You are a Cloud Intrusion Detection System (CIDS) simulator. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
 
-The user is simulating the following attack:
-- Attack Type: {{{attackType}}}
-- Description: {{{description}}}
+First, meticulously analyze the following script to understand its intent, methodology, and potential impact. Determine the specific type of attack it is performing (e.g., Credential Stuffing, Data Exfiltration, DDoS, Ransomware execution).
 
-First, create a detailed threat analysis for this attack. This analysis must include:
-1.  **riskScore**: An integer risk score from 0 (low) to 100 (critical).
-2.  **executiveSummary**: A concise, non-technical summary for leadership.
-3.  **technicalBreakdown**: A detailed technical explanation for security analysts.
-4.  **recommendedActions**: A list of 3-5 immediate, actionable steps for the security team.
+Script to analyze:
+\`\`\`
+{{{script}}}
+\`\`\`
 
-Next, based on this attack, generate a list of 20 to 30 diverse security events. These events must be a direct consequence of the attack. For example, a DDoS attack would generate events related to traffic spikes, resource exhaustion, and firewall blocks. A credential stuffing attack would generate many failed login attempts followed by a potential successful but anomalous login.
-
-Then, generate plausible dashboard metrics that reflect the scale and nature of the attack. The metrics should tell a story consistent with the generated events and the analysis. Ensure the numbers are high to reflect a serious incident. These must be integers.
-
-Finally, generate data for the following charts based on the simulated attack:
-- A list of the top 10 most frequent "process.exe" names and their counts.
-- A list of the top 10 most frequent "event.exe" names and their counts.
-- A list of the top 5 bot IP addresses (use realistic but fake IPs) and their connection counts.
+Based on your analysis of this script, generate a complete simulation output. This includes:
+1.  **Threat Analysis**: A detailed analysis including a risk score, executive summary, technical breakdown, and recommended actions. The analysis must be specific to the actions in the script.
+2.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment.
+3.  **Dashboard Metrics**: Plausible metrics (total events, active threats, etc.) reflecting the script's impact. The numbers should be high integers to reflect a serious incident.
+4.  **Chart Data**: Top processes, events, and connections that would be observed as a result of the script's execution.
 
 Provide the entire output in the specified JSON format.
 `,

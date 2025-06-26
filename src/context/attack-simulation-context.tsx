@@ -25,7 +25,7 @@ interface AttackSimulationState {
     metrics: AttackMetrics | null;
     chartData: ChartData | null;
     analysis: AttackAnalysis | null;
-    runAttack: (attackType: string, description: string) => Promise<void>;
+    runAttack: (script: string) => Promise<void>;
 }
 
 const AttackSimulationContext = createContext<AttackSimulationState | undefined>(undefined);
@@ -39,7 +39,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
     const [analysis, setAnalysis] = useState<AttackAnalysis | null>(null);
     const { toast } = useToast();
 
-    const runAttack = async (attackType: string, description: string) => {
+    const runAttack = async (script: string) => {
         setLoading(true);
         setSimulationRun(true); 
 
@@ -50,7 +50,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         setAnalysis(null);
 
         try {
-            const result: SimulateAttackOutput = await simulateAttack({ attackType, description });
+            const result: SimulateAttackOutput = await simulateAttack({ script });
             
             setAnalysis(result.analysis);
             setEvents(result.events);
@@ -63,7 +63,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
 
             toast({
                 title: "Simulation Complete",
-                description: `The "${attackType}" simulation has finished generating data.`,
+                description: `The script analysis and data generation is complete.`,
             });
         } catch (error) {
             console.error("Attack simulation failed:", error);

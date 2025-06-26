@@ -1,5 +1,5 @@
-import { AttackSimulator } from '@/components/powershell-simulator';
+import { PowerShellSimulator } from '@/components/powershell-simulator';
 
 export default function AttackSimulatorPage() {
-    return <AttackSimulator />;
+    return <PowerShellSimulator />;
 }
