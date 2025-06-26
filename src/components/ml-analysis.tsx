@@ -19,7 +19,7 @@ export function MLAnalysis() {
                 <CardContent>
                     <div className="grid w-full gap-2">
                         <Textarea placeholder="Paste your PowerShell or shell script here." className="h-48 font-mono" />
-                        <Button>Analyze with ML Model</Button>
+                        <Button disabled>Analyze with ML Model</Button>
                     </div>
                 </CardContent>
             </Card>

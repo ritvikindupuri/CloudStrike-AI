@@ -19,7 +19,7 @@ export function Reports() {
                         Generate and view historical security reports.
                     </p>
                 </div>
-                <Button>Generate New Report</Button>
+                <Button disabled>Generate New Report</Button>
             </header>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {reports.map((report) => (
@@ -35,7 +35,7 @@ export function Reports() {
                     </CardHeader>
                     <CardFooter className="flex justify-between items-center">
                         <span className="text-sm text-muted-foreground">{report.size}</span>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" disabled>
                             <Download className="mr-2 h-4 w-4" />
                             Download
                         </Button>
