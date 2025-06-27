@@ -48,7 +48,7 @@ export function CloudServices() {
             <header>
                 <h1 className="text-3xl font-bold tracking-tight">Cloud Services</h1>
                 <p className="text-muted-foreground">
-                    View the status of cloud assets affected by the scenario analysis.
+                    This is an inventory of all cloud resources affected by the modeled attack scenario. Each card represents a distinct asset, showing its status and why it was impacted.
                 </p>
             </header>
 

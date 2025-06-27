@@ -172,6 +172,10 @@ export function ThreatSandbox() {
                                     </div>
                                 </form>
                              </div>
+                             
+                             <div className="text-xs text-gray-400 px-1 text-center">
+                                Use <span className="font-semibold text-gray-300">'Quick Analysis'</span> for a rapid risk assessment, or <span className="font-semibold text-gray-300">'Run Full Analysis'</span> to model the script's impact across the entire environment.
+                            </div>
 
                              <div className="flex flex-wrap gap-4">
                                 <Button 

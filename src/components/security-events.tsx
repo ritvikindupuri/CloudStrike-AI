@@ -116,7 +116,7 @@ export function SecurityEvents() {
                             <CardTitle>Event Log</CardTitle>
                             <CardDescription>
                                 {analysisRun 
-                                    ? 'A log of the latest security events detected by the system from the scenario analysis.'
+                                    ? 'A detailed log of security events generated from the analysis. Use the filters to search for specific events or refine the view by severity and status.'
                                     : 'No analysis has been run. Run a scenario to see a log of events.'
                                 }
                             </CardDescription>

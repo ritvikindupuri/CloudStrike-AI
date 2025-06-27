@@ -26,7 +26,7 @@ const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: stri
                 />
                 <XAxis type="number" dataKey={dataKey} hide />
                 <YAxis type="category" dataKey={nameKey} width={160} tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-                <Bar dataKey={dataKey} fill="hsl(var(--chart-1))" radius={4} barSize={12}>
+                <Bar dataKey={dataKey} fill="hsl(var(--primary))" radius={4} barSize={12}>
                      <LabelList 
                         dataKey={dataKey} 
                         position="right" 
@@ -323,7 +323,9 @@ export function Dashboard() {
                                 <BarChart3 className="h-5 w-5 text-muted-foreground"/>
                                 Top System Activity
                             </CardTitle>
-                             <CardDescription>Suspicious processes and events from the scenario analysis.</CardDescription>
+                             <CardDescription>
+                                These bar charts illustrate the most frequent processes and events observed during the attack, highlighting the most anomalous activities.
+                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-8 pl-2">
                             <div>
@@ -359,7 +361,9 @@ export function Dashboard() {
                                 <Shield className="h-5 w-5 text-muted-foreground"/>
                                 Affected Resources
                             </CardTitle>
-                            <CardDescription>Most critical assets impacted by the scenario.</CardDescription>
+                            <CardDescription>
+                                A list of the cloud assets most directly impacted by the attack, showing their name, service type, and resulting security status.
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1">
                             {cloudResources.length > 0 ? (
@@ -517,5 +521,6 @@ export function Dashboard() {
     
 
     
+
 
 
