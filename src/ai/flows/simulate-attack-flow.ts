@@ -29,9 +29,12 @@ export type SecurityEvent = z.infer<typeof SecurityEventSchema>;
 
 const CloudResourceSchema = z.object({
     name: z.string().describe('A specific, realistic name for the cloud resource, e.g., "web-server-prod-01" or "customer-data-bucket".'),
+    resourceId: z.string().describe('A realistic but fictional resource identifier, e.g., "i-0a1b2c3d4e5f6g7h8" for an EC2 instance or an ARN for AWS resources.'),
     provider: z.enum(['AWS', 'Azure', 'GCP']).describe('The cloud provider for the resource.'),
     service: z.string().describe('The service type, e.g., "EC2 Instance", "Blob Storage", "Cloud Function".'),
+    region: z.string().describe('The cloud region where the resource is located, e.g., "us-east-1".'),
     status: z.enum(['Compromised', 'Vulnerable', 'Investigating', 'Protected']).describe('The security status of this resource as a result of the attack.'),
+    reasonForStatus: z.string().describe("A brief, single-sentence explanation for the resource's status, directly tied to the attack script's actions.")
 });
 export type CloudResource = z.infer<typeof CloudResourceSchema>;
 
@@ -86,7 +89,7 @@ Script to analyze:
 Based on your analysis of this script, generate a complete simulation output. This includes:
 1.  **Threat Analysis**: A detailed analysis including a risk score, executive summary, technical breakdown, and recommended actions. The analysis must be specific to the actions in the script.
 2.  **Suggested Countermeasure**: Write a practical PowerShell or shell script that a security administrator could run to help mitigate the threat. For example, it could block IPs found in the attack, terminate malicious processes, or revert system changes. This must be a functional script.
-3.  **Affected Cloud Resources**: A list of 5 to 10 specific, realistically named cloud resources that would be directly affected by the script's execution. Assign a relevant security status to each.
+3.  **Affected Cloud Resources**: A list of 5 to 10 specific cloud resources that would be affected. For each resource, provide a realistic but fictional name, resourceId, provider, service, region, status, and a brief **reasonForStatus** explaining why it has that status based on the script's actions.
 4.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment. When possible, make the event descriptions specific and reference relevant cybersecurity frameworks like MITRE ATT&CK (e.g., 'T1059.001: PowerShell Execution' or 'Data Exfiltration via C2 Channel').
 5.  **Dashboard Metrics**: Plausible metrics (total events, active threats, etc.) reflecting the script's impact. The numbers should be high integers to reflect a serious incident.
 6.  **Chart Data**: Top processes and events that would be observed as a result of the script's execution.
