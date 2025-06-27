@@ -344,7 +344,7 @@ export function Dashboard() {
                                         <pre className="text-xs text-muted-foreground font-mono bg-muted p-2 rounded-md overflow-auto h-32 whitespace-pre-wrap">{analysis?.suggestedCountermeasure}</pre>
                                     </div>
                                 </div>
-                                <div className="flex-1 flex flex-col overflow-hidden">
+                                <div className="flex-1 flex flex-col overflow-hidden min-h-0">
                                     <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm flex-shrink-0">
                                         Improved Countermeasure
                                         <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => handleCopy(defenseResult.modifiedDefenseScript, 'improved countermeasure script')}>
@@ -366,7 +366,7 @@ export function Dashboard() {
                                     <p className="text-right font-bold text-base mt-1">{defenseResult.effectivenessScore}/100</p>
                                 </div>
 
-                                <div className="flex-1 flex flex-col overflow-hidden">
+                                <div className="flex-1 flex flex-col overflow-hidden min-h-0">
                                     <h4 className="font-semibold text-sm flex-shrink-0 mb-2">Live Interaction Log</h4>
                                     <div className="p-3 bg-gray-900 text-white rounded-md font-mono text-xs overflow-y-auto flex-1">
                                         {displayedLog.map((log) => (
