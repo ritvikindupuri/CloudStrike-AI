@@ -37,7 +37,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                        <Logo className="text-white h-9 w-9"/>
                        <div className="flex flex-col">
                         <h1 className="text-lg font-semibold text-white tracking-wider">CIDS</h1>
-                        <p className="text-[10px] uppercase text-slate-400 tracking-wider">AI Security Simulator</p>
+                        <span className="text-[10px] uppercase text-slate-400 tracking-wider">AI Security Simulator</span>
                        </div>
                     </div>
                 </SidebarHeader>
