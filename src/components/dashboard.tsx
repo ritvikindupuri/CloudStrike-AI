@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAttackSimulation } from '@/context/attack-simulation-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, LabelList, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeInteraction } from '@/ai/flows/analyze-interaction-flow';
@@ -20,14 +20,23 @@ import { Progress } from '@/components/ui/progress';
 const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: string, nameKey: string }) => (
     <ResponsiveContainer width="100%" height="100%">
         <ChartContainer config={{}} className="h-full w-full">
-            <BarChart data={data} layout="vertical" margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
+            <BarChart data={data} layout="vertical" margin={{ left: 0, right: 40, top: 5, bottom: 5 }}>
                 <RechartsTooltip
                     cursor={{ fill: 'hsl(var(--accent))' }}
                     content={<ChartTooltipContent hideLabel />}
                 />
                 <XAxis type="number" dataKey={dataKey} hide />
-                <YAxis type="category" dataKey={nameKey} width={180} tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-                <Bar dataKey={dataKey} fill="hsl(var(--primary))" radius={4} barSize={12} />
+                <YAxis type="category" dataKey={nameKey} width={160} tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
+                <Bar dataKey={dataKey} fill="hsl(var(--primary))" radius={4} barSize={12}>
+                     <LabelList 
+                        dataKey={dataKey} 
+                        position="right" 
+                        offset={8} 
+                        className="fill-foreground font-medium" 
+                        fontSize={10} 
+                        formatter={(value: number) => value.toLocaleString()}
+                    />
+                </Bar>
             </BarChart>
         </ChartContainer>
     </ResponsiveContainer>
@@ -313,7 +322,7 @@ export function Dashboard() {
                             <div className={`rounded-lg p-2 bg-blue-500`}>
                                 <BarChart3 className="h-5 w-5 text-white" />
                             </div>
-                            <CardTitle className="text-base font-semibold">Top 10 Process.exe</CardTitle>
+                            <CardTitle className="text-base font-semibold">Top Suspicious Processes</CardTitle>
                         </CardHeader>
                         <CardContent className="h-64">
                             {chartData?.topProcesses && chartData.topProcesses.length > 0 ? (
@@ -330,7 +339,7 @@ export function Dashboard() {
                             <div className={`rounded-lg p-2 bg-emerald-500`}>
                                 <BarChart3 className="h-5 w-5 text-white" />
                             </div>
-                            <CardTitle className="text-base font-semibold">Top 10 event.exe</CardTitle>
+                            <CardTitle className="text-base font-semibold">Top Generated Events</CardTitle>
                         </CardHeader>
                         <CardContent className="h-64">
                             {chartData?.topEvents && chartData.topEvents.length > 0 ? (
@@ -490,5 +499,3 @@ export function Dashboard() {
         </main>
     )
 }
-
-    
