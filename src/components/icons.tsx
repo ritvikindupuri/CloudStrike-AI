@@ -18,7 +18,7 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
       {/* Shield Outline */}
       <path d="M12 2L3 5v6c0 5.6 3.8 10.7 9 12 5.2-1.3 9-6.4 9-12V5l-9-3z" />
       {/* Inner Circuit */}
-      <path d="M12 12m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
+      <circle cx="12" cy="12" r="1.5" />
       <path d="M12 10.5V9" />
       <path d="M12 15v-1.5" />
       <path d="M14.5 12.5l1.5-1" />
