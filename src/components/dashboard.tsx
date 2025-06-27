@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAttackSimulation } from '@/context/attack-simulation-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { BarChart, Bar, XAxis, YAxis, LabelList, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, LabelList, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeInteraction } from '@/ai/flows/analyze-interaction-flow';
@@ -16,18 +16,28 @@ import type { AnalyzeInteractionOutput, InteractionStep } from '@/ai/flows/analy
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Progress } from '@/components/ui/progress';
 
+const CHART_COLORS = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-4))',
+    'hsl(var(--chart-5))',
+];
 
 const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: string, nameKey: string }) => (
     <ResponsiveContainer width="100%" height="100%">
         <ChartContainer config={{}} className="h-full w-full">
             <BarChart data={data} layout="vertical" margin={{ left: 0, right: 40, top: 5, bottom: 5 }}>
                 <RechartsTooltip
-                    cursor={{ fill: 'hsl(var(--accent))' }}
+                    cursor={{ fill: 'hsl(var(--accent) / 0.2)' }}
                     content={<ChartTooltipContent hideLabel />}
                 />
                 <XAxis type="number" dataKey={dataKey} hide />
                 <YAxis type="category" dataKey={nameKey} width={160} tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-                <Bar dataKey={dataKey} fill="hsl(var(--primary))" radius={4} barSize={12}>
+                <Bar dataKey={dataKey} radius={4} barSize={12}>
+                    {data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                    ))}
                      <LabelList 
                         dataKey={dataKey} 
                         position="right" 
