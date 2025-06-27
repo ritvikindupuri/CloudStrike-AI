@@ -41,9 +41,9 @@ export function PowerShellSimulator() {
         runAttack(scriptContent);
     };
 
-    const handleGenerateScript = async (e?: React.FormEvent) => {
+    const handleGenerateScript = async (promptToGenerate: string, e?: React.FormEvent) => {
         e?.preventDefault();
-        if (!generationPrompt.trim()) {
+        if (!promptToGenerate.trim()) {
             toast({
                 variant: 'destructive',
                 title: 'Error',
@@ -52,10 +52,11 @@ export function PowerShellSimulator() {
             return;
         }
         setIsGenerating(true);
+        setGenerationPrompt(promptToGenerate);
         setAnalysisResult(null);
-        setScriptContent(`# Generating script for: "${generationPrompt}"...`);
+        setScriptContent(`# Generating script for: "${promptToGenerate}"...`);
         try {
-            const result = await generateAttackScript({ description: generationPrompt });
+            const result = await generateAttackScript({ description: promptToGenerate });
             setScriptContent(result.script.trim());
         } catch (error) {
             console.error("Script generation failed:", error);
@@ -141,7 +142,7 @@ export function PowerShellSimulator() {
                         <div className="mt-4 border-t border-gray-700 pt-4 space-y-4">
                              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                                 <label className="text-sm font-medium text-gray-300 block mb-2">1. Generate Script with AI (Optional)</label>
-                                <form onSubmit={handleGenerateScript} className="space-y-3">
+                                <form onSubmit={(e) => handleGenerateScript(generationPrompt, e)} className="space-y-3">
                                     <div className="flex items-center gap-2">
                                         <Bot className="h-5 w-5 text-blue-400 flex-shrink-0"/>
                                         <Input 
@@ -161,7 +162,7 @@ export function PowerShellSimulator() {
                                                 key={prompt}
                                                 type="button"
                                                 className="text-xs text-gray-300 bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded-md transition-colors disabled:opacity-50"
-                                                onClick={() => setGenerationPrompt(prompt)}
+                                                onClick={() => handleGenerateScript(prompt)}
                                                 disabled={isGenerating || isSimulating}
                                             >
                                                 {prompt}
