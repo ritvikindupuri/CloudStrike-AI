@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import { simulateAttack } from '@/ai/flows/simulate-attack-flow';
 import type { SimulateAttackOutput, SecurityEvent, ChartDataPoint, AttackAnalysis, CloudResource } from '@/ai/flows/simulate-attack-flow';
+import { analyzeInteraction } from '@/ai/flows/analyze-interaction-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -59,15 +60,41 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         setOriginalScript(script);
 
         try {
-            const result: SimulateAttackOutput = await simulateAttack({ script });
+            // Step 1: Get the main simulation data, including the AI-suggested countermeasure
+            const simResult: SimulateAttackOutput = await simulateAttack({ script });
+            let finalMetrics = simResult.metrics;
+
+            // Step 2: If a countermeasure was suggested, run a second simulation to see how effective it is.
+            if (simResult.analysis?.suggestedCountermeasure) {
+                try {
+                    const interactionResult = await analyzeInteraction({
+                        attackScript: script,
+                        defenseScript: simResult.analysis.suggestedCountermeasure,
+                    });
+                    
+                    // Step 3: Recalculate the 'blockedAttacks' metric based on the effectiveness score.
+                    const realisticBlockedCount = Math.round(
+                        (simResult.metrics.totalEvents / 10) * (interactionResult.effectivenessScore / 100)
+                    );
+                    
+                    finalMetrics = {
+                        ...simResult.metrics,
+                        blockedAttacks: realisticBlockedCount,
+                    };
+
+                } catch (interactionError) {
+                    console.error("Failed to run interaction analysis, using default metrics:", interactionError);
+                    // If the interaction analysis fails, we can just fall back to the originally generated metrics.
+                }
+            }
             
-            setAnalysis(result.analysis);
-            setEvents(result.events);
-            setMetrics(result.metrics);
-            setCloudResources(result.affectedResources);
+            setAnalysis(simResult.analysis);
+            setEvents(simResult.events);
+            setMetrics(finalMetrics);
+            setCloudResources(simResult.affectedResources);
             setChartData({
-                topProcesses: result.topProcesses,
-                topEvents: result.topEvents,
+                topProcesses: simResult.topProcesses,
+                topEvents: simResult.topEvents,
             });
 
             toast({
