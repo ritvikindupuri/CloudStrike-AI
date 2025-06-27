@@ -1,17 +1,13 @@
+NetGuard AI is a full-stack, AI-powered Threat Modeling Sandbox designed for modern security teams. It leverages generative AI (powered by Google's Genkit) to provide a dynamic, interactive "purple team" experience, allowing users to safely simulate, analyze, and defend against complex cloud-native attacks.
 
-Thrilled to share my latest project: **NetGuard AI**, an AI-powered Threat Modeling Sandbox! 🛡️🤖
+**Key Features:**
 
-In cybersecurity, staying ahead of threats means thinking like an attacker. But how do you safely test your defenses against novel, complex attacks?
+*   **AI-Powered Scenario Generation:** Users can describe an attack in plain English, and the AI will generate a realistic, simulated attack script targeting cloud services (AWS, Azure, GCP).
 
-NetGuard AI is my answer. It's a full-stack Next.js application that uses generative AI (powered by Google's Genkit) to create a dynamic "purple team" experience.
+*   **Dynamic Threat Modeling:** The sandbox analyzes the generated script to model its full impact, producing a rich dataset including security events, a professional threat analysis with a risk score, and a list of affected cloud resources.
 
-Here’s how it works:
-1.  **Describe an attack** in plain English. The AI generates a simulated attack script.
-2.  **Run the script** in the sandbox. The AI models the entire attack, generating security events, identifying affected cloud resources, and creating a professional threat analysis.
-3.  **Get a defense!** The AI writes a countermeasure script and then tests it against the original attack, giving you an effectiveness score and a step-by-step interaction log.
+*   **Automated Defense & Engagement Analysis:** The AI not only generates a defensive countermeasure script but also simulates an engagement between the attack and defense, providing a detailed interaction log and a quantitative "Effectiveness Score" to validate the response strategy.
 
-This isn't just a static analysis tool; it's an interactive training ground for security professionals to understand attack vectors and validate their response strategies in a controlled environment.
+NetGuard AI moves beyond static analysis, offering an interactive training ground for security professionals to proactively test playbooks, understand novel attack vectors, and strengthen their defenses in a controlled, AI-driven environment.
 
-Check out the project on GitHub: [Link to your GitHub repo]
-
-#NextJS #React #GenAI #Cybersecurity #Genkit #GoogleAI #FullStack #JavaScript #Portfolio
+**Tech Stack:** Next.js, React, TypeScript, Tailwind CSS, ShadCN UI, Google Genkit, Google AI Platform.
