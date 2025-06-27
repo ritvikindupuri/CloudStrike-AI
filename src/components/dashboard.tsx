@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan, Copy, FlaskConical, Loader2 } from 'lucide-react';
+import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan, Copy, FlaskConical, Loader2, Terminal } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -187,13 +187,22 @@ export function Dashboard() {
             </header>
             
             {!simulationRun && !loading && (
-                <Card className="md:col-span-2 lg:col-span-4 bg-blue-50 border-blue-200 shadow-none">
-                    <CardContent className="p-6 flex flex-col items-center justify-center text-center gap-4 min-h-[400px]">
-                        <Info className="h-12 w-12 text-blue-600 shrink-0"/>
-                        <div>
-                             <h2 className="text-xl font-semibold text-blue-800">Welcome to the CIDS Demo</h2>
-                            <p className="text-blue-700 mt-1">This is an interactive Cloud Intrusion Detection System powered by AI.
-                            <br /> Go to the <Link href="/powershell-simulator" className="font-medium underline">Attack Simulator</Link> to run a scenario and see the dashboard populate with live data.</p>
+                <Card className="md:col-span-2 lg:col-span-4 border-dashed bg-card shadow-none">
+                    <CardContent className="p-6 flex flex-col items-center justify-center text-center gap-6 min-h-[400px]">
+                        <div className="p-4 bg-primary/10 rounded-full border-8 border-primary/5">
+                            <ShieldCheck className="h-16 w-16 text-primary shrink-0"/>
+                        </div>
+                        <div className="max-w-xl">
+                            <h2 className="text-2xl font-bold text-foreground tracking-tight">System Nominal. Awaiting Simulation.</h2>
+                            <p className="text-muted-foreground mt-2 mb-6">
+                                All CIDS sensors are online and the AI analysis engine is ready. Initiate an attack scenario to populate the dashboard with security events, metrics, and threat analysis.
+                            </p>
+                            <Button asChild size="lg" className="font-semibold">
+                                <Link href="/powershell-simulator">
+                                    <Terminal className="mr-2 h-5 w-5" />
+                                    Go to Attack Simulator
+                                </Link>
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>
