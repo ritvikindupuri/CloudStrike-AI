@@ -48,6 +48,7 @@ export function Dashboard() {
     const [isTestingDefense, setIsTestingDefense] = React.useState(false);
     const [defenseResult, setDefenseResult] = React.useState<AnalyzeInteractionOutput | null>(null);
     const [displayedLog, setDisplayedLog] = React.useState<InteractionStep[]>([]);
+    const [logAnimationComplete, setLogAnimationComplete] = React.useState(false);
 
     const resourceStatusData = React.useMemo(() => {
         if (!cloudResources || cloudResources.length === 0) return [];
@@ -104,7 +105,8 @@ export function Dashboard() {
         }
         setIsTestingDefense(true);
         setDefenseResult(null);
-        setDisplayedLog([]); // Clear old log
+        setDisplayedLog([]);
+        setLogAnimationComplete(false);
         try {
             const result = await analyzeInteraction({
                 attackScript: originalScript,
@@ -124,7 +126,7 @@ export function Dashboard() {
     
     React.useEffect(() => {
         if (defenseResult?.interactionLog && defenseResult.interactionLog.length > 0) {
-            setIsTestingDefense(false); // Hide the loader now that we have data
+            setIsTestingDefense(false); 
 
             let i = 0;
             const intervalId = setInterval(() => {
@@ -133,6 +135,7 @@ export function Dashboard() {
                     i++;
                 } else {
                     clearInterval(intervalId);
+                    setLogAnimationComplete(true);
                 }
             }, 750);
 
@@ -395,6 +398,7 @@ export function Dashboard() {
                     setIsTestingDefense(false);
                     setDefenseResult(null);
                     setDisplayedLog([]);
+                    setLogAnimationComplete(false);
                 }
              }}>
                 <AlertDialogContent className="max-w-6xl w-full h-[90vh] flex flex-col">
@@ -442,23 +446,39 @@ export function Dashboard() {
                                 <div className="flex-1 flex flex-col overflow-hidden min-h-0">
                                     <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm flex-shrink-0">
                                         Improved Countermeasure
-                                        <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => handleCopy(defenseResult.modifiedDefenseScript, 'improved countermeasure script')}>
-                                            <Copy className="h-4 w-4" />
-                                            <span className="sr-only">Copy improved countermeasure</span>
-                                        </Button>
+                                        {logAnimationComplete && (
+                                            <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => handleCopy(defenseResult.modifiedDefenseScript, 'improved countermeasure script')}>
+                                                <Copy className="h-4 w-4" />
+                                                <span className="sr-only">Copy improved countermeasure</span>
+                                            </Button>
+                                        )}
                                     </h4>
-                                    <pre className="text-sm text-muted-foreground font-mono bg-muted p-3 rounded-md overflow-auto flex-1 whitespace-pre-wrap">{defenseResult.modifiedDefenseScript}</pre>
+                                    {logAnimationComplete ? (
+                                        <pre className="text-sm text-muted-foreground font-mono bg-muted p-3 rounded-md overflow-auto flex-1 whitespace-pre-wrap">{defenseResult.modifiedDefenseScript}</pre>
+                                    ) : (
+                                        <div className="flex-1 bg-muted rounded-md flex items-center justify-center">
+                                            <p className="text-sm text-muted-foreground p-4 text-center">Generating improved script based on engagement outcome...</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Right Side: Results and Live Log */}
                             <div className="space-y-4 flex flex-col overflow-hidden">
-                                <div className="p-4 bg-muted/50 rounded-lg">
-                                    <h4 className="font-semibold text-sm">Outcome Summary</h4>
-                                    <p className="text-sm text-muted-foreground leading-relaxed mt-1">{defenseResult.outcomeSummary}</p>
-                                    <h4 className="font-semibold mb-1 text-sm mt-3">Effectiveness Score</h4>
-                                    <Progress value={defenseResult.effectivenessScore} className="w-full h-3" />
-                                    <p className="text-right font-bold text-base mt-1">{defenseResult.effectivenessScore}/100</p>
+                                <div className="p-4 bg-muted/50 rounded-lg min-h-[148px] flex flex-col justify-center">
+                                    {logAnimationComplete ? (
+                                        <>
+                                            <h4 className="font-semibold text-sm">Outcome Summary</h4>
+                                            <p className="text-sm text-muted-foreground leading-relaxed mt-1">{defenseResult.outcomeSummary}</p>
+                                            <h4 className="font-semibold mb-1 text-sm mt-3">Effectiveness Score</h4>
+                                            <Progress value={defenseResult.effectivenessScore} className="w-full h-3" />
+                                            <p className="text-right font-bold text-base mt-1">{defenseResult.effectivenessScore}/100</p>
+                                        </>
+                                    ) : (
+                                        <div className="text-center text-muted-foreground">
+                                            <p className="text-sm">Waiting for live simulation to complete...</p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex-1 flex flex-col overflow-hidden min-h-0">
@@ -476,8 +496,8 @@ export function Dashboard() {
                                                 </p>
                                             </div>
                                         ))}
-                                         {displayedLog.length > 0 && defenseResult.interactionLog && displayedLog.length < defenseResult.interactionLog.length && (
-                                            <div className="flex items-center">
+                                         {!logAnimationComplete && defenseResult && (
+                                            <div className="flex items-center text-gray-400">
                                                 <Loader2 className="h-3 w-3 animate-spin mr-2" />
                                                 <span>Analyzing...</span>
                                             </div>
@@ -488,14 +508,11 @@ export function Dashboard() {
                         </div>
                     )}
                     <AlertDialogFooter className="pt-4 flex-shrink-0">
-                        <AlertDialogAction onClick={() => {
-                           setIsTestingDefense(false);
-                           setDefenseResult(null);
-                           setDisplayedLog([]);
-                        }}>Close</AlertDialogAction>
+                        <AlertDialogAction>Close</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
         </main>
     )
-}
+
+    
