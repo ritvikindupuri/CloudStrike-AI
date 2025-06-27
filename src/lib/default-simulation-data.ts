@@ -10,7 +10,8 @@ export const defaultAttackData: SimulateAttackOutput = {
             "Refine WAF rules to more aggressively block traffic with suspicious user-agent strings.",
             "Place the top attacking IP addresses on a temporary blocklist and monitor for further activity.",
             "Review autoscaling group configurations to ensure rapid scaling response to CPU pressure."
-        ]
+        ],
+        suggestedCountermeasure: ""
     },
     events: [
         { id: "EVT-001", timestamp: "2024-07-29 14:30:15", severity: "High", description: "Anomalous spike in inbound HTTP traffic detected on web-lb-01.", status: "Investigating" },
@@ -35,11 +36,12 @@ export const defaultAttackData: SimulateAttackOutput = {
         { id: "EVT-020", timestamp: "2024-07-29 14:40:00", severity: "Low", description: "Inbound HTTP traffic has returned to baseline levels.", status: "Resolved" },
     ],
     metrics: {
-        totalEvents: "31,452",
-        activeThreats: "68",
-        blockedAttacks: "2,912",
+        totalEvents: 31452,
+        activeThreats: 68,
+        blockedAttacks: 2912,
         detectionAccuracy: "99.2%"
     },
+    affectedResources: [],
     topProcesses: [
         { name: "nginx.exe", count: 18432 },
         { name: "waf_agent.exe", count: 9872 },
@@ -64,11 +66,4 @@ export const defaultAttackData: SimulateAttackOutput = {
         { name: "auth_failure.exe", count: 987 },
         { name: "rate_limit.exe", count: 876 },
     ],
-    botConnections: [
-        { name: "198.51.100.15", count: 5432 },
-        { name: "203.0.113.22", count: 4321 },
-        { name: "192.0.2.88", count: 3210 },
-        { name: "198.51.100.40", count: 2109 },
-        { name: "203.0.113.99", count: 1598 },
-    ]
 };
