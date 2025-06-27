@@ -29,6 +29,7 @@ interface AttackSimulationState {
     cloudResources: CloudResource[];
     originalScript: string | null;
     runAttack: (script: string) => Promise<void>;
+    updateEventStatus: (eventId: string, newStatus: 'Contained' | 'Resolved') => void;
 }
 
 const AttackSimulationContext = createContext<AttackSimulationState | undefined>(undefined);
@@ -86,6 +87,14 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
             setLoading(false);
         }
     };
+    
+    const updateEventStatus = (eventId: string, newStatus: 'Contained' | 'Resolved') => {
+        setEvents(prevEvents => 
+            prevEvents.map(event => 
+                event.id === eventId ? { ...event, status: newStatus } : event
+            )
+        );
+    };
 
     const value = {
         simulationRun,
@@ -97,6 +106,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         cloudResources,
         originalScript,
         runAttack,
+        updateEventStatus,
     };
 
     return (
