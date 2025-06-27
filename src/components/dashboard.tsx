@@ -1,15 +1,15 @@
 
 'use client';
 import * as React from 'react';
-import { ArrowUp, CheckCircle, PieChart, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan, Copy, FlaskConical, Loader2, Terminal } from 'lucide-react';
+import { ArrowUp, CheckCircle, Shield, Info, BarChart3, AlertTriangle, FileText, Check, ShieldAlert, ShieldCheck, ShieldBan, Copy, FlaskConical, Loader2, Terminal, ShieldOff, BrainCircuit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAttackSimulation } from '@/context/attack-simulation-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { BarChart, Bar, XAxis, YAxis, LabelList, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { BarChart, Bar, XAxis, YAxis, LabelList, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeInteraction } from '@/ai/flows/analyze-interaction-flow';
 import type { AnalyzeInteractionOutput, InteractionStep } from '@/ai/flows/analyze-interaction-flow';
@@ -42,6 +42,34 @@ const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: stri
     </ResponsiveContainer>
 );
 
+const StatusIcon = ({ status }: { status: string }) => {
+    switch (status) {
+        case 'Compromised':
+            return <ShieldAlert className="h-6 w-6 text-destructive" />;
+        case 'Vulnerable':
+            return <ShieldOff className="h-6 w-6 text-orange-500" />;
+        case 'Investigating':
+            return <BrainCircuit className="h-6 w-6 text-blue-500" />;
+        case 'Protected':
+        default:
+            return <ShieldCheck className="h-6 w-6 text-primary" />;
+    }
+}
+
+const getStatusBadgeVariant = (status: string): "destructive" | "secondary" | "outline" | "default" => {
+    switch (status) {
+        case 'Compromised':
+            return 'destructive';
+        case 'Vulnerable':
+            return 'secondary';
+        case 'Investigating':
+            return 'outline';
+        case 'Protected':
+        default:
+            return 'default';
+    }
+};
+
 export function Dashboard() {
     const { metrics, simulationRun, loading, chartData, analysis, originalScript, cloudResources } = useAttackSimulation();
     const { toast } = useToast();
@@ -49,36 +77,6 @@ export function Dashboard() {
     const [defenseResult, setDefenseResult] = React.useState<AnalyzeInteractionOutput | null>(null);
     const [displayedLog, setDisplayedLog] = React.useState<InteractionStep[]>([]);
     const [logAnimationComplete, setLogAnimationComplete] = React.useState(false);
-
-    const resourceStatusData = React.useMemo(() => {
-        if (!cloudResources || cloudResources.length === 0) return [];
-        
-        const statusCounts = cloudResources.reduce((acc, resource) => {
-            acc[resource.status] = (acc[resource.status] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
-
-        const statusColors: Record<string, string> = {
-            'Compromised': 'hsl(var(--destructive))',
-            'Vulnerable': 'hsl(30 90% 50%)',
-            'Investigating': 'hsl(221 83% 53%)',
-            'Protected': 'hsl(var(--primary))',
-        };
-        
-        return Object.entries(statusCounts).map(([name, value]) => ({
-            name,
-            value,
-            fill: statusColors[name] || 'hsl(var(--muted-foreground))',
-        }));
-    }, [cloudResources]);
-
-     const resourceChartConfig = React.useMemo(() => {
-        if (!resourceStatusData) return {};
-        return {
-            value: { label: 'Resources' },
-            ...Object.fromEntries(resourceStatusData.map(d => [d.name, { label: d.name, color: d.fill }]))
-        }
-    }, [resourceStatusData]);
 
     const getRiskBadgeVariant = (score: number): "destructive" | "secondary" | "outline" => {
         if (score > 75) return 'destructive';
@@ -319,76 +317,78 @@ export function Dashboard() {
                     </CardContent>
                 </Card>
 
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <Card key="top-processes" className="shadow-sm">
-                        <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                            <div className={`rounded-lg p-2 bg-blue-500`}>
-                                <BarChart3 className="h-5 w-5 text-white" />
-                            </div>
-                            <CardTitle className="text-base font-semibold">Top Suspicious Processes</CardTitle>
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <Card className="lg:col-span-1">
+                        <CardHeader>
+                             <CardTitle className="flex items-center gap-2">
+                                <BarChart3 className="h-5 w-5 text-muted-foreground"/>
+                                Top System Activity
+                            </CardTitle>
+                             <CardDescription>Suspicious processes and events from the simulation.</CardDescription>
                         </CardHeader>
-                        <CardContent className="h-64">
-                            {chartData?.topProcesses && chartData.topProcesses.length > 0 ? (
-                                <SimpleBarChart data={chartData.topProcesses} dataKey="count" nameKey="name" />
-                            ) : (
-                                <div className="h-full flex items-center justify-center text-muted-foreground">
-                                    <p className="text-sm">Data unavailable</p>
+                        <CardContent className="grid gap-8 pl-2">
+                            <div>
+                                <h4 className="font-medium text-sm mb-2 text-muted-foreground px-4">Top Suspicious Processes</h4>
+                                <div className="h-64">
+                                    {chartData?.topProcesses && chartData.topProcesses.length > 0 ? (
+                                        <SimpleBarChart data={chartData.topProcesses} dataKey="count" nameKey="name" />
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center text-muted-foreground">
+                                            <p className="text-sm">Data unavailable</p>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
+                            </div>
+                             <div>
+                                <h4 className="font-medium text-sm mb-2 text-muted-foreground px-4">Top Generated Events</h4>
+                                <div className="h-64">
+                                    {chartData?.topEvents && chartData.topEvents.length > 0 ? (
+                                        <SimpleBarChart data={chartData.topEvents} dataKey="count" nameKey="name" />
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center text-muted-foreground">
+                                            <p className="text-sm">Data unavailable</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
-                    <Card key="top-events" className="shadow-sm">
-                        <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                            <div className={`rounded-lg p-2 bg-emerald-500`}>
-                                <BarChart3 className="h-5 w-5 text-white" />
-                            </div>
-                            <CardTitle className="text-base font-semibold">Top Generated Events</CardTitle>
+
+                    <Card className="lg:col-span-1 flex flex-col">
+                         <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Shield className="h-5 w-5 text-muted-foreground"/>
+                                Affected Resources
+                            </CardTitle>
+                            <CardDescription>Most critical assets impacted by the simulation.</CardDescription>
                         </CardHeader>
-                        <CardContent className="h-64">
-                            {chartData?.topEvents && chartData.topEvents.length > 0 ? (
-                                <SimpleBarChart data={chartData.topEvents} dataKey="count" nameKey="name" />
+                        <CardContent className="flex-1">
+                            {cloudResources.length > 0 ? (
+                                <ul className="space-y-4">
+                                    {cloudResources.slice(0, 5).map(resource => (
+                                        <li key={resource.resourceId} className="flex items-center gap-4">
+                                            <StatusIcon status={resource.status}/>
+                                            <div className="flex-1">
+                                                <p className="font-semibold leading-tight">{resource.name}</p>
+                                                <p className="text-xs text-muted-foreground">{resource.service} &middot; {resource.provider}</p>
+                                            </div>
+                                             <Badge variant={getStatusBadgeVariant(resource.status)} className="whitespace-nowrap h-fit">
+                                                {resource.status}
+                                            </Badge>
+                                        </li>
+                                    ))}
+                                </ul>
                             ) : (
                                 <div className="h-full flex items-center justify-center text-muted-foreground">
-                                    <p className="text-sm">Data unavailable</p>
+                                    <p className="text-sm">No affected resources found.</p>
                                 </div>
                             )}
                         </CardContent>
-                    </Card>
-                    <Card className="shadow-sm">
-                        <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                            <div className={`rounded-lg p-2 bg-purple-500`}>
-                                <PieChart className="h-5 w-5 text-white" />
-                            </div>
-                            <CardTitle className="text-base font-semibold">Affected Resource Status</CardTitle>
-                        </CardHeader>
-                        <CardContent className="h-64 flex items-center justify-center">
-                            {resourceStatusData.length > 0 ? (
-                                <ChartContainer config={resourceChartConfig} className="mx-auto aspect-square h-full">
-                                    <RechartsPieChart>
-                                        <RechartsTooltip
-                                            cursor={false}
-                                            content={<ChartTooltipContent hideLabel nameKey="name" />}
-                                        />
-                                        <Pie
-                                            data={resourceStatusData}
-                                            dataKey="value"
-                                            nameKey="name"
-                                            innerRadius={50}
-                                            strokeWidth={5}
-                                        >
-                                            {resourceStatusData.map((entry) => (
-                                                <Cell key={`cell-${entry.name}`} fill={entry.fill} className="stroke-background hover:opacity-80" />
-                                            ))}
-                                        </Pie>
-                                        <ChartLegend content={<ChartLegendContent nameKey="name" />} className="-mt-4" />
-                                    </RechartsPieChart>
-                                </ChartContainer>
-                            ) : (
-                                <div className="h-full flex items-center justify-center text-muted-foreground">
-                                    <p className="text-sm">No affected resources</p>
-                                </div>
-                            )}
-                        </CardContent>
+                        <CardFooter>
+                            <Button asChild variant="outline" size="sm" className="w-full">
+                                <Link href="/cloud-services">View All {cloudResources.length} Resources</Link>
+                            </Button>
+                        </CardFooter>
                     </Card>
                 </div>
                 </>
@@ -514,5 +514,7 @@ export function Dashboard() {
             </AlertDialog>
         </main>
     )
+
+    
 
     
