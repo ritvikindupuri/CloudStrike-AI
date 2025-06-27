@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { useAttackSimulation } from '@/context/attack-simulation-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeInteraction } from '@/ai/flows/analyze-interaction-flow';
 import type { AnalyzeInteractionOutput, InteractionStep } from '@/ai/flows/analyze-interaction-flow';
@@ -20,7 +20,7 @@ const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: stri
     <ResponsiveContainer width="100%" height="100%">
         <ChartContainer config={{}} className="h-full w-full">
             <BarChart data={data} layout="vertical" margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
-                <Tooltip
+                <RechartsTooltip
                     cursor={{ fill: 'hsl(var(--accent))' }}
                     content={<ChartTooltipContent hideLabel />}
                 />
@@ -33,11 +33,41 @@ const SimpleBarChart = ({ data, dataKey, nameKey }: { data: any[], dataKey: stri
 );
 
 export function Dashboard() {
-    const { metrics, simulationRun, loading, chartData, analysis, originalScript } = useAttackSimulation();
+    const { metrics, simulationRun, loading, chartData, analysis, originalScript, cloudResources } = useAttackSimulation();
     const { toast } = useToast();
     const [isTestingDefense, setIsTestingDefense] = React.useState(false);
     const [defenseResult, setDefenseResult] = React.useState<AnalyzeInteractionOutput | null>(null);
     const [displayedLog, setDisplayedLog] = React.useState<InteractionStep[]>([]);
+
+    const resourceStatusData = React.useMemo(() => {
+        if (!cloudResources || cloudResources.length === 0) return [];
+        
+        const statusCounts = cloudResources.reduce((acc, resource) => {
+            acc[resource.status] = (acc[resource.status] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+
+        const statusColors: Record<string, string> = {
+            'Compromised': 'hsl(var(--destructive))',
+            'Vulnerable': 'hsl(30 90% 50%)',
+            'Investigating': 'hsl(221 83% 53%)',
+            'Protected': 'hsl(var(--primary))',
+        };
+        
+        return Object.entries(statusCounts).map(([name, value]) => ({
+            name,
+            value,
+            fill: statusColors[name] || 'hsl(var(--muted-foreground))',
+        }));
+    }, [cloudResources]);
+
+     const resourceChartConfig = React.useMemo(() => {
+        if (!resourceStatusData) return {};
+        return {
+            value: { label: 'Resources' },
+            ...Object.fromEntries(resourceStatusData.map(d => [d.name, { label: d.name, color: d.fill }]))
+        }
+    }, [resourceStatusData]);
 
     const getRiskBadgeVariant = (score: number): "destructive" | "secondary" | "outline" => {
         if (score > 75) return 'destructive';
@@ -135,12 +165,6 @@ export function Dashboard() {
       },
     ] : [];
 
-    const analysisCards = [
-        { title: "Top 10 Process.exe", iconBg: "bg-blue-500", data: chartData?.topProcesses, nameKey: "name", dataKey: "count" },
-        { title: "Top 10 event.exe", iconBg: "bg-emerald-500", data: chartData?.topEvents, nameKey: "name", dataKey: "count" },
-    ];
-
-
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <header className="flex flex-wrap items-center justify-between gap-4">
@@ -227,6 +251,7 @@ export function Dashboard() {
                                 {analysis.riskScore}
                                 <span className="text-sm">/100</span>
                             </Badge>
+                             <Progress value={analysis.riskScore} className="mt-2 h-2" />
                          </div>
                     </CardHeader>
                     <CardContent className="grid gap-6">
@@ -272,26 +297,77 @@ export function Dashboard() {
                     </CardContent>
                 </Card>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                    {analysisCards.map((card) => (
-                         <Card key={card.title} className="shadow-sm">
-                            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                                <div className={`rounded-lg p-2 ${card.iconBg}`}>
-                                    <BarChart3 className="h-5 w-5 text-white" />
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <Card key="top-processes" className="shadow-sm">
+                        <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                            <div className={`rounded-lg p-2 bg-blue-500`}>
+                                <BarChart3 className="h-5 w-5 text-white" />
+                            </div>
+                            <CardTitle className="text-base font-semibold">Top 10 Process.exe</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-64">
+                            {chartData?.topProcesses && chartData.topProcesses.length > 0 ? (
+                                <SimpleBarChart data={chartData.topProcesses} dataKey="count" nameKey="name" />
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-muted-foreground">
+                                    <p className="text-sm">Data unavailable</p>
                                 </div>
-                                <CardTitle className="text-base font-semibold">{card.title}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="h-64">
-                               {card.data && card.data.length > 0 ? (
-                                   <SimpleBarChart data={card.data} dataKey={card.dataKey} nameKey={card.nameKey} />
-                               ) : (
-                                    <div className="h-full flex items-center justify-center text-muted-foreground">
-                                        <p className="text-sm">Data unavailable</p>
-                                    </div>
-                               )}
-                            </CardContent>
-                        </Card>
-                    ))}
+                            )}
+                        </CardContent>
+                    </Card>
+                    <Card key="top-events" className="shadow-sm">
+                        <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                            <div className={`rounded-lg p-2 bg-emerald-500`}>
+                                <BarChart3 className="h-5 w-5 text-white" />
+                            </div>
+                            <CardTitle className="text-base font-semibold">Top 10 event.exe</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-64">
+                            {chartData?.topEvents && chartData.topEvents.length > 0 ? (
+                                <SimpleBarChart data={chartData.topEvents} dataKey="count" nameKey="name" />
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-muted-foreground">
+                                    <p className="text-sm">Data unavailable</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                    <Card className="shadow-sm">
+                        <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                            <div className={`rounded-lg p-2 bg-purple-500`}>
+                                <PieChart className="h-5 w-5 text-white" />
+                            </div>
+                            <CardTitle className="text-base font-semibold">Affected Resource Status</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-64 flex items-center justify-center">
+                            {resourceStatusData.length > 0 ? (
+                                <ChartContainer config={resourceChartConfig} className="mx-auto aspect-square h-full">
+                                    <RechartsPieChart>
+                                        <RechartsTooltip
+                                            cursor={false}
+                                            content={<ChartTooltipContent hideLabel nameKey="name" />}
+                                        />
+                                        <Pie
+                                            data={resourceStatusData}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            innerRadius={50}
+                                            strokeWidth={5}
+                                        >
+                                            {resourceStatusData.map((entry) => (
+                                                <Cell key={`cell-${entry.name}`} fill={entry.fill} className="stroke-background hover:opacity-80" />
+                                            ))}
+                                        </Pie>
+                                        <ChartLegend content={<ChartLegendContent nameKey="name" />} className="-mt-4" />
+                                    </RechartsPieChart>
+                                </ChartContainer>
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-muted-foreground">
+                                    <p className="text-sm">No affected resources</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
                 </>
             )}
