@@ -176,7 +176,7 @@ export function PowerShellSimulator() {
                                     onClick={handleAnalyzeScript} 
                                     disabled={isAnalyzing || isGenerating || isSimulating || !scriptContent}
                                     variant="outline"
-                                    className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white flex-1"
+                                    className="border-gray-600 bg-transparent text-gray-300 hover:bg-gray-700 hover:text-white flex-1"
                                 >
                                     {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BrainCircuit className="mr-2 h-4 w-4" />}
                                     {isAnalyzing ? 'Analyzing...' : '2. Analyze Script'}
