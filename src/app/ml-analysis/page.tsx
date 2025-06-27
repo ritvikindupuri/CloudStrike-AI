@@ -1,6 +1,7 @@
+
 'use client';
-import { Dashboard } from '@/components/dashboard';
+import { MLAnalysis } from '@/components/ml-analysis';
 
 export default function MlAnalysisPage() {
-    return <Dashboard />;
+    return <MLAnalysis />;
 }

@@ -1,8 +1,9 @@
+
 'use client';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useAttackSimulation } from '@/context/attack-simulation-context';
+import { useThreatAnalysis } from '@/context/attack-simulation-context';
 import { Loader2, Terminal, Bot, BrainCircuit, FileWarning, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -19,8 +20,8 @@ const samplePrompts = [
     "Generate a credential dumping attack via instance metadata service"
 ];
 
-export function PowerShellSimulator() {
-    const { runAttack, loading: isSimulating } = useAttackSimulation();
+export function ThreatSandbox() {
+    const { runAnalysis, loading: isModeling } = useThreatAnalysis();
     const [generationPrompt, setGenerationPrompt] = useState("");
     const [scriptContent, setScriptContent] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
@@ -29,7 +30,7 @@ export function PowerShellSimulator() {
 
     const { toast } = useToast();
 
-    const handleRunSimulation = () => {
+    const handleRunAnalysis = () => {
         if (!scriptContent.trim()) {
             toast({
                 variant: 'destructive',
@@ -38,7 +39,7 @@ export function PowerShellSimulator() {
             });
             return;
         }
-        runAttack(scriptContent);
+        runAnalysis(scriptContent);
     };
 
     const handleGenerateScript = async (promptToGenerate: string, e?: React.FormEvent) => {
@@ -108,9 +109,9 @@ export function PowerShellSimulator() {
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <header>
-                <h1 className="text-3xl font-bold tracking-tight">Attack Simulator</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Threat Sandbox</h1>
                 <p className="text-muted-foreground">
-                    Generate, analyze, and simulate cloud-native attack scripts to test your defenses.
+                    Generate, analyze, and model cloud-native attack scenarios to test your defenses.
                 </p>
             </header>
             <div className="grid gap-6 lg:grid-cols-2">
@@ -122,7 +123,7 @@ export function PowerShellSimulator() {
                             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                             <div className="w-3 h-3 rounded-full bg-green-500"></div>
                         </div>
-                        <p className="ml-4 text-sm text-gray-300">CIDS Attack Editor - /bin/bash</p>
+                        <p className="ml-4 text-sm text-gray-300">NetGuard AI Sandbox - /bin/bash</p>
                     </div>
                     
                     {/* Terminal Body */}
@@ -152,7 +153,7 @@ export function PowerShellSimulator() {
                                             onChange={(e) => setGenerationPrompt(e.target.value)}
                                             disabled={isGenerating}
                                         />
-                                        <Button type="submit" variant="secondary" size="sm" disabled={isGenerating || isSimulating || !generationPrompt}>
+                                        <Button type="submit" variant="secondary" size="sm" disabled={isGenerating || isModeling || !generationPrompt}>
                                             {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Generate'}
                                         </Button>
                                     </div>
@@ -163,7 +164,7 @@ export function PowerShellSimulator() {
                                                 type="button"
                                                 className="text-xs text-gray-300 bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded-md transition-colors disabled:opacity-50"
                                                 onClick={() => handleGenerateScript(prompt)}
-                                                disabled={isGenerating || isSimulating}
+                                                disabled={isGenerating || isModeling}
                                             >
                                                 {prompt}
                                             </button>
@@ -175,20 +176,20 @@ export function PowerShellSimulator() {
                              <div className="flex flex-wrap gap-4">
                                 <Button 
                                     onClick={handleAnalyzeScript} 
-                                    disabled={isAnalyzing || isGenerating || isSimulating || !scriptContent}
+                                    disabled={isAnalyzing || isGenerating || isModeling || !scriptContent}
                                     variant="outline"
                                     className="border-gray-600 bg-transparent text-gray-300 hover:bg-gray-700 hover:text-white flex-1"
                                 >
                                     {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BrainCircuit className="mr-2 h-4 w-4" />}
-                                    {isAnalyzing ? 'Analyzing...' : '2. Analyze Script'}
+                                    {isAnalyzing ? 'Analyzing...' : '2. Quick Analysis'}
                                 </Button>
                                 <Button 
-                                    onClick={handleRunSimulation} 
-                                    disabled={isSimulating || isGenerating || !scriptContent}
+                                    onClick={handleRunAnalysis} 
+                                    disabled={isModeling || isGenerating || !scriptContent}
                                     className="bg-primary hover:bg-primary/90 flex-1"
                                 >
-                                    {isSimulating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Terminal className="mr-2 h-4 w-4" />}
-                                    {isSimulating ? 'Simulating...' : '3. Run Full Simulation'}
+                                    {isModeling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Terminal className="mr-2 h-4 w-4" />}
+                                    {isModeling ? 'Modeling...' : '3. Run Full Analysis'}
                                 </Button>
                              </div>
                         </div>
@@ -242,7 +243,7 @@ export function PowerShellSimulator() {
                             <CardContent className="text-center p-6">
                                 <BrainCircuit className="h-10 w-10 text-muted-foreground mb-4" />
                                 <p className="font-semibold">Awaiting Analysis</p>
-                                <p className="text-sm text-muted-foreground">Click "Analyze Script" to get a quick risk assessment.</p>
+                                <p className="text-sm text-muted-foreground">Click "Quick Analysis" to get a risk assessment.</p>
                             </CardContent>
                         </Card>
                     )}

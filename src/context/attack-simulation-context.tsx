@@ -1,8 +1,9 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
-import { simulateAttack } from '@/ai/flows/simulate-attack-flow';
-import type { SimulateAttackOutput, SecurityEvent, ChartDataPoint, AttackAnalysis, CloudResource } from '@/ai/flows/simulate-attack-flow';
+import { modelAttackScenario } from '@/ai/flows/simulate-attack-flow';
+import type { ModelAttackScenarioOutput, SecurityEvent, ChartDataPoint, AttackAnalysis, CloudResource } from '@/ai/flows/simulate-attack-flow';
 import { analyzeInteraction } from '@/ai/flows/analyze-interaction-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -20,8 +21,8 @@ export interface ChartData {
     topEvents: ChartDataPoint[];
 }
 
-interface AttackSimulationState {
-    simulationRun: boolean;
+interface ThreatAnalysisState {
+    analysisRun: boolean;
     loading: boolean;
     events: SecurityEvent[];
     metrics: AttackMetrics | null;
@@ -29,14 +30,14 @@ interface AttackSimulationState {
     analysis: AttackAnalysis | null;
     cloudResources: CloudResource[];
     originalScript: string | null;
-    runAttack: (script: string) => Promise<void>;
+    runAnalysis: (script: string) => Promise<void>;
     updateEventStatus: (eventId: string, newStatus: 'Contained' | 'Resolved') => void;
 }
 
-const AttackSimulationContext = createContext<AttackSimulationState | undefined>(undefined);
+const ThreatAnalysisContext = createContext<ThreatAnalysisState | undefined>(undefined);
 
-export function AttackSimulationProvider({ children }: { children: ReactNode }) {
-    const [simulationRun, setSimulationRun] = useState(false);
+export function ThreatAnalysisProvider({ children }: { children: ReactNode }) {
+    const [analysisRun, setAnalysisRun] = useState(false);
     const [loading, setLoading] = useState(false);
     const [events, setEvents] = useState<SecurityEvent[]>([]);
     const [metrics, setMetrics] = useState<AttackMetrics | null>(null);
@@ -47,11 +48,10 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
     const { toast } = useToast();
     const router = useRouter();
 
-    const runAttack = useCallback(async (script: string) => {
+    const runAnalysis = useCallback(async (script: string) => {
         setLoading(true);
-        setSimulationRun(true); 
+        setAnalysisRun(true); 
 
-        // Clear previous data immediately
         setEvents([]);
         setMetrics(null);
         setChartData(null);
@@ -60,55 +60,51 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         setOriginalScript(script);
 
         try {
-            // Step 1: Get the main simulation data, including the AI-suggested countermeasure
-            const simResult: SimulateAttackOutput = await simulateAttack({ script });
-            let finalMetrics = simResult.metrics;
+            const scenarioResult: ModelAttackScenarioOutput = await modelAttackScenario({ script });
+            let finalMetrics = scenarioResult.metrics;
 
-            // Step 2: If a countermeasure was suggested, run a second simulation to see how effective it is.
-            if (simResult.analysis?.suggestedCountermeasure) {
+            if (scenarioResult.analysis?.suggestedCountermeasure) {
                 try {
                     const interactionResult = await analyzeInteraction({
                         attackScript: script,
-                        defenseScript: simResult.analysis.suggestedCountermeasure,
+                        defenseScript: scenarioResult.analysis.suggestedCountermeasure,
                     });
                     
-                    // Step 3: Recalculate the 'blockedAttacks' metric based on the effectiveness score.
                     const realisticBlockedCount = Math.round(
-                        (simResult.metrics.totalEvents / 10) * (interactionResult.effectivenessScore / 100)
+                        (scenarioResult.metrics.totalEvents / 10) * (interactionResult.effectivenessScore / 100)
                     );
                     
                     finalMetrics = {
-                        ...simResult.metrics,
+                        ...scenarioResult.metrics,
                         blockedAttacks: realisticBlockedCount,
                     };
 
                 } catch (interactionError) {
                     console.error("Failed to run interaction analysis, using default metrics:", interactionError);
-                    // If the interaction analysis fails, we can just fall back to the originally generated metrics.
                 }
             }
             
-            setAnalysis(simResult.analysis);
-            setEvents(simResult.events);
+            setAnalysis(scenarioResult.analysis);
+            setEvents(scenarioResult.events);
             setMetrics(finalMetrics);
-            setCloudResources(simResult.affectedResources);
+            setCloudResources(scenarioResult.affectedResources);
             setChartData({
-                topProcesses: simResult.topProcesses,
-                topEvents: simResult.topEvents,
+                topProcesses: scenarioResult.topProcesses,
+                topEvents: scenarioResult.topEvents,
             });
 
             toast({
-                title: "Simulation Complete",
-                description: `The script analysis and data generation is complete.`,
+                title: "Analysis Complete",
+                description: `The scenario modeling and data generation is complete.`,
             });
             router.push('/');
         } catch (error) {
-            console.error("Attack simulation failed:", error);
-            setSimulationRun(false); // Reset if it fails
+            console.error("Attack analysis failed:", error);
+            setAnalysisRun(false);
             toast({
                 variant: "destructive",
-                title: "Simulation Error",
-                description: "Failed to run the attack simulation. Please try again.",
+                title: "Analysis Error",
+                description: "Failed to run the scenario analysis. Please try again.",
             });
         } finally {
             setLoading(false);
@@ -124,7 +120,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
     }, []);
 
     const value = useMemo(() => ({
-        simulationRun,
+        analysisRun,
         loading,
         events,
         metrics,
@@ -132,10 +128,10 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         analysis,
         cloudResources,
         originalScript,
-        runAttack,
+        runAnalysis,
         updateEventStatus,
     }), [
-        simulationRun,
+        analysisRun,
         loading,
         events,
         metrics,
@@ -143,21 +139,21 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         analysis,
         cloudResources,
         originalScript,
-        runAttack,
+        runAnalysis,
         updateEventStatus
     ]);
 
     return (
-        <AttackSimulationContext.Provider value={value}>
+        <ThreatAnalysisContext.Provider value={value}>
             {children}
-        </AttackSimulationContext.Provider>
+        </ThreatAnalysisContext.Provider>
     );
 }
 
-export function useAttackSimulation() {
-    const context = useContext(AttackSimulationContext);
+export function useThreatAnalysis() {
+    const context = useContext(ThreatAnalysisContext);
     if (context === undefined) {
-        throw new Error('useAttackSimulation must be used within an AttackSimulationProvider');
+        throw new Error('useThreatAnalysis must be used within a ThreatAnalysisProvider');
     }
     return context;
 }

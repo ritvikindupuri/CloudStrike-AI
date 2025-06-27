@@ -3,7 +3,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Server, ShieldAlert, ShieldCheck, ShieldOff, BrainCircuit, Info } from "lucide-react";
-import { useAttackSimulation } from "@/context/attack-simulation-context";
+import { useThreatAnalysis } from "@/context/attack-simulation-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 
@@ -41,23 +41,23 @@ const getStatusColor = (status: string) => {
 
 
 export function CloudServices() {
-    const { loading, simulationRun, cloudResources } = useAttackSimulation();
+    const { loading, analysisRun, cloudResources } = useThreatAnalysis();
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <header>
                 <h1 className="text-3xl font-bold tracking-tight">Cloud Services</h1>
                 <p className="text-muted-foreground">
-                    View the status of cloud assets affected by the simulation.
+                    View the status of cloud assets affected by the scenario analysis.
                 </p>
             </header>
 
-            {!simulationRun && !loading && (
+            {!analysisRun && !loading && (
                 <div className="flex flex-col items-center justify-center text-center gap-4 h-96">
                     <Info className="h-12 w-12 text-muted-foreground"/>
-                    <h3 className="text-xl font-semibold">No Simulation Data</h3>
-                    <p className="text-muted-foreground">Affected cloud resources will be shown here after running a simulation.</p>
-                     <p className="text-muted-foreground">Go to the <Link href="/powershell-simulator" className="font-medium text-primary underline">Attack Simulator</Link> to start.</p>
+                    <h3 className="text-xl font-semibold">No Scenario Data</h3>
+                    <p className="text-muted-foreground">Affected cloud resources will be shown here after running an analysis.</p>
+                     <p className="text-muted-foreground">Go to the <Link href="/powershell-simulator" className="font-medium text-primary underline">Threat Sandbox</Link> to start.</p>
                 </div>
             )}
 
@@ -82,7 +82,7 @@ export function CloudServices() {
                     </Card>
                 ))}
 
-                {!loading && simulationRun && cloudResources.map((resource, index) => (
+                {!loading && analysisRun && cloudResources.map((resource, index) => (
                     <Card key={index} className="flex flex-col">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-base font-medium flex items-center gap-2">

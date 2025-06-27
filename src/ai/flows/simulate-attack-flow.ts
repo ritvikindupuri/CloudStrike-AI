@@ -1,11 +1,11 @@
 
 'use server';
 /**
- * @fileOverview An AI flow to simulate a cyber attack based on a provided script and generate corresponding security events, metrics, and a detailed analysis.
+ * @fileOverview An AI flow to model a cyber attack based on a provided script and generate corresponding security events, metrics, and a detailed analysis.
  *
- * - simulateAttack - A function that handles the attack simulation process.
- * - SimulateAttackInput - The input type for the simulateAttack function.
- * - SimulateAttackOutput - The return type for the simulateAttack function.
+ * - modelAttackScenario - A function that handles the attack modeling process.
+ * - ModelAttackScenarioInput - The input type for the modelAttackScenario function.
+ * - ModelAttackScenarioOutput - The return type for the modelAttackScenario function.
  * - SecurityEvent - The type for an individual security event.
  * - CloudResource - The type for an individual cloud resource.
  */
@@ -13,10 +13,10 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
-const SimulateAttackInputSchema = z.object({
-  script: z.string().describe('The PowerShell or shell script to simulate.'),
+const ModelAttackScenarioInputSchema = z.object({
+  script: z.string().describe('The PowerShell or shell script to model.'),
 });
-export type SimulateAttackInput = z.infer<typeof SimulateAttackInputSchema>;
+export type ModelAttackScenarioInput = z.infer<typeof ModelAttackScenarioInputSchema>;
 
 const SecurityEventSchema = z.object({
     id: z.string().describe('A unique event identifier, e.g., "EVT-001".'),
@@ -53,8 +53,8 @@ const AnalysisSchema = z.object({
 });
 export type AttackAnalysis = z.infer<typeof AnalysisSchema>;
 
-const SimulateAttackOutputSchema = z.object({
-    analysis: AnalysisSchema.describe("A detailed analysis of the simulated attack, including summaries, risk score, recommended actions, and a countermeasure script."),
+const ModelAttackScenarioOutputSchema = z.object({
+    analysis: AnalysisSchema.describe("A detailed analysis of the modeled attack, including summaries, risk score, recommended actions, and a countermeasure script."),
     events: z.array(SecurityEventSchema).describe('A list of 20-30 security events that would be generated if this script were executed in a cloud environment.'),
     metrics: z.object({
         totalEvents: z.number().describe('The total number of events generated as an integer. This should be a high number to reflect the attack.'),
@@ -66,18 +66,18 @@ const SimulateAttackOutputSchema = z.object({
     topProcesses: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "process.exe" names and their counts that would result from this script.'),
     topEvents: z.array(ChartDataPointSchema).describe('A list of the top 10 most frequent "event.exe" names and their counts that would result from this script.'),
 });
-export type SimulateAttackOutput = z.infer<typeof SimulateAttackOutputSchema>;
+export type ModelAttackScenarioOutput = z.infer<typeof ModelAttackScenarioOutputSchema>;
 
 
-export async function simulateAttack(input: SimulateAttackInput): Promise<SimulateAttackOutput> {
-  return simulateAttackFlow(input);
+export async function modelAttackScenario(input: ModelAttackScenarioInput): Promise<ModelAttackScenarioOutput> {
+  return modelAttackScenarioFlow(input);
 }
 
 const prompt = ai.definePrompt({
-    name: 'simulateAttackPrompt',
-    input: { schema: SimulateAttackInputSchema },
-    output: { schema: SimulateAttackOutputSchema },
-    prompt: `You are a Cloud Intrusion Detection System (CIDS) simulator and a senior security automation engineer. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
+    name: 'modelAttackScenarioPrompt',
+    input: { schema: ModelAttackScenarioInputSchema },
+    output: { schema: ModelAttackScenarioOutputSchema },
+    prompt: `You are a Cloud Intrusion Detection System (CIDS) analyzer and a senior security automation engineer. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
 
 First, meticulously analyze the following script to understand its intent, methodology, and potential impact.
 
@@ -86,7 +86,7 @@ Script to analyze:
 {{{script}}}
 \`\`\`
 
-Based on your analysis of this script, generate a complete simulation output. This includes:
+Based on your analysis of this script, generate a complete scenario analysis output. This includes:
 1.  **Threat Analysis**: A detailed analysis including a risk score, executive summary, technical breakdown, and recommended actions. The analysis must be specific to the actions in the script.
 2.  **Suggested Countermeasure**: Write a practical PowerShell or shell script that a security administrator could run to help mitigate the threat.
 3.  **Affected Cloud Resources**: Generate a list of 5 to 10 specific and realistic cloud resources that would be directly impacted by the actions in the provided script. The connection between the script and the resource must be direct and logical. For each resource, the 'reasonForStatus' field is critical and must explicitly tie the status to a specific action in the attack script (e.g., "Status is 'Compromised' because the script successfully downloaded sensitive data from this S3 bucket.").
@@ -106,16 +106,15 @@ Provide the entire output in the specified JSON format.
     },
 });
 
-const simulateAttackFlow = ai.defineFlow(
+const modelAttackScenarioFlow = ai.defineFlow(
   {
-    name: 'simulateAttackFlow',
-    inputSchema: SimulateAttackInputSchema,
-    outputSchema: SimulateAttackOutputSchema,
+    name: 'modelAttackScenarioFlow',
+    inputSchema: ModelAttackScenarioInputSchema,
+    outputSchema: ModelAttackScenarioOutputSchema,
   },
   async (input) => {
     const { output } = await prompt(input);
     return output!;
   }
 );
-
     

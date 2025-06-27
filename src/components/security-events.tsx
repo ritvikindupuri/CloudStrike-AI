@@ -1,10 +1,11 @@
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useAttackSimulation } from "@/context/attack-simulation-context";
+import { useThreatAnalysis } from "@/context/attack-simulation-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Info, Loader2, Wand2, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
@@ -24,7 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export function SecurityEvents() {
-    const { events, simulationRun, loading, updateEventStatus } = useAttackSimulation();
+    const { events, analysisRun, loading, updateEventStatus } = useThreatAnalysis();
     const { toast } = useToast();
 
     const [selectedEvent, setSelectedEvent] = useState<SecurityEvent | null>(null);
@@ -114,9 +115,9 @@ export function SecurityEvents() {
                         <div>
                             <CardTitle>Event Log</CardTitle>
                             <CardDescription>
-                                {simulationRun 
-                                    ? 'A log of the latest security events detected by the system from the simulation.'
-                                    : 'No simulation is running. Run an attack to see a log of events.'
+                                {analysisRun 
+                                    ? 'A log of the latest security events detected by the system from the scenario analysis.'
+                                    : 'No analysis has been run. Run a scenario to see a log of events.'
                                 }
                             </CardDescription>
                         </div>
@@ -158,14 +159,14 @@ export function SecurityEvents() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    {!simulationRun && !loading && (
+                    {!analysisRun && !loading && (
                         <div className="flex flex-col items-center justify-center text-center gap-4 h-96">
                             <Info className="h-12 w-12 text-muted-foreground"/>
                             <h3 className="text-xl font-semibold">No Event Data</h3>
-                            <p className="text-muted-foreground">Go to the <Link href="/powershell-simulator" className="font-medium text-primary underline">Attack Simulator</Link> to start a simulation.</p>
+                            <p className="text-muted-foreground">Go to the <Link href="/powershell-simulator" className="font-medium text-primary underline">Threat Sandbox</Link> to run an analysis.</p>
                         </div>
                     )}
-                    {(simulationRun || loading) && (
+                    {(analysisRun || loading) && (
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -213,10 +214,10 @@ export function SecurityEvents() {
                                         </TableCell>
                                     </TableRow>
                                 )}
-                                {!loading && events.length === 0 && simulationRun && (
+                                {!loading && events.length === 0 && analysisRun && (
                                      <TableRow>
                                         <TableCell colSpan={6} className="h-24 text-center">
-                                            The simulation ran, but no events were generated.
+                                            The analysis ran, but no events were generated.
                                         </TableCell>
                                     </TableRow>
                                 )}

@@ -1,3 +1,4 @@
+
 'use client'
 import {
     LayoutDashboard,
@@ -26,7 +27,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         { href: '/', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/security-events', label: 'Security Events', icon: ShieldAlert },
         { href: '/cloud-services', label: 'Cloud Services', icon: Cloud },
-        { href: '/powershell-simulator', label: 'Attack Simulator', icon: Terminal },
+        { href: '/powershell-simulator', label: 'Threat Sandbox', icon: Terminal },
     ];
     
     return (
@@ -36,8 +37,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-3 p-2">
                        <Logo className="text-white h-9 w-9"/>
                        <div className="flex flex-col">
-                        <h1 className="text-lg font-semibold text-white tracking-wider">CIDS</h1>
-                        <span className="text-[10px] uppercase text-slate-400 tracking-wider">AI Security Simulator</span>
+                        <h1 className="text-lg font-semibold text-white tracking-wider">NetGuard AI</h1>
+                        <span className="text-[10px] uppercase text-slate-400 tracking-wider">Threat Modeling Sandbox</span>
                        </div>
                     </div>
                 </SidebarHeader>
