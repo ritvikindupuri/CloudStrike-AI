@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import { simulateAttack } from '@/ai/flows/simulate-attack-flow';
 import type { SimulateAttackOutput, SecurityEvent, ChartDataPoint, AttackAnalysis, CloudResource } from '@/ai/flows/simulate-attack-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -46,7 +46,7 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
     const { toast } = useToast();
     const router = useRouter();
 
-    const runAttack = async (script: string) => {
+    const runAttack = useCallback(async (script: string) => {
         setLoading(true);
         setSimulationRun(true); 
 
@@ -86,17 +86,17 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         } finally {
             setLoading(false);
         }
-    };
+    }, [toast, router]);
     
-    const updateEventStatus = (eventId: string, newStatus: 'Contained' | 'Resolved') => {
+    const updateEventStatus = useCallback((eventId: string, newStatus: 'Contained' | 'Resolved') => {
         setEvents(prevEvents => 
             prevEvents.map(event => 
                 event.id === eventId ? { ...event, status: newStatus } : event
             )
         );
-    };
+    }, []);
 
-    const value = {
+    const value = useMemo(() => ({
         simulationRun,
         loading,
         events,
@@ -107,7 +107,18 @@ export function AttackSimulationProvider({ children }: { children: ReactNode }) 
         originalScript,
         runAttack,
         updateEventStatus,
-    };
+    }), [
+        simulationRun,
+        loading,
+        events,
+        metrics,
+        chartData,
+        analysis,
+        cloudResources,
+        originalScript,
+        runAttack,
+        updateEventStatus
+    ]);
 
     return (
         <AttackSimulationContext.Provider value={value}>
