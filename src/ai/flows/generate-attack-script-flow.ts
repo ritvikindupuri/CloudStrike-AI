@@ -46,7 +46,7 @@ Generate the script that simulates this attack.
         safetySettings: [
             {
                 category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                threshold: 'BLOCK_ONLY_HIGH',
+                threshold: 'BLOCK_NONE',
             },
         ],
     },
