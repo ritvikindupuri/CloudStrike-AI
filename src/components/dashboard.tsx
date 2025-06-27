@@ -151,22 +151,6 @@ export function Dashboard() {
                     </p>
                 </div>
                 <div className="flex items-center space-x-4">
-                     <div className="hidden md:block text-right">
-                        {loading && (
-                            <>
-                                <Skeleton className="h-4 w-24 mb-2" />
-                                <Skeleton className="h-4 w-28 mb-2" />
-                                <Skeleton className="h-4 w-20" />
-                            </>
-                        )}
-                        {simulationRun && metrics && !loading && (
-                            <>
-                                <p className="text-sm font-semibold">{metrics.totalEvents.toLocaleString()} <span className="font-normal text-xs text-muted-foreground">EVENTS</span></p>
-                                <p className="text-sm font-semibold">{metrics.activeThreats.toLocaleString()} <span className="font-normal text-xs text-muted-foreground">ACTIVE THREATS</span></p>
-                                <p className="text-sm font-semibold">{metrics.blockedAttacks.toLocaleString()} <span className="font-normal text-xs text-muted-foreground">BLOCKED</span></p>
-                            </>
-                        )}
-                    </div>
                     <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm">
                         <span className="relative flex h-2.5 w-2.5 mr-2.5">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
@@ -211,6 +195,23 @@ export function Dashboard() {
 
             {simulationRun && !loading && analysis && (
                 <>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {metrics && stats.map((stat) => (
+                         <Card key={stat.title} className={`border-t-4 ${stat.borderColor} shadow-sm`}>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-3xl font-bold">{stat.value}</div>
+                                <p className={`text-xs ${stat.changeColor} flex items-center gap-1 mt-1 font-semibold`}>
+                                    {stat.icon}
+                                    {stat.change}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+                
                 <Card className="md:col-span-2 lg:col-span-4">
                     <CardHeader className="flex flex-row justify-between items-start">
                         <div>
@@ -271,22 +272,6 @@ export function Dashboard() {
                     </CardContent>
                 </Card>
 
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    {metrics && stats.map((stat) => (
-                         <Card key={stat.title} className={`border-t-4 ${stat.borderColor} shadow-sm`}>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-3xl font-bold">{stat.value}</div>
-                                <p className={`text-xs ${stat.changeColor} flex items-center gap-1 mt-1 font-semibold`}>
-                                    {stat.icon}
-                                    {stat.change}
-                                </p>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
                 <div className="grid gap-4 md:grid-cols-2">
                     {analysisCards.map((card) => (
                          <Card key={card.title} className="shadow-sm">
