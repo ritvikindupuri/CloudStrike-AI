@@ -1,5 +1,5 @@
 - Architected and developed NetGuard AI, a full-stack threat modeling sandbox for proactive cloud security, enabling teams to simulate and analyze attacks on AWS, Azure, and GCP environments.
 
-- Engineered a multi-agent AI system with Google Genkit to autonomously model threats; the AI analyzes attack scripts to generate a detailed impact assessment, a 100-point risk score, and validates countermeasures with a quantifiable effectiveness score.
+- Engineered a multi-agent Genkit AI that quantifies attack severity, assigning a 100-point risk score to simulated threats like IAM privilege escalation, and validates defensive scripts with a quantifiable effectiveness score to measure mitigation success.
 
-- Implemented a dynamic front-end with Next.js and React to present complex, AI-generated security data, including interactive dashboards, sortable event logs, and automated incident response playbooks for immediate action.
+- Developed a dynamic Next.js and React front-end to visualize complex, AI-generated threat data, featuring interactive dashboards, sortable event logs, and automated incident response playbooks that provide engineers with immediate, actionable intelligence.
