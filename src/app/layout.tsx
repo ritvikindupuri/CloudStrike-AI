@@ -25,9 +25,11 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <SidebarProvider defaultOpen={true}>
-          <ThreatAnalysisProvider>
-              <MainLayout>{children}</MainLayout>
-          </ThreatAnalysisProvider>
+          <MainLayout>
+            <ThreatAnalysisProvider>
+              {children}
+            </ThreatAnalysisProvider>
+          </MainLayout>
         </SidebarProvider>
         <Toaster />
       </body>

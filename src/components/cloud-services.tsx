@@ -83,7 +83,7 @@ export function CloudServices() {
                 ))}
 
                 {!loading && analysisRun && cloudResources.map((resource, index) => (
-                    <Card key={index} className="flex flex-col">
+                    <Card key={index} className="flex flex-col overflow-hidden">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-base font-medium flex items-center gap-2">
                                <Server className="h-5 w-5 text-muted-foreground" />
@@ -102,7 +102,7 @@ export function CloudServices() {
                                     <StatusIcon status={resource.status} />
                                     <p className={`text-lg font-bold ${getStatusColor(resource.status)}`}>{resource.status}</p>
                                 </div>
-                                <p className="text-sm text-muted-foreground mt-1">{resource.reasonForStatus}</p>
+                                <p className="text-sm text-muted-foreground mt-1 break-words">{resource.reasonForStatus}</p>
                             </div>
                         </CardContent>
                     </Card>
