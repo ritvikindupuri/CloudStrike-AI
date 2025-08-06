@@ -1,7 +1,7 @@
-import { LiveFeed } from '@/components/live-feed';
+import { ThreatSandbox } from '@/components/threat-sandbox';
 
 export default function Home() {
     return (
-        <LiveFeed />
+        <ThreatSandbox />
     );
 }

@@ -5,8 +5,6 @@ export function Logo({ className, ...props }: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -16,7 +14,7 @@ export function Logo({ className, ...props }: SVGProps<SVGSVGElement>) {
       className={cn("h-6 w-6 text-primary", className)}
       {...props}
     >
-      <path d="M12 2L3 5v6c0 5.6 3.8 10.7 9 12 5.2-1.3 9-6.4 9-12V5l-9-3z" />
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
     </svg>
   );
 }
