@@ -2,10 +2,7 @@
 'use client'
 import {
     LayoutDashboard,
-    ShieldAlert,
-    Terminal,
-    BrainCircuit,
-    Cloud,
+    Video,
 } from 'lucide-react';
 import {
     Sidebar,
@@ -24,10 +21,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     const menuItems = [
-        { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/security-events', label: 'Security Events', icon: ShieldAlert },
-        { href: '/cloud-services', label: 'Cloud Services', icon: Cloud },
-        { href: '/powershell-simulator', label: 'Threat Sandbox', icon: Terminal },
+        { href: '/', label: 'Live Feed', icon: Video },
+        { href: '/alerts-dashboard', label: 'Alerts Dashboard', icon: LayoutDashboard },
     ];
     
     return (
@@ -37,8 +32,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-3 p-2">
                        <Logo className="text-white h-9 w-9"/>
                        <div className="flex flex-col">
-                        <h1 className="text-lg font-semibold text-white tracking-wider">NetGuard AI</h1>
-                        <span className="text-[10px] uppercase text-slate-400 tracking-wider">Threat Modeling Sandbox</span>
+                        <h1 className="text-lg font-semibold text-white tracking-wider">Aegis Vision</h1>
+                        <span className="text-[10px] uppercase text-slate-400 tracking-wider">AI Security</span>
                        </div>
                     </div>
                 </SidebarHeader>

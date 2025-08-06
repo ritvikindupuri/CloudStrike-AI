@@ -1,7 +1,7 @@
-import { Dashboard } from '@/components/dashboard';
+import { LiveFeed } from '@/components/live-feed';
 
 export default function Home() {
     return (
-        <Dashboard />
+        <LiveFeed />
     );
 }
