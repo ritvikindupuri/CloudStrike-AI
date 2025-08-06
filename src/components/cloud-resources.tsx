@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useSimulation } from '@/context/simulation-context';
 import { Server, Cloud, Shield, Database, HelpCircle } from 'lucide-react';
-import type { CloudResource } from "@/ai/flows/simulate-attack-flow";
+import type { CloudResource } from "@/ai/flows/types/simulate-attack-types";
 
 const getProviderIcon = (provider: CloudResource['provider']) => {
     switch (provider) {

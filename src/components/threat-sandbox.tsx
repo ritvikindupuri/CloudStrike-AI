@@ -6,9 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Bot, Clipboard, FileCheck2, Loader2, Send, ShieldCheck, FlaskConical, AlertTriangle, Lightbulb } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { useSimulation } from '@/context/simulation-context';
-import { generateAttackScript, GenerateAttackScriptOutput } from '@/ai/flows/generate-attack-script-flow';
-import { analyzeScript, AnalyzeScriptOutput } from '@/ai/flows/analyze-script-flow';
-import { analyzeInteraction, AnalyzeInteractionOutput, InteractionStep } from '@/ai/flows/analyze-interaction-flow';
+import { generateAttackScript, type GenerateAttackScriptOutput } from '@/ai/flows/generate-attack-script-flow';
+import { analyzeScript, type AnalyzeScriptOutput } from '@/ai/flows/analyze-script-flow';
+import { analyzeInteraction, type AnalyzeInteractionOutput, type InteractionStep } from '@/ai/flows/analyze-interaction-flow';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from './ui/badge';
@@ -71,7 +71,7 @@ export function ThreatSandbox() {
         }
         setData(null);
         setInteractionResult(null);
-        setSimulationLoading(true);
+        setSimulationLoading(script);
     };
 
     const handleTestCountermeasure = async () => {

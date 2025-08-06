@@ -1,6 +1,6 @@
-import type { SimulateAttackOutput } from '@/ai/flows/simulate-attack-flow';
+import type { ModelAttackScenarioOutput } from '@/ai/flows/types/simulate-attack-types';
 
-export const defaultAttackData: SimulateAttackOutput = {
+export const defaultAttackData: ModelAttackScenarioOutput = {
     analysis: {
         executiveSummary: "A simulated High-Volume HTTP Flood DDoS attack was detected targeting critical web services. The system successfully mitigated the majority of malicious requests, but the event highlights a need to review and enhance rate-limiting and traffic shaping policies to prevent potential service degradation during a more sophisticated attack.",
         technicalBreakdown: "The attack originated from a distributed network of bots, primarily using GET requests with randomized user agents to bypass basic caching layers. Peak traffic reached over 500,000 requests per minute. Key indicators included a sharp increase in HTTP 503 errors and elevated CPU utilization on web-facing instances. IOCs include the top 5 source IP ranges identified.",

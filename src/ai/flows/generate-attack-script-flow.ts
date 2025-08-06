@@ -3,24 +3,14 @@
  * @fileOverview An AI flow to generate a cloud-native attack script based on a user's description.
  *
  * - generateAttackScript - A function that handles the script generation process.
- * - GenerateAttackScriptInput - The input type for the generateAttackScript function.
- * - GenerateAttackScriptOutput - The return type for the generateAttackScript function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
+import { GenerateAttackScriptInputSchema, GenerateAttackScriptOutputSchema } from './types/generate-attack-script-types';
 
-const GenerateAttackScriptInputSchema = z.object({
-  description: z.string().describe('A natural language description of the cloud-native attack to simulate.'),
-});
-export type GenerateAttackScriptInput = z.infer<typeof GenerateAttackScriptInputSchema>;
+export { type GenerateAttackScriptInput, type GenerateAttackScriptOutput } from './types/generate-attack-script-types';
 
-const GenerateAttackScriptOutputSchema = z.object({
-    script: z.string().describe('The generated PowerShell or shell script for the described attack.'),
-});
-export type GenerateAttackScriptOutput = z.infer<typeof GenerateAttackScriptOutputSchema>;
-
-export async function generateAttackScript(input: GenerateAttackScriptInput): Promise<GenerateAttackScriptOutput> {
+export async function generateAttackScript(input: import('./types/generate-attack-script-types').GenerateAttackScriptInput): Promise<import('./types/generate-attack-script-types').GenerateAttackScriptOutput> {
   return generateAttackScriptFlow(input);
 }
 

@@ -10,7 +10,6 @@ import {
     SidebarHeader,
     SidebarContent,
     SidebarMenu,
-    SidebarMenuItem,
     SidebarMenuButton,
     SidebarInset,
 } from '@/components/ui/sidebar';
@@ -46,34 +45,33 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             <Sidebar variant='sidebar' collapsible='icon'>
                 <SidebarHeader>
                     <div className="flex items-center gap-3 p-2">
-                       <Logo className="text-primary h-9 w-9"/>
+                       <Logo className="text-primary h-8 w-8"/>
                        <div className="flex flex-col">
-                        <h1 className="text-lg font-semibold text-white tracking-wider">NetGuard</h1>
-                        <span className="text-[10px] uppercase text-slate-400 tracking-wider">AI Sandbox</span>
+                        <h1 className="text-lg font-semibold text-foreground tracking-wide">Sentinel</h1>
+                        <span className="text-[10px] uppercase text-muted-foreground tracking-wider">AI Sandbox</span>
                        </div>
                     </div>
                 </SidebarHeader>
                 <SidebarContent className="p-2">
                     <SidebarMenu>
                         {menuItems.map((item) => (
-                            <SidebarMenuItem key={item.label}>
-                                <SidebarMenuButton
-                                    asChild
-                                    isActive={pathname === item.href}
-                                    className="h-10 justify-start"
-                                    size="default"
-                                >
-                                    <Link href={item.href}>
-                                        <item.icon className="h-5 w-5" />
-                                        <span>{item.label}</span>
-                                         {item.badge !== undefined && item.badge > 0 && (
-                                            <Badge variant="secondary" className="ml-auto">
-                                                {item.badge}
-                                            </Badge>
-                                        )}
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            <SidebarMenuButton
+                                key={item.label}
+                                asChild
+                                isActive={pathname === item.href}
+                                className="h-10 justify-start"
+                                size="default"
+                            >
+                                <Link href={item.href}>
+                                    <item.icon className="h-5 w-5" />
+                                    <span>{item.label}</span>
+                                     {item.badge !== undefined && item.badge > 0 && (
+                                        <Badge variant="secondary" className="ml-auto">
+                                            {item.badge}
+                                        </Badge>
+                                    )}
+                                </Link>
+                            </SidebarMenuButton>
                         ))}
                     </SidebarMenu>
                 </SidebarContent>

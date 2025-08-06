@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
-import type { ModelAttackScenarioOutput } from '@/ai/flows/simulate-attack-flow';
+import type { ModelAttackScenarioOutput } from '@/ai/flows/types/simulate-attack-types';
 import { modelAttackScenario } from '@/ai/flows/simulate-attack-flow';
 import { useToast } from '@/hooks/use-toast';
 import { defaultAttackData } from '@/lib/default-simulation-data';
@@ -10,7 +10,7 @@ interface SimulationState {
     data: ModelAttackScenarioOutput | null;
     setData: (data: ModelAttackScenarioOutput | null) => void;
     isLoading: boolean;
-    setIsLoading: (isLoading: boolean) => void;
+    setIsLoading: (script: string) => void;
 }
 
 const SimulationContext = createContext<SimulationState | undefined>(undefined);
@@ -49,6 +49,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }, [isLoading, currentScript, toast]);
 
     const startLoading = useCallback((script: string) => {
+        setData(null);
         setCurrentScript(script);
         setIsLoading(true);
     }, []);

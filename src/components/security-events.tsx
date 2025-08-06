@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSimulation } from '@/context/simulation-context';
-import type { SecurityEvent } from '@/ai/flows/simulate-attack-flow';
+import type { SecurityEvent } from '@/ai/flows/types/simulate-attack-types';
 import { AlertTriangle, Bot, CircleDashed, Loader2, ShieldCheck, ShieldQuestion } from "lucide-react";
 import {
     Dialog,
@@ -23,7 +23,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { useToast } from '@/hooks/use-toast';
-import { generateResponsePlan, GenerateResponsePlanOutput } from '@/ai/flows/generate-response-plan-flow';
+import { generateResponsePlan, type GenerateResponsePlanOutput } from '@/ai/flows/generate-response-plan-flow';
 
 
 const getSeverityVariant = (severity: SecurityEvent['severity']): 'default' | 'secondary' | 'destructive' | 'outline' => {

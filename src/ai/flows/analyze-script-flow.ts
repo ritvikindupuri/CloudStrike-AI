@@ -3,28 +3,15 @@
  * @fileOverview An AI flow to analyze a script for malicious content.
  *
  * - analyzeScript - A function that handles the script analysis process.
- * - AnalyzeScriptInput - The input type for the analyzeScript function.
- * - AnalyzeScriptOutput - The return type for the analyzeScript function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
+import { AnalyzeScriptInputSchema, AnalyzeScriptOutputSchema } from './types/analyze-script-types';
 
-const AnalyzeScriptInputSchema = z.object({
-  script: z.string().describe('The script content to analyze (e.g., PowerShell, bash).'),
-});
-export type AnalyzeScriptInput = z.infer<typeof AnalyzeScriptInputSchema>;
-
-const AnalyzeScriptOutputSchema = z.object({
-    isMalicious: z.boolean().describe('Whether or not the script is deemed malicious.'),
-    riskScore: z.number().min(0).max(100).describe('A risk score from 0 (safe) to 100 (critical).'),
-    summary: z.string().describe('A concise summary of what the script does.'),
-    recommendations: z.string().describe('Recommended actions for the user (e.g., "Block and quarantine", "Monitor execution").'),
-});
-export type AnalyzeScriptOutput = z.infer<typeof AnalyzeScriptOutputSchema>;
+export { type AnalyzeScriptInput, type AnalyzeScriptOutput } from './types/analyze-script-types';
 
 
-export async function analyzeScript(input: AnalyzeScriptInput): Promise<AnalyzeScriptOutput> {
+export async function analyzeScript(input: import('./types/analyze-script-types').AnalyzeScriptInput): Promise<import('./types/analyze-script-types').AnalyzeScriptOutput> {
   return analyzeScriptFlow(input);
 }
 

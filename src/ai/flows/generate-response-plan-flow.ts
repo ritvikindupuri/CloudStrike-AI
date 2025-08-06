@@ -3,31 +3,14 @@
  * @fileOverview An AI flow to generate an incident response plan for a security event.
  *
  * - generateResponsePlan - A function that handles generating the response plan.
- * - GenerateResponsePlanInput - The input type for the generateResponsePlan function.
- * - GenerateResponsePlanOutput - The return type for the generateResponsePlan function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
+import { SecurityEventSchema, GenerateResponsePlanOutputSchema } from './types/generate-response-plan-types';
 
-const SecurityEventSchema = z.object({
-    id: z.string().describe("A unique event identifier."),
-    timestamp: z.string().describe("The event timestamp."),
-    severity: z.enum(['Low', 'Medium', 'High', 'Critical']).describe('The severity of the event.'),
-    description: z.string().describe('A concise description of the event.'),
-    status: z.enum(['Investigating', 'Contained', 'Resolved', 'Action Required']).describe('The current status of the event.'),
-});
-export type GenerateResponsePlanInput = z.infer<typeof SecurityEventSchema>;
+export { type GenerateResponsePlanInput, type GenerateResponsePlanOutput } from './types/generate-response-plan-types';
 
-
-const GenerateResponsePlanOutputSchema = z.object({
-    suggestedSteps: z.array(z.string()).describe("A list of 3-4 concrete, actionable steps an analyst should take to respond to this specific event."),
-    suggestedStatus: z.enum(['Contained', 'Resolved']).describe("The suggested status to move this event to after taking the initial steps."),
-    justification: z.string().describe("A brief justification for the suggested steps and status.")
-});
-export type GenerateResponsePlanOutput = z.infer<typeof GenerateResponsePlanOutputSchema>;
-
-export async function generateResponsePlan(input: GenerateResponsePlanInput): Promise<GenerateResponsePlanOutput> {
+export async function generateResponsePlan(input: import('./types/generate-response-plan-types').GenerateResponsePlanInput): Promise<import('./types/generate-response-plan-types').GenerateResponsePlanOutput> {
   return generateResponsePlanFlow(input);
 }
 
