@@ -17,16 +17,16 @@ const chartColors = [
 
 const severityColors = {
     'Critical': 'hsl(var(--destructive))',
-    'High': 'var(--chart-5)',
-    'Medium': 'var(--chart-2)',
-    'Low': 'var(--chart-1)',
+    'High': 'hsl(var(--chart-4))',
+    'Medium': 'hsl(var(--chart-2))',
+    'Low': 'hsl(var(--chart-1))',
 }
 
 const statusColors = {
     'Compromised': 'hsl(var(--destructive))',
-    'Vulnerable': 'var(--chart-5)',
-    'Investigating': 'var(--chart-2)',
-    'Protected': 'var(--chart-1)',
+    'Vulnerable': 'hsl(var(--chart-4))',
+    'Investigating': 'hsl(var(--chart-2))',
+    'Protected': 'hsl(var(--chart-1))',
 }
 
 const renderActiveShape = (props: any) => {
@@ -160,8 +160,8 @@ export function Dashboard() {
                 </Card>
             </div>
 
-            <div className="grid gap-4 mt-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card className="col-span-1 lg:col-span-2">
+            <div className="grid gap-4 mt-4 grid-cols-1 lg:grid-cols-2">
+                <Card>
                      <CardHeader>
                         <CardTitle>Top Security Events</CardTitle>
                         <CardDescription>Most frequent security events generated during the simulation.</CardDescription>
@@ -181,7 +181,7 @@ export function Dashboard() {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
-                 <Card className="col-span-1">
+                 <Card>
                      <CardHeader>
                         <CardTitle>Top Running Processes</CardTitle>
                         <CardDescription>System processes with the highest activity.</CardDescription>
@@ -202,7 +202,7 @@ export function Dashboard() {
                     </CardContent>
                 </Card>
 
-                 <Card className="col-span-1">
+                 <Card>
                      <CardHeader>
                         <CardTitle>Event Severity Breakdown</CardTitle>
                         <CardDescription>Distribution of security event severity levels.</CardDescription>
@@ -230,7 +230,7 @@ export function Dashboard() {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
-                 <Card className="col-span-1">
+                 <Card>
                      <CardHeader>
                         <CardTitle>Cloud Resource Status</CardTitle>
                         <CardDescription>Security status of all affected cloud resources.</CardDescription>
@@ -258,7 +258,9 @@ export function Dashboard() {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
+             </div>
 
+            <div className="grid gap-4 mt-4">
                  <Card className="col-span-1 lg:col-span-3">
                     <CardHeader>
                         <CardTitle>Threat Analysis</CardTitle>

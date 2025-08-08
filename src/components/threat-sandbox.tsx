@@ -119,7 +119,7 @@ export function ThreatSandbox() {
         try {
             const result = await analyzeInteraction({
                 attackScript: script,
-                defenseScript: data.analysis.suggestedCountermeasure
+                defenseScript: data.analysis.suggestedCountermeasure // Always use the latest defense script from state
             });
             setInteractionResult(result);
             setActiveTab('engagement');
@@ -260,8 +260,8 @@ export function ThreatSandbox() {
                     <CardContent>
                          <Tabs value={activeTab} onValueChange={setActiveTab}>
                             <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="countermeasure" onClick={() => setActiveTab('countermeasure')}>Countermeasure</TabsTrigger>
-                                <TabsTrigger value="engagement" onClick={() => setActiveTab('engagement')} disabled={!data}>Test & Improve</TabsTrigger>
+                                <TabsTrigger value="countermeasure">Countermeasure</TabsTrigger>
+                                <TabsTrigger value="engagement" disabled={!data}>Test & Improve</TabsTrigger>
                             </TabsList>
                             <TabsContent value="countermeasure" className="mt-4">
                                 {data?.analysis.suggestedCountermeasure ? (
