@@ -22,8 +22,7 @@ const modelAttackScenarioFlow = ai.defineFlow(
     outputSchema: ModelAttackScenarioOutputSchema,
   },
   async (input) => {
-    const prompt = {
-        prompt: `You are a Cloud Intrusion Detection System (CIDS) analyzer and a senior security automation engineer. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
+    const prompt = `You are a Cloud Intrusion Detection System (CIDS) analyzer and a senior security automation engineer. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
 
 First, meticulously analyze the following script to understand its intent, methodology, and potential impact.
 
@@ -41,9 +40,13 @@ Based on your analysis of this script, generate a complete scenario analysis out
 6.  **Chart Data**: Top processes and events that would be observed as a result of the script's execution.
 
 Provide the entire output in the specified JSON format.
-`,
+`;
+    
+    const promptConfig = {
+        name: 'modelAttackScenarioPrompt',
         input: { schema: ModelAttackScenarioInputSchema },
         output: { schema: ModelAttackScenarioOutputSchema },
+        prompt: prompt,
         config: {
             safetySettings: [
                 {
@@ -56,19 +59,19 @@ Provide the entire output in the specified JSON format.
 
     try {
         const { output } = await ai.generate({
-            ...prompt,
+            ...promptConfig,
             model: 'googleai/gemini-1.5-flash',
-            prompt: prompt.prompt,
-            context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+            prompt: prompt,
+            input
         });
         return output!;
     } catch (e: any) {
         if (e.message?.includes('429')) {
              const { output } = await ai.generate({
-                ...prompt,
+                ...promptConfig,
                 model: 'googleai/gemini-pro',
-                prompt: prompt.prompt,
-                context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+                prompt: prompt,
+                input
             });
             return output!;
         }

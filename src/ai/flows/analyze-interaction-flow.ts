@@ -22,8 +22,7 @@ const analyzeInteractionFlow = ai.defineFlow(
     outputSchema: AnalyzeInteractionOutputSchema,
   },
   async (input) => {
-    const prompt = {
-        prompt: `You are a "Purple Team" cybersecurity expert, simulating and analyzing a cyber engagement in real-time. Your task is to analyze an attack script and a corresponding defense script. You will simulate the interaction step-by-step.
+    const prompt = `You are a "Purple Team" cybersecurity expert, simulating and analyzing a cyber engagement in real-time. Your task is to analyze an attack script and a corresponding defense script. You will simulate the interaction step-by-step.
 
 Attack Script:
 \`\`\`
@@ -49,34 +48,38 @@ Second, and most importantly, generate a step-by-step **interactionLog**. Simula
 - The log must clearly show cause and effect. The \`result\` should state the immediate outcome (e.g., 'Success', 'Blocked by Rule X', 'No Effect', 'Policy Applied').
 
 Provide the entire output in the specified JSON format.
-`,
-        input: { schema: AnalyzeInteractionInputSchema },
-        output: { schema: AnalyzeInteractionOutputSchema },
-        config: {
-            safetySettings: [
-                {
-                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                    threshold: 'BLOCK_NONE',
-                },
-            ],
-        },
+`;
+
+    const promptConfig = {
+      name: 'analyzeInteractionPrompt',
+      input: { schema: AnalyzeInteractionInputSchema },
+      output: { schema: AnalyzeInteractionOutputSchema },
+      prompt: prompt,
+      config: {
+          safetySettings: [
+              {
+                  category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                  threshold: 'BLOCK_NONE',
+              },
+          ],
+      },
     };
 
     try {
         const { output } = await ai.generate({
-            ...prompt,
+            ...promptConfig,
             model: 'googleai/gemini-1.5-flash',
-            prompt: prompt.prompt,
-            context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+            prompt: prompt,
+            input,
         });
         return output!;
     } catch (e: any) {
         if (e.message?.includes('429')) {
              const { output } = await ai.generate({
-                ...prompt,
+                ...promptConfig,
                 model: 'googleai/gemini-pro',
-                prompt: prompt.prompt,
-                context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+                prompt: prompt,
+                input,
             });
             return output!;
         }
