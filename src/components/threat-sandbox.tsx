@@ -1,15 +1,14 @@
-
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Bot, Clipboard, FileCheck2, Loader2, Send, ShieldCheck, FlaskConical, AlertTriangle, Lightbulb, RotateCcw, CheckCircle2 } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { useSimulation } from '@/context/simulation-context';
-import { generateAttackScript, type GenerateAttackScriptOutput } from '@/ai/flows/generate-attack-script-flow';
-import { analyzeScript, type AnalyzeScriptOutput } from '@/ai/flows/analyze-script-flow';
-import { analyzeInteraction, type AnalyzeInteractionOutput, type InteractionStep } from '@/ai/flows/analyze-interaction-flow';
+import { generateAttackScript } from '@/ai/flows/generate-attack-script-flow';
+import { analyzeScript } from '@/ai/flows/analyze-script-flow';
+import { analyzeInteraction, type InteractionStep } from '@/ai/flows/analyze-interaction-flow';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from './ui/badge';
@@ -56,37 +55,49 @@ const attackExamples = [
 
 export function ThreatSandbox() {
     const { toast } = useToast();
-    const { data, setData, setIsLoading: setSimulationLoading, clearSimulation } = useSimulation();
+    const { 
+      data, 
+      isLoading, 
+      startSimulation, 
+      clearSimulation, 
+      analysisResult,
+      setAnalysisResult,
+      interactionResult,
+      setInteractionResult,
+      script,
+      setScript,
+      description,
+      setDescription
+    } = useSimulation();
 
-    const [description, setDescription] = useState('');
-    const [script, setScript] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    
-    const [analysisResult, setAnalysisResult] = useState<AnalyzeScriptOutput | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
-    
-    const [interactionResult, setInteractionResult] = useState<AnalyzeInteractionOutput | null>(null);
     const [isTesting, setIsTesting] = useState(false);
     
     const [selectedAttackId, setSelectedAttackId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('countermeasure');
 
+    useEffect(() => {
+        if (interactionResult) {
+            setActiveTab('engagement');
+        }
+    }, [interactionResult]);
 
     const handleGenerateScript = async () => {
         if (!description) {
             toast({ variant: 'destructive', title: 'Error', description: 'Please provide an attack description.' });
             return;
         }
-        setIsLoading(true);
+        setIsGenerating(true);
         setScript('');
         try {
-            const result: GenerateAttackScriptOutput = await generateAttackScript({ description });
+            const result = await generateAttackScript({ description });
             setScript(result.script);
         } catch (error) {
             console.error("Failed to generate script:", error);
             toast({ variant: 'destructive', title: 'Error', description: 'Could not generate script. Please try again.' });
         } finally {
-            setIsLoading(false);
+            setIsGenerating(false);
         }
     };
 
@@ -98,7 +109,7 @@ export function ThreatSandbox() {
         setIsAnalyzing(true);
         setAnalysisResult(null);
         try {
-            const result: AnalyzeScriptOutput = await analyzeScript({ script });
+            const result = await analyzeScript({ script });
             setAnalysisResult(result);
         } catch (error) {
             console.error("Failed to analyze script:", error);
@@ -116,15 +127,11 @@ export function ThreatSandbox() {
         setInteractionResult(null);
         setAnalysisResult(null);
         setActiveTab('countermeasure');
-        setSimulationLoading(script, description);
+        startSimulation(script, description);
     };
 
     const handleClearScenario = () => {
-        clearSimulation(data?.id);
-        setScript('');
-        setDescription('');
-        setAnalysisResult(null);
-        setInteractionResult(null);
+        clearSimulation();
         setSelectedAttackId(null);
         setActiveTab('countermeasure');
         toast({ title: 'Sandbox Cleared', description: 'The simulation has been reset.' });
@@ -138,21 +145,14 @@ export function ThreatSandbox() {
         setIsTesting(true);
         setInteractionResult(null);
         try {
-            const result: AnalyzeInteractionOutput = await analyzeInteraction({
+            const result = await analyzeInteraction({
                 attackScript: script,
                 defenseScript: data.analysis.suggestedCountermeasure
             });
             setInteractionResult(result);
-            setActiveTab('engagement');
             if(result.modifiedDefenseScript && data?.analysis) {
-                setData({
-                    ...data,
-                    analysis: {
-                        ...data.analysis,
-                        suggestedCountermeasure: result.modifiedDefenseScript,
-                    }
-                });
-                 toast({
+                // The context will handle updating the data object
+                toast({
                     title: 'Defense Improved!',
                     description: 'The AI has updated the countermeasure script with improvements.',
                 });
@@ -204,8 +204,8 @@ export function ThreatSandbox() {
                          
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                        <Button onClick={handleGenerateScript} disabled={isLoading || !description}>
-                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                        <Button onClick={handleGenerateScript} disabled={isGenerating || !description}>
+                            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             Generate Script
                         </Button>
                         <Button onClick={handleClearScenario} variant="outline" >
@@ -304,8 +304,8 @@ export function ThreatSandbox() {
                                 {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
                                 Quick Analysis
                             </Button>
-                             <Button onClick={handleModelScenario} disabled={!script || isAnalyzing}>
-                                Model Full Scenario
+                             <Button onClick={handleModelScenario} disabled={!script || isLoading}>
+                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Model Full Scenario'}
                             </Button>
                         </div>
                         <Button onClick={() => copyToClipboard(script)} variant="ghost" size="icon" disabled={!script}>

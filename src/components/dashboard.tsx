@@ -23,11 +23,11 @@ export function Dashboard() {
     const formattedTopProcesses = topProcesses.map(item => ({ ...item, name: item.name.replace('.exe', '') }));
 
     const chartColors = [
-        'hsl(var(--chart-1))',
-        'hsl(var(--chart-2))',
-        'hsl(var(--chart-3))',
-        'hsl(var(--chart-4))',
-        'hsl(var(--chart-5))',
+        'var(--chart-1)',
+        'var(--chart-2)',
+        'var(--chart-3)',
+        'var(--chart-4)',
+        'var(--chart-5)',
     ];
 
 
@@ -90,11 +90,11 @@ export function Dashboard() {
                     </CardHeader>
                     <CardContent>
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={formattedTopEvents} layout="vertical" margin={{ left: 30, right: 20 }}>
-                                <XAxis type="number" hide />
-                                <YAxis dataKey="name" type="category" width={120} tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={14} interval={0} />
+                            <BarChart data={formattedTopEvents} layout="horizontal" margin={{ left: 10, right: 20, top: 5, bottom: 20 }}>
+                                <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} interval={0} />
+                                <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted)/0.3)' }} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
-                                <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
+                                <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={20}>
                                     {formattedTopEvents.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                                     ))}
@@ -110,7 +110,7 @@ export function Dashboard() {
                     </CardHeader>
                     <CardContent>
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={formattedTopProcesses} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <BarChart data={formattedTopProcesses} margin={{ top: 5, right: 30, left: 20, bottom: 20 }}>
                                 <XAxis dataKey="name" tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} interval={0}/>
                                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted)/0.3)' }} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>

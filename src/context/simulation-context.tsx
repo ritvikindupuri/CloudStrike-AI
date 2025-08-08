@@ -1,24 +1,74 @@
 'use client';
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import type { ModelAttackScenarioOutput } from '@/ai/flows/types/simulate-attack-types';
+import type { AnalyzeScriptOutput } from '@/ai/flows/analyze-script-flow';
+import type { AnalyzeInteractionOutput } from '@/ai/flows/analyze-interaction-flow';
 import { modelAttackScenario } from '@/ai/flows/simulate-attack-flow';
 import { useToast } from '@/hooks/use-toast';
 
-export interface Session extends ModelAttackScenarioOutput {
+export interface SessionData extends ModelAttackScenarioOutput {
+    // Quick analysis result
+    analysisResult: AnalyzeScriptOutput | null;
+    // Countermeasure interaction result
+    interactionResult: AnalyzeInteractionOutput | null;
+    // The script that was modeled
+    script: string;
+    // The description used to generate the script
+    description: string;
+}
+
+export interface Session extends SessionData {
     id: string;
     timestamp: number;
     name: string;
 }
 
+const initialData: SessionData = {
+    analysis: {
+        executiveSummary: "",
+        technicalBreakdown: "",
+        riskScore: 0,
+        recommendedActions: [],
+        suggestedCountermeasure: ""
+    },
+    events: [],
+    metrics: {
+        totalEvents: 0,
+        activeThreats: 0,
+        blockedAttacks: 0,
+        detectionAccuracy: "0%"
+    },
+    affectedResources: [],
+    topProcesses: [],
+    topEvents: [],
+    analysisResult: null,
+    interactionResult: null,
+    script: "",
+    description: ""
+};
+
 interface SimulationState {
     data: Session | null;
-    setData: (data: Session | null) => void;
     isLoading: boolean;
-    setIsLoading: (script: string, description: string) => void;
-    clearSimulation: (id?: string) => void;
     history: Session[];
+    
+    // Actions
+    startSimulation: (script: string, description: string) => void;
+    clearSimulation: () => void;
     loadFromHistory: (id: string) => void;
     clearHistory: () => void;
+
+    // State setters that components can use
+    setScript: (script: string) => void;
+    setDescription: (description: string) => void;
+    setAnalysisResult: (result: AnalyzeScriptOutput | null) => void;
+    setInteractionResult: (result: AnalyzeInteractionOutput | null) => void;
+
+    // Derived state for convenience
+    script: string;
+    description: string;
+    analysisResult: AnalyzeScriptOutput | null;
+    interactionResult: AnalyzeInteractionOutput | null;
 }
 
 const SimulationContext = createContext<SimulationState | undefined>(undefined);
@@ -27,8 +77,6 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const { toast } = useToast();
     const [data, setData] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [currentScript, setCurrentScript] = useState<string>('');
-    const [currentDescription, setCurrentDescription] = useState('');
     const [history, setHistory] = useState<Session[]>([]);
 
      useEffect(() => {
@@ -50,20 +98,116 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             console.error("Could not save history to localStorage", error);
         }
     };
-
-    const addToHistory = (newData: ModelAttackScenarioOutput, name: string) => {
-        const newSession: Session = {
-            ...newData,
-            id: `SESSION-${Date.now()}`,
-            timestamp: Date.now(),
-            name: name || "Untitled Scenario",
+    
+    const setInteractionResult = (interactionResult: AnalyzeInteractionOutput | null) => {
+        if (!data) return;
+        
+        const updatedData = {
+            ...data,
+            interactionResult,
+            analysis: {
+                ...data.analysis,
+                suggestedCountermeasure: interactionResult?.modifiedDefenseScript || data.analysis.suggestedCountermeasure
+            }
         };
-        const updatedHistory = [newSession, ...history].slice(0, 10); // Keep last 10 sessions
-        saveHistory(updatedHistory);
-        return newSession;
+        setData(updatedData);
+
+        // Also update history if this session is in it
+        const historyIndex = history.findIndex(s => s.id === data.id);
+        if (historyIndex !== -1) {
+            const newHistory = [...history];
+            newHistory[historyIndex] = updatedData;
+            saveHistory(newHistory);
+        }
     };
 
-    const loadFromHistory = (id: string) => {
+    const setAnalysisResult = (analysisResult: AnalyzeScriptOutput | null) => {
+        if (!data) {
+             // If there's no active session, we can't set this
+             // This can be changed if we want to allow analysis without a full session
+        } else {
+            const updatedData = {...data, analysisResult };
+            setData(updatedData);
+        }
+    }
+
+    const setScript = (script: string) => {
+        if (data) {
+            setData({ ...data, script });
+        } else {
+            // If there's no active session, create a transient one
+            setData({
+                ...initialData,
+                id: `transient-${Date.now()}`,
+                name: "New Scenario",
+                timestamp: Date.now(),
+                script,
+            });
+        }
+    };
+    
+    const setDescription = (description: string) => {
+        if (data) {
+            setData({ ...data, description });
+        } else {
+             setData({
+                ...initialData,
+                id: `transient-${Date.now()}`,
+                name: "New Scenario",
+                timestamp: Date.now(),
+                description,
+            });
+        }
+    };
+
+    const startSimulation = useCallback(async (script: string, description: string) => {
+        setIsLoading(true);
+        // Clear previous results but keep script/description
+        setData({
+             ...initialData,
+             script,
+             description,
+             id: `running-${Date.now()}`,
+             name: description || "Running Scenario",
+             timestamp: Date.now(),
+        });
+
+        try {
+            const result = await modelAttackScenario({ script });
+            
+            const newSession: Session = {
+                ...result,
+                script,
+                description,
+                analysisResult: null,
+                interactionResult: null,
+                id: `SESSION-${Date.now()}`,
+                timestamp: Date.now(),
+                name: description || "Untitled Scenario",
+            };
+
+            const updatedHistory = [newSession, ...history].slice(0, 10);
+            saveHistory(updatedHistory);
+            setData(newSession);
+            toast({
+                title: 'Simulation Complete',
+                description: 'The attack scenario has been successfully modeled.',
+            });
+        } catch (error) {
+            console.error("Failed to model attack scenario:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Could not model the attack scenario. Please try again.',
+            });
+            clearSimulation();
+        } finally {
+            setIsLoading(false);
+        }
+    }, [history, toast]);
+
+
+    const loadFromHistory = useCallback((id: string) => {
         const session = history.find(s => s.id === id);
         if (session) {
             setData(session);
@@ -72,70 +216,42 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
                 description: `Loaded "${session.name}" from history.`,
             });
         }
-    };
+    }, [history, toast]);
 
-    const clearHistory = () => {
+    const clearHistory = useCallback(() => {
         saveHistory([]);
         toast({
             title: 'History Cleared',
             description: 'All saved simulation sessions have been removed.',
         });
-    };
-
-    const clearSimulation = useCallback((id?: string) => {
+    }, [toast]);
+    
+    const clearSimulation = useCallback(() => {
+        const currentId = data?.id;
         setData(null);
-        if (id) {
-            const newHistory = history.filter(session => session.id !== id);
+        if (currentId && currentId.startsWith('SESSION-')) {
+            const newHistory = history.filter(session => session.id !== currentId);
             saveHistory(newHistory);
         }
-    }, [history]);
-
-    useEffect(() => {
-        const runSimulation = async () => {
-            if (isLoading && currentScript) {
-                try {
-                    const result = await modelAttackScenario({ script: currentScript });
-                    const newSession = addToHistory(result, currentDescription);
-                    setData(newSession);
-                     toast({
-                        title: 'Simulation Complete',
-                        description: 'The attack scenario has been successfully modeled.',
-                    });
-                } catch (error) {
-                    console.error("Failed to model attack scenario:", error);
-                    toast({
-                        variant: 'destructive',
-                        title: 'Error',
-                        description: 'Could not model the attack scenario. Please try again.',
-                    });
-                    setData(null);
-                } finally {
-                    setIsLoading(false);
-                    setCurrentScript('');
-                    setCurrentDescription('');
-                }
-            }
-        };
-        runSimulation();
-    }, [isLoading, currentScript, currentDescription, toast]);
-
-    const startLoading = useCallback((script: string, description: string) => {
-        setData(null);
-        setCurrentScript(script);
-        setCurrentDescription(description);
-        setIsLoading(true);
-    }, []);
-
+    }, [data, history]);
+    
     const value = useMemo(() => ({
         data,
-        setData,
         isLoading,
-        setIsLoading: startLoading,
-        clearSimulation,
         history,
+        startSimulation,
+        clearSimulation,
         loadFromHistory,
         clearHistory,
-    }), [data, isLoading, startLoading, clearSimulation, history, loadFromHistory, clearHistory]);
+        setScript,
+        setDescription,
+        setAnalysisResult,
+        setInteractionResult,
+        script: data?.script || '',
+        description: data?.description || '',
+        analysisResult: data?.analysisResult || null,
+        interactionResult: data?.interactionResult || null,
+    }), [data, isLoading, history, startSimulation, clearSimulation, loadFromHistory, clearHistory]);
 
     return (
         <SimulationContext.Provider value={value}>
