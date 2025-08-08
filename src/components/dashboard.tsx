@@ -18,16 +18,16 @@ const chartColors = [
 
 const severityColors: Record<string, string> = {
     'Critical': 'hsl(var(--destructive))',
-    'High': 'hsl(var(--chart-5))', // Orange
-    'Medium': 'hsl(var(--chart-2))', // Blue
-    'Low': 'hsl(var(--chart-1))', // Teal
+    'High': 'hsl(var(--chart-5))',
+    'Medium': 'hsl(var(--chart-2))',
+    'Low': 'hsl(var(--chart-1))',
 }
 
 const statusColors: Record<string, string> = {
     'Compromised': 'hsl(var(--destructive))',
-    'Vulnerable': 'hsl(var(--chart-5))', // Orange
-    'Investigating': 'hsl(var(--chart-2))', // Blue
-    'Protected': 'hsl(var(--chart-1))', // Teal
+    'Vulnerable': 'hsl(var(--chart-5))',
+    'Investigating': 'hsl(var(--chart-2))',
+    'Protected': 'hsl(var(--chart-1))',
 }
 
 const renderActiveShape = (props: any) => {
@@ -147,7 +147,7 @@ export function Dashboard() {
                         <ShieldCheck className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{metrics.blockedAttacks.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">{data.interactionResult?.attacksBlocked ?? 0}</div>
                          <p className="text-xs text-muted-foreground">Via tested countermeasure</p>
                     </CardContent>
                 </Card>
@@ -163,7 +163,7 @@ export function Dashboard() {
                 </Card>
             </div>
 
-            <div className="grid gap-4 mt-4 lg:grid-cols-2">
+            <div className="grid gap-4 mt-4 grid-cols-1 lg:grid-cols-2">
                 <Card>
                      <CardHeader>
                         <CardTitle>Top Security Events</CardTitle>
@@ -225,7 +225,7 @@ export function Dashboard() {
                                     onMouseEnter={(_, index) => setActiveIndexSeverity(index)}
                                 >
                                      {eventSeverityData.map((entry) => (
-                                        <Cell key={`cell-${entry.name}`} fill={severityColors[entry.name] || 'var(--chart-3)'} />
+                                        <Cell key={`cell-${entry.name}`} fill={severityColors[entry.name]} />
                                     ))}
                                 </Pie>
                                 <Legend />
@@ -253,7 +253,7 @@ export function Dashboard() {
                                     onMouseEnter={(_, index) => setActiveIndexStatus(index)}
                                 >
                                      {resourceStatusData.map((entry) => (
-                                        <Cell key={`cell-${entry.name}`} fill={statusColors[entry.name] || 'var(--chart-3)'} />
+                                        <Cell key={`cell-${entry.name}`} fill={statusColors[entry.name]} />
                                     ))}
                                 </Pie>
                                 <Legend />
@@ -264,7 +264,7 @@ export function Dashboard() {
              </div>
 
             <div className="grid gap-4 mt-4">
-                 <Card className="col-span-1 lg:col-span-3">
+                 <Card className="col-span-1 lg:col-span-full">
                     <CardHeader>
                         <CardTitle>Threat Analysis</CardTitle>
                          <CardDescription>AI-generated analysis of the simulated attack.</CardDescription>
