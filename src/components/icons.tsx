@@ -8,18 +8,18 @@ export function Logo({ className, ...props }: SVGProps<SVGSVGElement>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={cn("h-6 w-6 text-primary", className)}
       {...props}
     >
-      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-      <path d="M12 18a6 6 0 1 0 0-12" />
-      <path d="M22 12h-2" />
-      <path d="M4 12H2" />
-      <path d="m15.5 15.5-.88-.88" />
-      <path d="m9.38 9.38-.88-.88" />
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <path d="M12 14l-3-1.5"></path>
+        <path d="M12 14l3-1.5"></path>
+        <path d="M12 14v-4"></path>
+        <path d="M12 10l-3-1.5"></path>
+        <path d="M12 10l3-1.5"></path>
     </svg>
   );
 }

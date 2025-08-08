@@ -290,15 +290,20 @@ export function ThreatSandbox() {
                                         </Alert>
                                     </div>
                                 )}
-                                 {!interactionResult && !isTesting && (
+                                 {!interactionResult && !isTesting && data && (
                                      <div className="h-64 flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed rounded-lg">
                                         <p>Click below to simulate the engagement.</p>
-                                        <Button className="mt-4" onClick={handleTestCountermeasure} variant="secondary">
+                                        <Button className="mt-4" onClick={handleTestCountermeasure} variant="secondary" disabled={isTesting}>
                                             {isTesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2" />}
                                             Test Countermeasure
                                         </Button>
                                     </div>
                                 )}
+                                 {!data && !isTesting && (
+                                    <div className="h-64 flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed rounded-lg">
+                                        <p>Run a scenario first to test its countermeasure.</p>
+                                    </div>
+                                 )}
                             </TabsContent>
                         </Tabs>
                     </CardContent>

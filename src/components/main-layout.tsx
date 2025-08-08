@@ -47,7 +47,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-3 p-2">
                        <Logo className="text-primary h-8 w-8"/>
                        <div className="flex flex-col">
-                        <h1 className="text-lg font-semibold text-foreground tracking-wide">Sentinel</h1>
+                        <h1 className="text-lg font-semibold text-foreground tracking-wide">NetGuard</h1>
                         <span className="text-[10px] uppercase text-muted-foreground tracking-wider">AI Sandbox</span>
                        </div>
                     </div>
