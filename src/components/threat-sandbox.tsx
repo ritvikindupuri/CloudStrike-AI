@@ -240,39 +240,6 @@ export function ThreatSandbox() {
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <FlaskConical className="h-6 w-6" />
-                            Threat Sandbox
-                        </CardTitle>
-                        <CardDescription>
-                             Paste a script here or generate one to analyze its potential impact in a safe, simulated environment.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                         <Textarea
-                            placeholder="Your generated or pasted script will appear here..."
-                            value={script}
-                            onChange={(e) => setScript(e.target.value)}
-                            className="h-64 font-code text-xs"
-                        />
-                    </CardContent>
-                     <CardFooter className="flex justify-between">
-                         <div className="flex gap-2">
-                            <Button onClick={handleAnalyzeScript} variant="secondary" disabled={!script || isAnalyzing}>
-                                {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2" />}
-                                Quick Analysis
-                            </Button>
-                             <Button onClick={handleModelScenario} disabled={!script || isAnalyzing}>
-                                Model Full Scenario
-                            </Button>
-                        </div>
-                        <Button onClick={() => copyToClipboard(script)} variant="ghost" size="icon" disabled={!script}>
-                            <Clipboard className="h-5 w-5" />
-                        </Button>
-                    </CardFooter>
-                </Card>
                 {analysisResult && (
                      <Card>
                         <CardHeader>
@@ -306,8 +273,41 @@ export function ThreatSandbox() {
             </div>
 
             {/* Right Column */}
-            <div className="flex flex-col gap-6">
-               <Card className="sticky top-6">
+            <div className="flex flex-col gap-6 sticky top-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <FlaskConical className="h-6 w-6" />
+                            Threat Sandbox
+                        </CardTitle>
+                        <CardDescription>
+                             Paste a script here or generate one to analyze its potential impact in a safe, simulated environment.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <Textarea
+                            placeholder="Your generated or pasted script will appear here..."
+                            value={script}
+                            onChange={(e) => setScript(e.target.value)}
+                            className="h-64 font-code text-xs"
+                        />
+                    </CardContent>
+                     <CardFooter className="flex justify-between">
+                         <div className="flex gap-2">
+                            <Button onClick={handleAnalyzeScript} variant="secondary" disabled={!script || isAnalyzing}>
+                                {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2" />}
+                                Quick Analysis
+                            </Button>
+                             <Button onClick={handleModelScenario} disabled={!script || isAnalyzing}>
+                                Model Full Scenario
+                            </Button>
+                        </div>
+                        <Button onClick={() => copyToClipboard(script)} variant="ghost" size="icon" disabled={!script}>
+                            <Clipboard className="h-5 w-5" />
+                        </Button>
+                    </CardFooter>
+                </Card>
+               <Card>
                     <CardHeader>
                         <CardTitle>Analysis & Defense</CardTitle>
                          <CardDescription>
@@ -402,7 +402,7 @@ export function ThreatSandbox() {
                                             Test & Improve
                                         </Button>
                                     </div>
-                                )}
+                                 )}
                                  {!data && !isTesting && (
                                     <div className="h-64 flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed rounded-lg">
                                         <p>Run a scenario first to test its countermeasure.</p>
@@ -428,5 +428,3 @@ export function ThreatSandbox() {
         </main>
     );
 }
-
-    
