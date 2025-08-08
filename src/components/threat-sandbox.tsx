@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Bot, Clipboard, FileCheck2, Loader2, Send, ShieldCheck, FlaskConical, AlertTriangle, Lightbulb, RotateCcw } from "lucide-react";
+import { Bot, Clipboard, FileCheck2, Loader2, Send, ShieldCheck, FlaskConical, AlertTriangle, Lightbulb, RotateCcw, CheckCircle2 } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { useSimulation } from '@/context/simulation-context';
 import { generateAttackScript, type GenerateAttackScriptOutput } from '@/ai/flows/generate-attack-script-flow';
@@ -15,12 +15,43 @@ import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 
 const attackExamples = [
-  "A powershell script that exfiltrates data from an AWS S3 bucket by finding publicly accessible buckets and downloading their contents.",
-  "Simulate EC2 instance credential theft via a Server-Side Request Forgery (SSRF) vulnerability on a web application.",
-  "A shell script to achieve persistence by creating a new IAM user and attaching an administrative policy.",
-  "Model a denial of service attack by triggering a recursive AWS Lambda function invocation.",
-  "Generate a script that scans for unsecured Kubernetes pods and extracts service account tokens.",
+  {
+    id: "aws-s3-exfil",
+    title: "AWS S3 Data Exfiltration",
+    provider: "AWS",
+    tactic: "Exfiltration",
+    description: "A powershell script that exfiltrates data from an AWS S3 bucket by finding publicly accessible buckets and downloading their contents."
+  },
+  {
+    id: "gcp-iam-persistence",
+    title: "GCP IAM Persistence",
+    provider: "GCP",
+    tactic: "Persistence",
+    description: "A shell script to achieve persistence in a GCP environment by creating a new service account, assigning it project editor rights, and generating keys for it."
+  },
+  {
+    id: "azure-vm-rce",
+    title: "Azure VM Remote Code Execution",
+    provider: "Azure",
+    tactic: "Execution",
+    description: "Simulate remote code execution on an Azure VM by exploiting a vulnerable web application to run a reverse shell."
+  },
+  {
+    id: "aws-lambda-dos",
+    title: "AWS Lambda Denial of Service",
+    provider: "AWS",
+    tactic: "Impact",
+    description: "Model a denial of service attack by triggering a recursive AWS Lambda function invocation that rapidly consumes resources."
+  },
+  {
+    id: "k8s-token-theft",
+    title: "Kubernetes Service Account Token Theft",
+    provider: "Multi-Cloud",
+    tactic: "Credential Access",
+    description: "Generate a script that scans for unsecured Kubernetes pods within a cluster and extracts service account tokens from them."
+  },
 ];
+
 
 export function ThreatSandbox() {
     const { toast } = useToast();
@@ -35,6 +66,8 @@ export function ThreatSandbox() {
     
     const [interactionResult, setInteractionResult] = useState<AnalyzeInteractionOutput | null>(null);
     const [isTesting, setIsTesting] = useState(false);
+    
+    const [selectedAttackId, setSelectedAttackId] = useState<string | null>(null);
 
     const handleGenerateScript = async () => {
         if (!description) {
@@ -88,6 +121,7 @@ export function ThreatSandbox() {
         setDescription('');
         setAnalysisResult(null);
         setInteractionResult(null);
+        setSelectedAttackId(null);
         toast({ title: 'Sandbox Cleared', description: 'The simulation has been reset.' });
     };
 
@@ -149,28 +183,22 @@ export function ThreatSandbox() {
                         <CardTitle className="flex items-center gap-2">
                            <Bot className="h-6 w-6"/> AI Attack Generator
                         </CardTitle>
-                        <CardDescription>Describe a cloud-native attack scenario or select an example, and the AI will generate a simulated script for it.</CardDescription>
+                        <CardDescription>Describe a cloud-native attack scenario in the text area below, or select a pre-built scenario from the library to get started.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <Textarea
                             placeholder="e.g., 'A powershell script that exfiltrates data from an AWS S3 bucket...'"
                             value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                            onChange={(e) => {
+                                setDescription(e.target.value);
+                                setSelectedAttackId(null);
+                            }}
                             className="h-24"
                         />
-                         <div>
-                            <p className="text-xs text-muted-foreground mb-2">Or try an example from our library:</p>
-                            <div className="flex flex-wrap gap-2">
-                                {attackExamples.map((ex, i) => (
-                                    <Button key={i} variant="outline" size="sm" className="text-xs text-left h-auto" onClick={() => setDescription(ex)}>
-                                        {ex}
-                                    </Button>
-                                ))}
-                            </div>
-                        </div>
+                         
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                        <Button onClick={handleGenerateScript} disabled={isLoading}>
+                        <Button onClick={handleGenerateScript} disabled={isLoading || !description}>
                             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2" />}
                             Generate Script
                         </Button>
@@ -179,6 +207,39 @@ export function ThreatSandbox() {
                         </Button>
                     </CardFooter>
                 </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Attack Library</CardTitle>
+                        <CardDescription>Select a pre-built scenario to load it into the generator.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {attackExamples.map((ex) => (
+                           <Card key={ex.id} className={`flex flex-col justify-between ${selectedAttackId === ex.id ? 'border-primary' : ''}`}>
+                               <CardHeader className="pb-2">
+                                   <CardTitle className="text-base">{ex.title}</CardTitle>
+                                   <div className="flex gap-2 pt-1">
+                                       <Badge variant="secondary">{ex.provider}</Badge>
+                                       <Badge variant="outline">{ex.tactic}</Badge>
+                                   </div>
+                               </CardHeader>
+                               <CardFooter>
+                                    <Button 
+                                        variant={selectedAttackId === ex.id ? "default" : "secondary"}
+                                        className="w-full"
+                                        onClick={() => {
+                                            setDescription(ex.description)
+                                            setSelectedAttackId(ex.id)
+                                        }}>
+                                        {selectedAttackId === ex.id ? <CheckCircle2 className="mr-2" /> : null}
+                                        {selectedAttackId === ex.id ? 'Selected' : 'Select'}
+                                    </Button>
+                               </CardFooter>
+                           </Card>
+                        ))}
+                    </CardContent>
+                </Card>
+
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -367,3 +428,5 @@ export function ThreatSandbox() {
         </main>
     );
 }
+
+    
