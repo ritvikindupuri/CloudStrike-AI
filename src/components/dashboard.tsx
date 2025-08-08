@@ -18,8 +18,8 @@ const chartColors = [
 const severityColors: Record<SecurityEvent['severity'], string> = {
     'Critical': 'hsl(var(--destructive))',
     'High': 'hsl(var(--chart-4))',
-    'Medium': 'hsl(var(--chart-5))',
-    'Low': 'hsl(var(--chart-2))',
+    'Medium': 'hsl(var(--chart-2))',
+    'Low': 'hsl(var(--chart-1))',
 }
 
 const statusColors: Record<CloudResource['status'], string> = {
@@ -221,8 +221,8 @@ export function Dashboard() {
                                     dataKey="value"
                                     onMouseEnter={(_, index) => setActiveIndexSeverity(index)}
                                 >
-                                     {eventSeverityData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={severityColors[entry.name as keyof typeof severityColors]} />
+                                     {eventSeverityData.map((entry) => (
+                                        <Cell key={`cell-${entry.name}`} fill={severityColors[entry.name as keyof typeof severityColors]} />
                                     ))}
                                 </Pie>
                                 <Legend />
@@ -249,8 +249,8 @@ export function Dashboard() {
                                     dataKey="value"
                                     onMouseEnter={(_, index) => setActiveIndexStatus(index)}
                                 >
-                                     {resourceStatusData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={statusColors[entry.name as keyof typeof statusColors]} />
+                                     {resourceStatusData.map((entry) => (
+                                        <Cell key={`cell-${entry.name}`} fill={statusColors[entry.name as keyof typeof statusColors]} />
                                     ))}
                                 </Pie>
                                 <Legend />
