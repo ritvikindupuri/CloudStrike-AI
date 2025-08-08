@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
@@ -257,7 +258,7 @@ export function ThreatSandbox() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                         <Tabs value={activeTab} onValuechange={setActiveTab}>
+                         <Tabs value={activeTab} onValueChange={setActiveTab}>
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="countermeasure" onClick={() => setActiveTab('countermeasure')}>Countermeasure</TabsTrigger>
                                 <TabsTrigger value="engagement" onClick={() => setActiveTab('engagement')} disabled={!data}>Test & Improve</TabsTrigger>
@@ -371,3 +372,5 @@ export function ThreatSandbox() {
         </main>
     );
 }
+
+    
