@@ -3,20 +3,20 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Bot, Clipboard, FileCheck2, Loader2, Send, ShieldCheck, FlaskConical, AlertTriangle, Lightbulb } from "lucide-react";
+import { Bot, Clipboard, FileCheck2, Loader2, Send, ShieldCheck, FlaskConical, AlertTriangle, Lightbulb, RotateCcw } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { useSimulation } from '@/context/simulation-context';
 import { generateAttackScript, type GenerateAttackScriptOutput } from '@/ai/flows/generate-attack-script-flow';
 import { analyzeScript, type AnalyzeScriptOutput } from '@/ai/flows/analyze-script-flow';
 import { analyzeInteraction, type AnalyzeInteractionOutput, type InteractionStep } from '@/ai/flows/analyze-interaction-flow';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 
 export function ThreatSandbox() {
     const { toast } = useToast();
-    const { data, setData, setIsLoading: setSimulationLoading } = useSimulation();
+    const { data, setData, setIsLoading: setSimulationLoading, clearSimulation } = useSimulation();
 
     const [description, setDescription] = useState('');
     const [script, setScript] = useState('');
@@ -69,9 +69,18 @@ export function ThreatSandbox() {
             toast({ variant: 'destructive', title: 'Error', description: 'There is no script to model.' });
             return;
         }
-        setData(null);
         setInteractionResult(null);
-        setSimulationLoading(script);
+        setAnalysisResult(null);
+        setSimulationLoading(script, description);
+    };
+
+    const handleClearScenario = () => {
+        clearSimulation();
+        setScript('');
+        setDescription('');
+        setAnalysisResult(null);
+        setInteractionResult(null);
+        toast({ title: 'Sandbox Cleared', description: 'The simulation has been reset.' });
     };
 
     const handleTestCountermeasure = async () => {
@@ -87,6 +96,15 @@ export function ThreatSandbox() {
                 defenseScript: data.analysis.suggestedCountermeasure
             });
             setInteractionResult(result);
+            if(result.modifiedDefenseScript && data?.analysis) {
+                setData({
+                    ...data,
+                    analysis: {
+                        ...data.analysis,
+                        suggestedCountermeasure: result.modifiedDefenseScript,
+                    }
+                });
+            }
         } catch (error) {
             console.error("Failed to test countermeasure:", error);
             toast({ variant: 'destructive', title: 'Error', description: 'Could not test countermeasure. Please try again.' });
@@ -129,10 +147,13 @@ export function ThreatSandbox() {
                             className="h-24"
                         />
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="flex justify-between">
                         <Button onClick={handleGenerateScript} disabled={isLoading}>
                             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2" />}
                             Generate Script
+                        </Button>
+                        <Button onClick={handleClearScenario} variant="outline" >
+                            <RotateCcw className="mr-2 h-4 w-4" /> Clear Scenario
                         </Button>
                     </CardFooter>
                 </Card>
@@ -211,7 +232,7 @@ export function ThreatSandbox() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                         <Tabs defaultValue="countermeasure">
+                         <Tabs defaultValue="countermeasure" value={interactionResult ? "engagement" : "countermeasure"}>
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="countermeasure">Countermeasure</TabsTrigger>
                                 <TabsTrigger value="engagement" disabled={!data}>Test Effectiveness</TabsTrigger>
