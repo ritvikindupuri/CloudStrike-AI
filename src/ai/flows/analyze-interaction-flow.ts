@@ -15,11 +15,15 @@ export async function analyzeInteraction(input: import('./types/analyze-interact
   return analyzeInteractionFlow(input);
 }
 
-const prompt = ai.definePrompt({
-    name: 'analyzeInteractionPrompt',
-    input: { schema: AnalyzeInteractionInputSchema },
-    output: { schema: AnalyzeInteractionOutputSchema },
-    prompt: `You are a "Purple Team" cybersecurity expert, simulating and analyzing a cyber engagement in real-time. Your task is to analyze an attack script and a corresponding defense script. You will simulate the interaction step-by-step.
+const analyzeInteractionFlow = ai.defineFlow(
+  {
+    name: 'analyzeInteractionFlow',
+    inputSchema: AnalyzeInteractionInputSchema,
+    outputSchema: AnalyzeInteractionOutputSchema,
+  },
+  async (input) => {
+    const prompt = {
+        prompt: `You are a "Purple Team" cybersecurity expert, simulating and analyzing a cyber engagement in real-time. Your task is to analyze an attack script and a corresponding defense script. You will simulate the interaction step-by-step.
 
 Attack Script:
 \`\`\`
@@ -46,24 +50,37 @@ Second, and most importantly, generate a step-by-step **interactionLog**. Simula
 
 Provide the entire output in the specified JSON format.
 `,
-    config: {
-        safetySettings: [
-            {
-                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                threshold: 'BLOCK_NONE',
-            },
-        ],
-    },
-});
+        input: { schema: AnalyzeInteractionInputSchema },
+        output: { schema: AnalyzeInteractionOutputSchema },
+        config: {
+            safetySettings: [
+                {
+                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                    threshold: 'BLOCK_NONE',
+                },
+            ],
+        },
+    };
 
-const analyzeInteractionFlow = ai.defineFlow(
-  {
-    name: 'analyzeInteractionFlow',
-    inputSchema: AnalyzeInteractionInputSchema,
-    outputSchema: AnalyzeInteractionOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
+    try {
+        const { output } = await ai.generate({
+            ...prompt,
+            model: 'googleai/gemini-1.5-flash',
+            prompt: prompt.prompt,
+            context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+        });
+        return output!;
+    } catch (e: any) {
+        if (e.message?.includes('429')) {
+             const { output } = await ai.generate({
+                ...prompt,
+                model: 'googleai/gemini-pro',
+                prompt: prompt.prompt,
+                context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+            });
+            return output!;
+        }
+        throw e;
+    }
   }
 );

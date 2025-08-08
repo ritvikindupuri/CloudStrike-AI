@@ -12,11 +12,15 @@ export async function generateResponsePlan(input: import('./types/generate-respo
   return generateResponsePlanFlow(input);
 }
 
-const prompt = ai.definePrompt({
-    name: 'generateResponsePlanPrompt',
-    input: { schema: GenerateResponsePlanInputSchema },
-    output: { schema: GenerateResponsePlanOutputSchema },
-    prompt: `You are a Tier 2 Security Operations Center (SOC) Analyst playbook generator. Your task is to create a concise incident response plan for a given security event.
+const generateResponsePlanFlow = ai.defineFlow(
+  {
+    name: 'generateResponsePlanFlow',
+    inputSchema: GenerateResponsePlanInputSchema,
+    outputSchema: GenerateResponsePlanOutputSchema,
+  },
+  async (input) => {
+    const prompt = {
+        prompt: `You are a Tier 2 Security Operations Center (SOC) Analyst playbook generator. Your task is to create a concise incident response plan for a given security event.
 
 Security Event Details:
 - Event ID: {{{id}}}
@@ -30,16 +34,29 @@ Based on this event, provide a response plan in JSON format with the following f
 2.  **suggestedStatus**: The most appropriate status to assign this event after the initial steps are taken, either 'Contained' or 'Resolved'.
 3.  **justification**: A single sentence explaining why these steps are recommended.
 `,
-});
-
-const generateResponsePlanFlow = ai.defineFlow(
-  {
-    name: 'generateResponsePlanFlow',
-    inputSchema: GenerateResponsePlanInputSchema,
-    outputSchema: GenerateResponsePlanOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
+        input: { schema: GenerateResponsePlanInputSchema },
+        output: { schema: GenerateResponsePlanOutputSchema },
+    };
+    
+    try {
+        const { output } = await ai.generate({
+            ...prompt,
+            model: 'googleai/gemini-1.5-flash',
+            prompt: prompt.prompt,
+            context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+        });
+        return output!;
+    } catch (e: any) {
+        if (e.message?.includes('429')) {
+             const { output } = await ai.generate({
+                ...prompt,
+                model: 'googleai/gemini-pro',
+                prompt: prompt.prompt,
+                context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+            });
+            return output!;
+        }
+        throw e;
+    }
   }
 );

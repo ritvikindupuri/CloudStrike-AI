@@ -14,11 +14,15 @@ export async function generateAttackScript(input: import('./types/generate-attac
   return generateAttackScriptFlow(input);
 }
 
-const prompt = ai.definePrompt({
-    name: 'generateAttackScriptPrompt',
-    input: { schema: GenerateAttackScriptInputSchema },
-    output: { schema: GenerateAttackScriptOutputSchema },
-    prompt: `You are a cybersecurity expert specializing in cloud security and red teaming. Your task is to write a realistic but **simulated** attack script based on a user's request.
+const generateAttackScriptFlow = ai.defineFlow(
+  {
+    name: 'generateAttackScriptFlow',
+    inputSchema: GenerateAttackScriptInputSchema,
+    outputSchema: GenerateAttackScriptOutputSchema,
+  },
+  async (input) => {
+     const prompt = {
+        prompt: `You are a cybersecurity expert specializing in cloud security and red teaming. Your task is to write a realistic but **simulated** attack script based on a user's request.
 
 The script should target **cloud-native services** (e.g., AWS S3, Lambda, IAM; Azure Blob Storage, Functions; GCP Cloud Storage, Cloud Functions).
 
@@ -32,24 +36,37 @@ User Request: "{{{description}}}"
 
 Generate the script that simulates this attack.
 `,
-    config: {
-        safetySettings: [
-            {
-                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                threshold: 'BLOCK_NONE',
-            },
-        ],
-    },
-});
+        input: { schema: GenerateAttackScriptInputSchema },
+        output: { schema: GenerateAttackScriptOutputSchema },
+        config: {
+            safetySettings: [
+                {
+                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                    threshold: 'BLOCK_NONE',
+                },
+            ],
+        },
+    };
 
-const generateAttackScriptFlow = ai.defineFlow(
-  {
-    name: 'generateAttackScriptFlow',
-    inputSchema: GenerateAttackScriptInputSchema,
-    outputSchema: GenerateAttackScriptOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
+    try {
+        const { output } = await ai.generate({
+            ...prompt,
+            model: 'googleai/gemini-1.5-flash',
+            prompt: prompt.prompt,
+            context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+        });
+        return output!;
+    } catch (e: any) {
+        if (e.message?.includes('429')) {
+             const { output } = await ai.generate({
+                ...prompt,
+                model: 'googleai/gemini-pro',
+                prompt: prompt.prompt,
+                context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+            });
+            return output!;
+        }
+        throw e;
+    }
   }
 );

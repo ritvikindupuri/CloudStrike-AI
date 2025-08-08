@@ -15,11 +15,15 @@ export async function modelAttackScenario(input: import('./types/simulate-attack
   return modelAttackScenarioFlow(input);
 }
 
-const prompt = ai.definePrompt({
-    name: 'modelAttackScenarioPrompt',
-    input: { schema: ModelAttackScenarioInputSchema },
-    output: { schema: ModelAttackScenarioOutputSchema },
-    prompt: `You are a Cloud Intrusion Detection System (CIDS) analyzer and a senior security automation engineer. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
+const modelAttackScenarioFlow = ai.defineFlow(
+  {
+    name: 'modelAttackScenarioFlow',
+    inputSchema: ModelAttackScenarioInputSchema,
+    outputSchema: ModelAttackScenarioOutputSchema,
+  },
+  async (input) => {
+    const prompt = {
+        prompt: `You are a Cloud Intrusion Detection System (CIDS) analyzer and a senior security automation engineer. Your role is to generate realistic security data and a professional threat analysis based on a cyber attack script provided by the user.
 
 First, meticulously analyze the following script to understand its intent, methodology, and potential impact.
 
@@ -38,25 +42,38 @@ Based on your analysis of this script, generate a complete scenario analysis out
 
 Provide the entire output in the specified JSON format.
 `,
-    config: {
-        safetySettings: [
-            {
-                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                threshold: 'BLOCK_NONE',
-            },
-        ],
-    },
-});
+        input: { schema: ModelAttackScenarioInputSchema },
+        output: { schema: ModelAttackScenarioOutputSchema },
+        config: {
+            safetySettings: [
+                {
+                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                    threshold: 'BLOCK_NONE',
+                },
+            ],
+        },
+    };
 
-const modelAttackScenarioFlow = ai.defineFlow(
-  {
-    name: 'modelAttackScenarioFlow',
-    inputSchema: ModelAttackScenarioInputSchema,
-    outputSchema: ModelAttackScenarioOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
+    try {
+        const { output } = await ai.generate({
+            ...prompt,
+            model: 'googleai/gemini-1.5-flash',
+            prompt: prompt.prompt,
+            context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+        });
+        return output!;
+    } catch (e: any) {
+        if (e.message?.includes('429')) {
+             const { output } = await ai.generate({
+                ...prompt,
+                model: 'googleai/gemini-pro',
+                prompt: prompt.prompt,
+                context: [{ role: 'user', content: [{ text: JSON.stringify(input) }] }]
+            });
+            return output!;
+        }
+        throw e;
+    }
   }
 );
     
