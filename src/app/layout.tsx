@@ -6,8 +6,8 @@ import { MainLayout } from '@/components/main-layout';
 import { SimulationProvider } from '@/context/simulation-context';
 
 export const metadata: Metadata = {
-  title: 'NetGuard AI - Threat Sandbox',
-  description: 'AI-powered cybersecurity sandbox for modeling and analyzing cloud-native attacks.',
+  title: 'CloudStrike AI - Threat Modeling',
+  description: 'AI-powered sandbox for modeling and analyzing cloud-native attacks.',
 };
 
 export default function RootLayout({

@@ -53,8 +53,8 @@ function MainLayoutComponent({ children }: { children: React.ReactNode }) {
                        <div className="flex items-center gap-3">
                          <Logo className="text-primary h-8 w-8"/>
                          <div className="flex flex-col">
-                          <h1 className="text-lg font-semibold text-foreground tracking-wide">NetGuard AI</h1>
-                          <span className="text-[10px] uppercase text-muted-foreground tracking-wider">Threat Modeling Sandbox</span>
+                          <h1 className="text-lg font-semibold text-foreground tracking-wide">CloudStrike AI</h1>
+                          <span className="text-[10px] uppercase text-muted-foreground tracking-wider">Cloud-Native Threat Modeling</span>
                          </div>
                        </div>
                        <Button variant="ghost" size="icon" onClick={() => setIsHistoryOpen(true)}>

@@ -14,6 +14,14 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 
+const attackExamples = [
+  "A powershell script that exfiltrates data from an AWS S3 bucket by finding publicly accessible buckets and downloading their contents.",
+  "Simulate EC2 instance credential theft via a Server-Side Request Forgery (SSRF) vulnerability on a web application.",
+  "A shell script to achieve persistence by creating a new IAM user and attaching an administrative policy.",
+  "Model a denial of service attack by triggering a recursive AWS Lambda function invocation.",
+  "Generate a script that scans for unsecured Kubernetes pods and extracts service account tokens.",
+];
+
 export function ThreatSandbox() {
     const { toast } = useToast();
     const { data, setData, setIsLoading: setSimulationLoading, clearSimulation } = useSimulation();
@@ -137,15 +145,25 @@ export function ThreatSandbox() {
                         <CardTitle className="flex items-center gap-2">
                            <Bot className="h-6 w-6"/> AI Attack Generator
                         </CardTitle>
-                        <CardDescription>Describe a cloud-native attack scenario, and the AI will generate a simulated script for it.</CardDescription>
+                        <CardDescription>Describe a cloud-native attack scenario or select an example, and the AI will generate a simulated script for it.</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
                         <Textarea
-                            placeholder="e.g., 'A powershell script that exfiltrates data from an AWS S3 bucket by finding publicly accessible buckets and downloading their contents.'"
+                            placeholder="e.g., 'A powershell script that exfiltrates data from an AWS S3 bucket...'"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             className="h-24"
                         />
+                         <div>
+                            <p className="text-xs text-muted-foreground mb-2">Or try an example:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {attackExamples.slice(0, 3).map((ex, i) => (
+                                    <Button key={i} variant="outline" size="sm" className="text-xs" onClick={() => setDescription(ex)}>
+                                        {ex.split(' ').slice(0, 5).join(' ')}...
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
                     </CardContent>
                     <CardFooter className="flex justify-between">
                         <Button onClick={handleGenerateScript} disabled={isLoading}>
