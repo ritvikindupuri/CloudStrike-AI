@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend, Sector } from 'recharts';
@@ -17,16 +18,16 @@ const chartColors = [
 
 const severityColors: Record<SecurityEvent['severity'], string> = {
     'Critical': 'hsl(var(--destructive))',
-    'High': 'hsl(var(--chart-4))',
-    'Medium': 'hsl(var(--chart-2))',
-    'Low': 'hsl(var(--chart-1))',
+    'High': 'hsl(var(--chart-5))', // Orange
+    'Medium': 'hsl(var(--chart-2))', // Blue
+    'Low': 'hsl(var(--chart-1))', // Teal
 }
 
 const statusColors: Record<CloudResource['status'], string> = {
-    'Compromised': 'hsl(var(--destructive))',
-    'Vulnerable': 'hsl(var(--chart-4))',
-    'Investigating': 'hsl(var(--chart-2))',
-    'Protected': 'hsl(var(--chart-1))',
+    'Compromised': 'hsl(var(--destructive))', // Red
+    'Vulnerable': 'hsl(var(--chart-5))', // Orange
+    'Investigating': 'hsl(var(--chart-2))', // Blue
+    'Protected': 'hsl(var(--chart-1))', // Teal
 }
 
 const renderActiveShape = (props: any) => {
@@ -222,7 +223,7 @@ export function Dashboard() {
                                     onMouseEnter={(_, index) => setActiveIndexSeverity(index)}
                                 >
                                      {eventSeverityData.map((entry) => (
-                                        <Cell key={`cell-${entry.name}`} fill={severityColors[entry.name as keyof typeof severityColors]} />
+                                        <Cell key={`cell-${entry.name}`} fill={severityColors[entry.name as keyof typeof severityColors] || 'var(--chart-3)'} />
                                     ))}
                                 </Pie>
                                 <Legend />
@@ -250,7 +251,7 @@ export function Dashboard() {
                                     onMouseEnter={(_, index) => setActiveIndexStatus(index)}
                                 >
                                      {resourceStatusData.map((entry) => (
-                                        <Cell key={`cell-${entry.name}`} fill={statusColors[entry.name as keyof typeof statusColors]} />
+                                        <Cell key={`cell-${entry.name}`} fill={statusColors[entry.name as keyof typeof statusColors] || 'var(--chart-3)'} />
                                     ))}
                                 </Pie>
                                 <Legend />
