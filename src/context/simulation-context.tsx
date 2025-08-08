@@ -1,14 +1,11 @@
 'use client';
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import type { ModelAttackScenarioOutput } from '@/ai/flows/types/simulate-attack-types';
-import type { AnalyzeScriptOutput } from '@/ai/flows/analyze-script-flow';
 import type { AnalyzeInteractionOutput } from '@/ai/flows/analyze-interaction-flow';
 import { modelAttackScenario } from '@/ai/flows/simulate-attack-flow';
 import { useToast } from '@/hooks/use-toast';
 
 export interface SessionData extends ModelAttackScenarioOutput {
-    // Quick analysis result
-    analysisResult: AnalyzeScriptOutput | null;
     // Countermeasure interaction result
     interactionResult: AnalyzeInteractionOutput | null;
     // The script that was modeled
@@ -23,37 +20,13 @@ export interface Session extends SessionData {
     name: string;
 }
 
-const initialData: SessionData = {
-    analysis: {
-        executiveSummary: "",
-        technicalBreakdown: "",
-        riskScore: 0,
-        recommendedActions: [],
-        suggestedCountermeasure: ""
-    },
-    events: [],
-    metrics: {
-        totalEvents: 0,
-        activeThreats: 0,
-        blockedAttacks: 0,
-        detectionAccuracy: "0%"
-    },
-    affectedResources: [],
-    topProcesses: [],
-    topEvents: [],
-    analysisResult: null,
-    interactionResult: null,
-    script: "",
-    description: ""
-};
-
 interface SimulationState {
     data: Session | null;
     isLoading: boolean;
     history: Session[];
     
     // Actions
-    startSimulation: (script: string, description: string) => void;
+    startSimulation: (script: string, description: string) => Promise<void>;
     clearSimulation: () => void;
     loadFromHistory: (id: string) => void;
     clearHistory: () => void;
@@ -61,13 +34,11 @@ interface SimulationState {
     // State setters that components can use
     setScript: (script: string) => void;
     setDescription: (description: string) => void;
-    setAnalysisResult: (result: AnalyzeScriptOutput | null) => void;
     setInteractionResult: (result: AnalyzeInteractionOutput | null) => void;
 
     // Derived state for convenience
     script: string;
     description: string;
-    analysisResult: AnalyzeScriptOutput | null;
     interactionResult: AnalyzeInteractionOutput | null;
 }
 
@@ -121,28 +92,26 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const setAnalysisResult = (analysisResult: AnalyzeScriptOutput | null) => {
-        if (!data) {
-             // If there's no active session, we can't set this
-             // This can be changed if we want to allow analysis without a full session
-        } else {
-            const updatedData = {...data, analysisResult };
-            setData(updatedData);
-        }
-    }
-
     const setScript = (script: string) => {
         if (data) {
             setData({ ...data, script });
         } else {
-            // If there's no active session, create a transient one
-            setData({
-                ...initialData,
-                id: `transient-${Date.now()}`,
-                name: "New Scenario",
-                timestamp: Date.now(),
-                script,
-            });
+             setData(prev => ({
+                ...(prev || {
+                    id: `transient-${Date.now()}`,
+                    timestamp: Date.now(),
+                    name: "New Scenario",
+                    analysis: { executiveSummary: "", technicalBreakdown: "", riskScore: 0, recommendedActions: [], suggestedCountermeasure: ""},
+                    events: [],
+                    metrics: { totalEvents: 0, activeThreats: 0, blockedAttacks: 0, detectionAccuracy: "0%"},
+                    affectedResources: [],
+                    topProcesses: [],
+                    topEvents: [],
+                    interactionResult: null,
+                    description: "",
+                }),
+                script
+            }));
         }
     };
     
@@ -150,27 +119,44 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         if (data) {
             setData({ ...data, description });
         } else {
-             setData({
-                ...initialData,
-                id: `transient-${Date.now()}`,
-                name: "New Scenario",
-                timestamp: Date.now(),
+             setData(prev => ({
+                ...(prev || {
+                    id: `transient-${Date.now()}`,
+                    timestamp: Date.now(),
+                    name: "New Scenario",
+                    analysis: { executiveSummary: "", technicalBreakdown: "", riskScore: 0, recommendedActions: [], suggestedCountermeasure: ""},
+                    events: [],
+                    metrics: { totalEvents: 0, activeThreats: 0, blockedAttacks: 0, detectionAccuracy: "0%"},
+                    affectedResources: [],
+                    topProcesses: [],
+                    topEvents: [],
+                    interactionResult: null,
+                    script: "",
+                }),
                 description,
-            });
+            }));
         }
     };
 
     const startSimulation = useCallback(async (script: string, description: string) => {
         setIsLoading(true);
         // Clear previous results but keep script/description
-        setData({
-             ...initialData,
+        setData(prev => ({
+             ...(prev || {
+                id: `transient-${Date.now()}`,
+                timestamp: Date.now(),
+             }),
              script,
              description,
-             id: `running-${Date.now()}`,
-             name: description || "Running Scenario",
-             timestamp: Date.now(),
-        });
+             name: description || "Running Scenario...",
+             analysis: { executiveSummary: "", technicalBreakdown: "", riskScore: 0, recommendedActions: [], suggestedCountermeasure: ""},
+             events: [],
+             metrics: { totalEvents: 0, activeThreats: 0, blockedAttacks: 0, detectionAccuracy: "0%"},
+             affectedResources: [],
+             topProcesses: [],
+             topEvents: [],
+             interactionResult: null,
+        }));
 
         try {
             const result = await modelAttackScenario({ script });
@@ -179,7 +165,6 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
                 ...result,
                 script,
                 description,
-                analysisResult: null,
                 interactionResult: null,
                 id: `SESSION-${Date.now()}`,
                 timestamp: Date.now(),
@@ -227,13 +212,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }, [toast]);
     
     const clearSimulation = useCallback(() => {
-        const currentId = data?.id;
         setData(null);
-        if (currentId && currentId.startsWith('SESSION-')) {
-            const newHistory = history.filter(session => session.id !== currentId);
-            saveHistory(newHistory);
-        }
-    }, [data, history]);
+    }, []);
     
     const value = useMemo(() => ({
         data,
@@ -245,13 +225,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         clearHistory,
         setScript,
         setDescription,
-        setAnalysisResult,
         setInteractionResult,
         script: data?.script || '',
         description: data?.description || '',
-        analysisResult: data?.analysisResult || null,
         interactionResult: data?.interactionResult || null,
-    }), [data, isLoading, history, startSimulation, clearSimulation, loadFromHistory, clearHistory]);
+    }), [data, isLoading, history, startSimulation, clearSimulation, loadFromHistory, clearHistory, setInteractionResult]);
 
     return (
         <SimulationContext.Provider value={value}>

@@ -1,12 +1,85 @@
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend, Sector } from 'recharts';
 import { FileWarning, ShieldCheck, ListTodo, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useSimulation } from '@/context/simulation-context';
+import type { SecurityEvent, CloudResource } from "@/ai/flows/types/simulate-attack-types";
+import { useState } from "react";
+
+const chartColors = [
+    'var(--chart-1)',
+    'var(--chart-2)',
+    'var(--chart-3)',
+    'var(--chart-4)',
+    'var(--chart-5)',
+];
+
+const severityColors = {
+    'Critical': 'hsl(var(--destructive))',
+    'High': 'var(--chart-5)',
+    'Medium': 'var(--chart-2)',
+    'Low': 'var(--chart-1)',
+}
+
+const statusColors = {
+    'Compromised': 'hsl(var(--destructive))',
+    'Vulnerable': 'var(--chart-5)',
+    'Investigating': 'var(--chart-2)',
+    'Protected': 'var(--chart-1)',
+}
+
+const renderActiveShape = (props: any) => {
+  const RADIAN = Math.PI / 180;
+  const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+  const sin = Math.sin(-RADIAN * midAngle);
+  const cos = Math.cos(-RADIAN * midAngle);
+  const sx = cx + (outerRadius + 10) * cos;
+  const sy = cy + (outerRadius + 10) * sin;
+  const mx = cx + (outerRadius + 30) * cos;
+  const my = cy + (outerRadius + 30) * sin;
+  const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+  const ey = my;
+  const textAnchor = cos >= 0 ? 'start' : 'end';
+
+  return (
+    <g>
+      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill} className="font-bold text-lg">
+        {payload.name}
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+      <Sector
+        cx={cx}
+        cy={cy}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        innerRadius={outerRadius + 6}
+        outerRadius={outerRadius + 10}
+        fill={fill}
+      />
+      <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+      <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="hsl(var(--foreground))" className="text-sm">{`${value} Events`}</text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="hsl(var(--muted-foreground))" className="text-xs">
+        {`(Rate ${(percent * 100).toFixed(2)}%)`}
+      </text>
+    </g>
+  );
+};
+
 
 export function Dashboard() {
     const { data } = useSimulation();
+    const [activeIndexSeverity, setActiveIndexSeverity] = useState(0);
+    const [activeIndexStatus, setActiveIndexStatus] = useState(0);
 
     if (!data) {
         return (
@@ -17,18 +90,23 @@ export function Dashboard() {
             </div>
         );
     }
-    const { metrics, topEvents, topProcesses, analysis } = data;
+    const { metrics, topEvents, topProcesses, analysis, events, affectedResources } = data;
 
-    const formattedTopEvents = topEvents.map(item => ({ ...item, name: item.name.replace('.exe', '') }));
     const formattedTopProcesses = topProcesses.map(item => ({ ...item, name: item.name.replace('.exe', '') }));
 
-    const chartColors = [
-        'var(--chart-1)',
-        'var(--chart-2)',
-        'var(--chart-3)',
-        'var(--chart-4)',
-        'var(--chart-5)',
-    ];
+    const eventSeverityData = Object.entries(events.reduce((acc, event) => {
+        acc[event.severity] = (acc[event.severity] || 0) + 1;
+        return acc;
+    }, {} as Record<SecurityEvent['severity'], number>))
+    .map(([name, value]) => ({ name, value }))
+    .sort((a,b) => b.value - a.value);
+
+    const resourceStatusData = Object.entries(affectedResources.reduce((acc, resource) => {
+        acc[resource.status] = (acc[resource.status] || 0) + 1;
+        return acc;
+    }, {} as Record<CloudResource['status'], number>))
+    .map(([name, value]) => ({ name, value }))
+    .sort((a,b) => b.value - a.value);
 
 
     return (
@@ -82,20 +160,20 @@ export function Dashboard() {
                 </Card>
             </div>
 
-            <div className="grid gap-4 mt-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-1 lg:col-span-4">
+            <div className="grid gap-4 mt-4 md:grid-cols-2 lg:grid-cols-3">
+                <Card className="col-span-1 lg:col-span-2">
                      <CardHeader>
                         <CardTitle>Top Security Events</CardTitle>
                         <CardDescription>Most frequent security events generated during the simulation.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={formattedTopEvents} layout="horizontal" margin={{ left: 10, right: 20, top: 5, bottom: 20 }}>
-                                <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} interval={0} />
+                        <ResponsiveContainer width="100%" height={350}>
+                             <BarChart data={topEvents} layout="horizontal" margin={{ left: 10, right: 20, top: 5, bottom: 60 }}>
+                                <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} interval={0} />
                                 <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted)/0.3)' }} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
                                 <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={20}>
-                                    {formattedTopEvents.map((entry, index) => (
+                                    {topEvents.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                                     ))}
                                 </Bar>
@@ -103,18 +181,18 @@ export function Dashboard() {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
-                <Card className="col-span-1 lg:col-span-3">
+                 <Card className="col-span-1">
                      <CardHeader>
                         <CardTitle>Top Running Processes</CardTitle>
-                        <CardDescription>System processes with the highest activity during the simulation.</CardDescription>
+                        <CardDescription>System processes with the highest activity.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={formattedTopProcesses} margin={{ top: 5, right: 30, left: 20, bottom: 20 }}>
-                                <XAxis dataKey="name" tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} interval={0}/>
-                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                       <ResponsiveContainer width="100%" height={350}>
+                            <BarChart data={formattedTopProcesses} layout="vertical" margin={{ top: 5, right: 20, left: 40, bottom: 20 }}>
+                               <XAxis type="number" hide />
+                                <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} interval={0} width={100} />
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted)/0.3)' }} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
-                                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
                                      {formattedTopProcesses.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                                     ))}
@@ -123,7 +201,65 @@ export function Dashboard() {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
-                 <Card className="col-span-1 lg:col-span-7">
+
+                 <Card className="col-span-1">
+                     <CardHeader>
+                        <CardTitle>Event Severity Breakdown</CardTitle>
+                        <CardDescription>Distribution of security event severity levels.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie 
+                                    activeIndex={activeIndexSeverity}
+                                    activeShape={renderActiveShape}
+                                    data={eventSeverityData} 
+                                    cx="50%" 
+                                    cy="50%" 
+                                    innerRadius={60}
+                                    outerRadius={80} 
+                                    dataKey="value"
+                                    onMouseEnter={(_, index) => setActiveIndexSeverity(index)}
+                                >
+                                     {eventSeverityData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={severityColors[entry.name as keyof typeof severityColors]} />
+                                    ))}
+                                </Pie>
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+                 <Card className="col-span-1">
+                     <CardHeader>
+                        <CardTitle>Cloud Resource Status</CardTitle>
+                        <CardDescription>Security status of all affected cloud resources.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie 
+                                    activeIndex={activeIndexStatus}
+                                    activeShape={renderActiveShape}
+                                    data={resourceStatusData} 
+                                    cx="50%" 
+                                    cy="50%" 
+                                    innerRadius={60}
+                                    outerRadius={80} 
+                                    dataKey="value"
+                                    onMouseEnter={(_, index) => setActiveIndexStatus(index)}
+                                >
+                                     {resourceStatusData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={statusColors[entry.name as keyof typeof statusColors]} />
+                                    ))}
+                                </Pie>
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+
+                 <Card className="col-span-1 lg:col-span-3">
                     <CardHeader>
                         <CardTitle>Threat Analysis</CardTitle>
                          <CardDescription>AI-generated analysis of the simulated attack.</CardDescription>

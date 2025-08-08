@@ -1,13 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Bot, Clipboard, FileCheck2, Loader2, Send, ShieldCheck, FlaskConical, AlertTriangle, Lightbulb, RotateCcw, CheckCircle2 } from "lucide-react";
+import { Bot, Clipboard, FileCheck2, Loader2, Send, ShieldCheck, FlaskConical, AlertTriangle, Lightbulb, RotateCcw, CheckCircle2, ListChecks } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { useSimulation } from '@/context/simulation-context';
 import { generateAttackScript } from '@/ai/flows/generate-attack-script-flow';
-import { analyzeScript } from '@/ai/flows/analyze-script-flow';
 import { analyzeInteraction, type InteractionStep } from '@/ai/flows/analyze-interaction-flow';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -60,8 +59,6 @@ export function ThreatSandbox() {
       isLoading, 
       startSimulation, 
       clearSimulation, 
-      analysisResult,
-      setAnalysisResult,
       interactionResult,
       setInteractionResult,
       script,
@@ -71,17 +68,10 @@ export function ThreatSandbox() {
     } = useSimulation();
 
     const [isGenerating, setIsGenerating] = useState(false);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
     
     const [selectedAttackId, setSelectedAttackId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('countermeasure');
-
-    useEffect(() => {
-        if (interactionResult) {
-            setActiveTab('engagement');
-        }
-    }, [interactionResult]);
 
     const handleGenerateScript = async () => {
         if (!description) {
@@ -101,33 +91,14 @@ export function ThreatSandbox() {
         }
     };
 
-    const handleAnalyzeScript = async () => {
-        if (!script) {
-            toast({ variant: 'destructive', title: 'Error', description: 'There is no script to analyze.' });
-            return;
-        }
-        setIsAnalyzing(true);
-        setAnalysisResult(null);
-        try {
-            const result = await analyzeScript({ script });
-            setAnalysisResult(result);
-        } catch (error) {
-            console.error("Failed to analyze script:", error);
-            toast({ variant: 'destructive', title: 'Error', description: 'Could not analyze script. Please try again.' });
-        } finally {
-            setIsAnalyzing(false);
-        }
-    };
-
     const handleModelScenario = async () => {
         if (!script) {
             toast({ variant: 'destructive', title: 'Error', description: 'There is no script to model.' });
             return;
         }
         setInteractionResult(null);
-        setAnalysisResult(null);
         setActiveTab('countermeasure');
-        startSimulation(script, description);
+        await startSimulation(script, description);
     };
 
     const handleClearScenario = () => {
@@ -150,8 +121,8 @@ export function ThreatSandbox() {
                 defenseScript: data.analysis.suggestedCountermeasure
             });
             setInteractionResult(result);
+            setActiveTab('engagement');
             if(result.modifiedDefenseScript && data?.analysis) {
-                // The context will handle updating the data object
                 toast({
                     title: 'Defense Improved!',
                     description: 'The AI has updated the countermeasure script with improvements.',
@@ -245,37 +216,6 @@ export function ThreatSandbox() {
                         ))}
                     </CardContent>
                 </Card>
-
-                {analysisResult && (
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <FileCheck2 className="h-6 w-6" />
-                                Quick Analysis Results
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <Alert variant={analysisResult.isMalicious ? "destructive" : "default"}>
-                                <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>{analysisResult.isMalicious ? "Potentially Malicious" : "Looks Safe"}</AlertTitle>
-                                <AlertDescription>
-                                    {analysisResult.summary}
-                                </AlertDescription>
-                            </Alert>
-                             <div>
-                                <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm font-medium">Risk Score</span>
-                                <span className="text-sm font-bold text-primary">{analysisResult.riskScore} / 100</span>
-                                </div>
-                                <Progress value={analysisResult.riskScore} aria-label={`${analysisResult.riskScore}% risk score`} />
-                            </div>
-                             <div>
-                                <h4 className="font-semibold text-sm mb-1">Recommendations:</h4>
-                                <p className="text-sm text-muted-foreground">{analysisResult.recommendations}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
             </div>
 
             {/* Right Column */}
@@ -287,7 +227,7 @@ export function ThreatSandbox() {
                             Threat Sandbox
                         </CardTitle>
                         <CardDescription>
-                             Paste a script here or generate one to analyze its potential impact in a safe, simulated environment.
+                             The generated script will appear here. Run a "Full Scenario" to analyze its impact.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -300,10 +240,6 @@ export function ThreatSandbox() {
                     </CardContent>
                      <CardFooter className="flex justify-between">
                          <div className="flex gap-2">
-                            <Button onClick={handleAnalyzeScript} variant="secondary" disabled={!script || isAnalyzing}>
-                                {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
-                                Quick Analysis
-                            </Button>
                              <Button onClick={handleModelScenario} disabled={!script || isLoading}>
                                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Model Full Scenario'}
                             </Button>
@@ -321,10 +257,10 @@ export function ThreatSandbox() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                         <Tabs value={activeTab} onValueChange={setActiveTab}>
+                         <Tabs value={activeTab} onValuechange={setActiveTab}>
                             <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="countermeasure">Countermeasure</TabsTrigger>
-                                <TabsTrigger value="engagement" disabled={!data}>Test & Improve</TabsTrigger>
+                                <TabsTrigger value="countermeasure" onClick={() => setActiveTab('countermeasure')}>Countermeasure</TabsTrigger>
+                                <TabsTrigger value="engagement" onClick={() => setActiveTab('engagement')} disabled={!data}>Test & Improve</TabsTrigger>
                             </TabsList>
                             <TabsContent value="countermeasure" className="mt-4">
                                 {data?.analysis.suggestedCountermeasure ? (
@@ -346,9 +282,9 @@ export function ThreatSandbox() {
                                         </div>
                                          <Alert className="mt-4">
                                             <Lightbulb className="h-4 w-4" />
-                                            <AlertTitle>What is this?</AlertTitle>
+                                            <AlertTitle>AI-Generated Defense</AlertTitle>
                                             <AlertDescription>
-                                                This is the AI's suggested defense script. Click "Test & Improve" to see how it performs and to generate an even better version.
+                                                This is the AI's suggested defense script. Click the "Test & Improve" tab to run a simulated engagement and generate an even better version.
                                             </AlertDescription>
                                         </Alert>
                                     </>
@@ -373,16 +309,22 @@ export function ThreatSandbox() {
                                             </div>
                                             <Progress value={interactionResult.effectivenessScore} aria-label={`${interactionResult.effectivenessScore}% effectiveness score`} />
                                         </div>
-                                        <div>
-                                            <h4 className="font-semibold text-sm mb-1">Outcome Summary:</h4>
-                                            <p className="text-sm text-muted-foreground">{interactionResult.outcomeSummary}</p>
-                                        </div>
+                                        
+                                        <Alert>
+                                            <ListChecks className="h-4 w-4" />
+                                            <AlertTitle>AI Improvement Analysis</AlertTitle>
+                                            <AlertDescription>
+                                                <p className="mb-2">{interactionResult.outcomeSummary}</p>
+                                                <p>The updated defense script in the "Countermeasure" tab was modified to better address the attack.</p>
+                                            </AlertDescription>
+                                        </Alert>
+                                        
                                         <div className="space-y-2">
-                                            <h4 className="font-semibold text-sm">Interaction Log:</h4>
+                                            <h4 className="font-semibold text-sm">Engagement Log:</h4>
                                             <div className="border rounded-lg p-2 max-h-60 overflow-y-auto">
                                                 {interactionResult.interactionLog.map(log => (
                                                     <div key={log.step} className="text-xs p-2 flex items-start gap-3 hover:bg-muted/50 rounded-md">
-                                                        {getActionIcon(log.action)}
+                                                        <div className="pt-0.5">{getActionIcon(log.action)}</div>
                                                         <div>
                                                             <p><span className="font-bold">{log.action}:</span> {log.description}</p>
                                                             <p className="text-muted-foreground"><span className="font-semibold">Result:</span> {log.result}</p>
@@ -391,21 +333,16 @@ export function ThreatSandbox() {
                                                 ))}
                                             </div>
                                         </div>
-                                         <Alert>
-                                            <Lightbulb className="h-4 w-4" />
-                                            <AlertTitle>Improved Defense Script</AlertTitle>
-                                            <AlertDescription>
-                                                The AI has suggested an improved version of the defense script based on this engagement analysis. You can find the updated version in the "Countermeasure" tab.
-                                            </AlertDescription>
-                                        </Alert>
+                                         
                                     </div>
                                 )}
                                  {!interactionResult && !isTesting && data && (
-                                     <div className="h-64 flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed rounded-lg">
-                                        <p>Click below to simulate the engagement.</p>
+                                     <div className="h-64 flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed rounded-lg p-4">
+                                        <h3 className="text-lg font-semibold">Ready to Test</h3>
+                                        <p className="text-sm text-muted-foreground mb-4">Simulate an engagement between the attack and defense scripts to score effectiveness and generate an improved countermeasure.</p>
                                         <Button className="mt-4" onClick={handleTestCountermeasure} variant="secondary" disabled={isTesting}>
                                             {isTesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
-                                            Test & Improve
+                                            Test & Improve Defense
                                         </Button>
                                     </div>
                                  )}
