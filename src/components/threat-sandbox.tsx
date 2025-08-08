@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
@@ -198,7 +199,7 @@ export function ThreatSandbox() {
                                 setDescription(e.target.value);
                                 setSelectedAttackId(null);
                             }}
-                            className="h-24"
+                            className="h-24 font-code"
                         />
                          
                     </CardContent>
