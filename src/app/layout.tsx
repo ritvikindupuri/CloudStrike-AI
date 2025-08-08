@@ -24,13 +24,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider defaultOpen={true}>
-          <SimulationProvider>
-            <MainLayout>
-                {children}
-            </MainLayout>
-          </SimulationProvider>
-        </SidebarProvider>
+        <SimulationProvider>
+          <SidebarProvider defaultOpen={true}>
+              <MainLayout>
+                  {children}
+              </MainLayout>
+          </SidebarProvider>
+        </SimulationProvider>
         <Toaster />
       </body>
     </html>
