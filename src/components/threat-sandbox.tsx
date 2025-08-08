@@ -120,7 +120,7 @@ export function ThreatSandbox() {
     };
 
     const handleClearScenario = () => {
-        clearSimulation();
+        clearSimulation(data?.id);
         setScript('');
         setDescription('');
         setAnalysisResult(null);
@@ -205,7 +205,7 @@ export function ThreatSandbox() {
                     </CardContent>
                     <CardFooter className="flex justify-between">
                         <Button onClick={handleGenerateScript} disabled={isLoading || !description}>
-                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2" />}
+                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             Generate Script
                         </Button>
                         <Button onClick={handleClearScenario} variant="outline" >
@@ -237,7 +237,7 @@ export function ThreatSandbox() {
                                             setDescription(ex.description)
                                             setSelectedAttackId(ex.id)
                                         }}>
-                                        {selectedAttackId === ex.id ? <CheckCircle2 className="mr-2" /> : null}
+                                        {selectedAttackId === ex.id ? <CheckCircle2 className="mr-2 h-4 w-4" /> : null}
                                         {selectedAttackId === ex.id ? 'Selected' : 'Select'}
                                     </Button>
                                </CardFooter>
@@ -301,7 +301,7 @@ export function ThreatSandbox() {
                      <CardFooter className="flex justify-between">
                          <div className="flex gap-2">
                             <Button onClick={handleAnalyzeScript} variant="secondary" disabled={!script || isAnalyzing}>
-                                {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2" />}
+                                {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
                                 Quick Analysis
                             </Button>
                              <Button onClick={handleModelScenario} disabled={!script || isAnalyzing}>
@@ -404,7 +404,7 @@ export function ThreatSandbox() {
                                      <div className="h-64 flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed rounded-lg">
                                         <p>Click below to simulate the engagement.</p>
                                         <Button className="mt-4" onClick={handleTestCountermeasure} variant="secondary" disabled={isTesting}>
-                                            {isTesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2" />}
+                                            {isTesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
                                             Test & Improve
                                         </Button>
                                     </div>
@@ -424,7 +424,7 @@ export function ThreatSandbox() {
                                 className="w-full" 
                                 disabled={isTesting || !data?.analysis.suggestedCountermeasure}
                                 >
-                                {isTesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2" />}
+                                {isTesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
                                 {interactionResult ? "Re-Test & Improve" : "Test & Improve Countermeasure"}
                             </Button>
                         </CardFooter>

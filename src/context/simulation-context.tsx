@@ -3,20 +3,19 @@ import { createContext, useContext, useState, ReactNode, useEffect, useCallback,
 import type { ModelAttackScenarioOutput } from '@/ai/flows/types/simulate-attack-types';
 import { modelAttackScenario } from '@/ai/flows/simulate-attack-flow';
 import { useToast } from '@/hooks/use-toast';
-import { defaultAttackData } from '@/lib/default-simulation-data';
 
-interface Session extends ModelAttackScenarioOutput {
+export interface Session extends ModelAttackScenarioOutput {
     id: string;
     timestamp: number;
     name: string;
 }
 
 interface SimulationState {
-    data: ModelAttackScenarioOutput | null;
-    setData: (data: ModelAttackScenarioOutput | null) => void;
+    data: Session | null;
+    setData: (data: Session | null) => void;
     isLoading: boolean;
     setIsLoading: (script: string, description: string) => void;
-    clearSimulation: () => void;
+    clearSimulation: (id?: string) => void;
     history: Session[];
     loadFromHistory: (id: string) => void;
     clearHistory: () => void;
@@ -26,7 +25,7 @@ const SimulationContext = createContext<SimulationState | undefined>(undefined);
 
 export function SimulationProvider({ children }: { children: ReactNode }) {
     const { toast } = useToast();
-    const [data, setData] = useState<ModelAttackScenarioOutput | null>(null);
+    const [data, setData] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [currentScript, setCurrentScript] = useState<string>('');
     const [currentDescription, setCurrentDescription] = useState('');
@@ -61,6 +60,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         };
         const updatedHistory = [newSession, ...history].slice(0, 10); // Keep last 10 sessions
         saveHistory(updatedHistory);
+        return newSession;
     };
 
     const loadFromHistory = (id: string) => {
@@ -82,13 +82,21 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         });
     };
 
+    const clearSimulation = useCallback((id?: string) => {
+        setData(null);
+        if (id) {
+            const newHistory = history.filter(session => session.id !== id);
+            saveHistory(newHistory);
+        }
+    }, [history]);
+
     useEffect(() => {
         const runSimulation = async () => {
             if (isLoading && currentScript) {
                 try {
                     const result = await modelAttackScenario({ script: currentScript });
-                    setData(result);
-                    addToHistory(result, currentDescription);
+                    const newSession = addToHistory(result, currentDescription);
+                    setData(newSession);
                      toast({
                         title: 'Simulation Complete',
                         description: 'The attack scenario has been successfully modeled.',
@@ -118,10 +126,6 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         setIsLoading(true);
     }, []);
 
-    const clearSimulation = useCallback(() => {
-        setData(null);
-    }, []);
-
     const value = useMemo(() => ({
         data,
         setData,
@@ -131,7 +135,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         history,
         loadFromHistory,
         clearHistory,
-    }), [data, isLoading, startLoading, clearSimulation, history]);
+    }), [data, isLoading, startLoading, clearSimulation, history, loadFromHistory, clearHistory]);
 
     return (
         <SimulationContext.Provider value={value}>
