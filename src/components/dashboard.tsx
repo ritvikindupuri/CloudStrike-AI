@@ -1,6 +1,6 @@
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { FileWarning, ShieldCheck, ListTodo, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useSimulation } from '@/context/simulation-context';
@@ -21,6 +21,14 @@ export function Dashboard() {
 
     const formattedTopEvents = topEvents.map(item => ({ ...item, name: item.name.replace('.exe', '') }));
     const formattedTopProcesses = topProcesses.map(item => ({ ...item, name: item.name.replace('.exe', '') }));
+
+    const chartColors = [
+        'hsl(var(--chart-1))',
+        'hsl(var(--chart-2))',
+        'hsl(var(--chart-3))',
+        'hsl(var(--chart-4))',
+        'hsl(var(--chart-5))',
+    ];
 
 
     return (
@@ -82,11 +90,15 @@ export function Dashboard() {
                     </CardHeader>
                     <CardContent>
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={formattedTopEvents} layout="vertical" margin={{ left: 20, right: 20 }}>
+                            <BarChart data={formattedTopEvents} layout="vertical" margin={{ left: 30, right: 20 }}>
                                 <XAxis type="number" hide />
-                                <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                                <YAxis dataKey="name" type="category" width={120} tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={14} interval={0} />
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted)/0.3)' }} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
-                                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                                <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
+                                    {formattedTopEvents.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -99,10 +111,14 @@ export function Dashboard() {
                     <CardContent>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={formattedTopProcesses} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                <XAxis dataKey="name" tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12}/>
+                                <XAxis dataKey="name" tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} interval={0}/>
                                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted)/0.3)' }} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
-                                <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                                     {formattedTopProcesses.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>

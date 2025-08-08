@@ -68,6 +68,8 @@ export function ThreatSandbox() {
     const [isTesting, setIsTesting] = useState(false);
     
     const [selectedAttackId, setSelectedAttackId] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState('countermeasure');
+
 
     const handleGenerateScript = async () => {
         if (!description) {
@@ -112,6 +114,7 @@ export function ThreatSandbox() {
         }
         setInteractionResult(null);
         setAnalysisResult(null);
+        setActiveTab('countermeasure');
         setSimulationLoading(script, description);
     };
 
@@ -122,6 +125,7 @@ export function ThreatSandbox() {
         setAnalysisResult(null);
         setInteractionResult(null);
         setSelectedAttackId(null);
+        setActiveTab('countermeasure');
         toast({ title: 'Sandbox Cleared', description: 'The simulation has been reset.' });
     };
 
@@ -138,6 +142,7 @@ export function ThreatSandbox() {
                 defenseScript: data.analysis.suggestedCountermeasure
             });
             setInteractionResult(result);
+            setActiveTab('engagement');
             if(result.modifiedDefenseScript && data?.analysis) {
                 setData({
                     ...data,
@@ -315,7 +320,7 @@ export function ThreatSandbox() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                         <Tabs defaultValue="countermeasure" value={interactionResult ? "engagement" : "countermeasure"}>
+                         <Tabs value={activeTab} onValueChange={setActiveTab}>
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="countermeasure">Countermeasure</TabsTrigger>
                                 <TabsTrigger value="engagement" disabled={!data}>Test & Improve</TabsTrigger>
