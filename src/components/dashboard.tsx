@@ -16,15 +16,15 @@ const chartColors = [
     'var(--chart-5)',
 ];
 
-const severityColors: Record<SecurityEvent['severity'], string> = {
+const severityColors: Record<string, string> = {
     'Critical': 'hsl(var(--destructive))',
     'High': 'hsl(var(--chart-5))', // Orange
     'Medium': 'hsl(var(--chart-2))', // Blue
     'Low': 'hsl(var(--chart-1))', // Teal
 }
 
-const statusColors: Record<CloudResource['status'], string> = {
-    'Compromised': 'hsl(var(--destructive))', // Red
+const statusColors: Record<string, string> = {
+    'Compromised': 'hsl(var(--destructive))',
     'Vulnerable': 'hsl(var(--chart-5))', // Orange
     'Investigating': 'hsl(var(--chart-2))', // Blue
     'Protected': 'hsl(var(--chart-1))', // Teal
@@ -109,6 +109,8 @@ export function Dashboard() {
     .map(([name, value]) => ({ name, value }))
     .sort((a,b) => b.value - a.value);
 
+    const activeThreats = events.filter(e => e.status === 'Investigating' || e.status === 'Action Required').length;
+
 
     return (
         <main className="flex-1 p-4 md:p-6">
@@ -125,7 +127,7 @@ export function Dashboard() {
                         <FileWarning className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{metrics.totalEvents.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">{events.length.toLocaleString()}</div>
                         <p className="text-xs text-muted-foreground">Generated in this scenario</p>
                     </CardContent>
                 </Card>
@@ -135,8 +137,8 @@ export function Dashboard() {
                         <AlertTriangle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{metrics.activeThreats}</div>
-                         <p className="text-xs text-muted-foreground">Currently being tracked</p>
+                        <div className="text-2xl font-bold">{activeThreats}</div>
+                         <p className="text-xs text-muted-foreground">Events requiring action</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -146,28 +148,28 @@ export function Dashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{metrics.blockedAttacks.toLocaleString()}</div>
-                         <p className="text-xs text-muted-foreground">Mitigated by automated defenses</p>
+                         <p className="text-xs text-muted-foreground">Via tested countermeasure</p>
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Detection Accuracy</CardTitle>
+                        <CardTitle className="text-sm font-medium">Risk Score</CardTitle>
                          <ListTodo className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{metrics.detectionAccuracy}</div>
-                        <p className="text-xs text-muted-foreground">Confidence in detection models</p>
+                        <div className="text-2xl font-bold">{analysis.riskScore}</div>
+                        <p className="text-xs text-muted-foreground">Overall scenario risk</p>
                     </CardContent>
                 </Card>
             </div>
 
-            <div className="grid gap-4 mt-4 md:grid-cols-2">
+            <div className="grid gap-4 mt-4 lg:grid-cols-2">
                 <Card>
                      <CardHeader>
                         <CardTitle>Top Security Events</CardTitle>
                         <CardDescription>Most frequent security events generated during the simulation.</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pl-2">
                         <ResponsiveContainer width="100%" height={350}>
                              <BarChart data={topEvents} layout="horizontal" margin={{ left: 10, right: 20, top: 5, bottom: 80 }}>
                                 <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} interval={0} />
@@ -223,7 +225,7 @@ export function Dashboard() {
                                     onMouseEnter={(_, index) => setActiveIndexSeverity(index)}
                                 >
                                      {eventSeverityData.map((entry) => (
-                                        <Cell key={`cell-${entry.name}`} fill={severityColors[entry.name as keyof typeof severityColors] || 'var(--chart-3)'} />
+                                        <Cell key={`cell-${entry.name}`} fill={severityColors[entry.name] || 'var(--chart-3)'} />
                                     ))}
                                 </Pie>
                                 <Legend />
@@ -251,7 +253,7 @@ export function Dashboard() {
                                     onMouseEnter={(_, index) => setActiveIndexStatus(index)}
                                 >
                                      {resourceStatusData.map((entry) => (
-                                        <Cell key={`cell-${entry.name}`} fill={statusColors[entry.name as keyof typeof statusColors] || 'var(--chart-3)'} />
+                                        <Cell key={`cell-${entry.name}`} fill={statusColors[entry.name] || 'var(--chart-3)'} />
                                     ))}
                                 </Pie>
                                 <Legend />

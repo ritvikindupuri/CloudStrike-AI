@@ -33,7 +33,7 @@ Defense Script:
 
 First, provide a final analysis of the engagement:
 1.  **effectivenessScore**: An integer score from 0 to 100 representing how well the defense script mitigates the attack.
-2.  **attacksBlocked**: An integer count of how many specific attack actions were successfully blocked or mitigated by the defense script.
+2.  **attacksBlocked**: An integer count of how many specific attack actions were successfully blocked or mitigated. This number must be realistic and directly correspond to the number of successful "Defense" actions in the log.
 3.  **outcomeSummary**: A concise summary explaining the final outcome, what was blocked, and what succeeded.
 4.  **modifiedDefenseScript**: An improved version of the defense script that addresses any identified weaknesses.
 
