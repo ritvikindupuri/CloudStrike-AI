@@ -119,7 +119,7 @@ export function ThreatSandbox() {
         try {
             const result = await analyzeInteraction({
                 attackScript: script,
-                defenseScript: data.analysis.suggestedCountermeasure // Always use the latest defense script from state
+                defenseScript: data.analysis.suggestedCountermeasure
             });
             setInteractionResult(result);
             setActiveTab('engagement');
@@ -326,7 +326,7 @@ export function ThreatSandbox() {
                                                 {interactionResult.interactionLog.map(log => (
                                                     <div key={log.step} className="text-xs p-2 flex items-start gap-3 hover:bg-muted/50 rounded-md">
                                                         <div className="pt-0.5">{getActionIcon(log.action)}</div>
-                                                        <div>
+                                                        <div className="flex-1">
                                                             <p><span className="font-bold">{log.action}:</span> {log.description}</p>
                                                             <p className="text-muted-foreground"><span className="font-semibold">Result:</span> {log.result}</p>
                                                         </div>

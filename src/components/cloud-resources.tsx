@@ -65,9 +65,9 @@ export function CloudResources() {
                 {data.affectedResources.map((resource) => (
                     <Card key={resource.resourceId}>
                         <CardHeader className="pb-4">
-                            <CardTitle className="flex items-center gap-3 text-xl">
+                            <CardTitle className="flex items-start gap-3 text-xl">
                                 {getProviderIcon(resource.provider)}
-                                <span className="truncate">{resource.name}</span>
+                                <span>{resource.name}</span>
                             </CardTitle>
                              <CardDescription className="flex items-center gap-2 pt-1">
                                 {getServiceIcon(resource.service)}

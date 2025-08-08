@@ -39,9 +39,9 @@ export function SessionHistory({ open, onOpenChange }: SessionHistoryProps) {
                         </div>
                     ) : (
                         history.map((session, index) => (
-                            <div key={session.id} className="p-3 border rounded-lg flex justify-between items-center">
-                                <div className="truncate">
-                                    <p className="font-semibold text-sm truncate">{session.name}</p>
+                            <div key={session.id} className="p-3 border rounded-lg flex justify-between items-center gap-2">
+                                <div className="flex-1">
+                                    <p className="font-semibold text-sm">{session.name}</p>
                                     <p className="text-xs text-muted-foreground">{new Date(session.timestamp).toLocaleString()}</p>
                                 </div>
                                 <Button size="sm" variant="outline" onClick={() => {
