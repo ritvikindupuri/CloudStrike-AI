@@ -32,7 +32,7 @@ Based on your analysis of this script, generate a complete scenario analysis out
 1.  **Threat Analysis**: A detailed analysis including a risk score, executive summary, technical breakdown, and recommended actions. The analysis must be specific to the actions in the script.
 2.  **Suggested Countermeasure**: Write a practical PowerShell or shell script that a security administrator could run to help mitigate the threat.
 3.  **Affected Cloud Resources**: Generate a list of 5 to 10 specific and realistic cloud resources that would be directly impacted by the actions in the provided script. The connection between the script and the resource must be direct and logical. For each resource, the 'reasonForStatus' field is critical and must explicitly tie the status to a specific action in the attack script (e.g., "Status is 'Compromised' because the script successfully downloaded sensitive data from this S3 bucket.").
-4.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed in a cloud environment. Reference MITRE ATT&CK techniques where possible.
+4.  **Security Events**: A list of 20 to 30 diverse security events that would be generated if this script were executed. **Crucially, all events must start in a state that requires user review, such as 'Investigating' or 'Action Required'. Do NOT generate events with a 'Resolved' or 'Contained' status.** Reference MITRE ATT&CK techniques where possible.
 5.  **Dashboard Metrics**: Plausible metrics (total events, active threats, etc.) reflecting the script's impact.
 6.  **Chart Data**: Top processes and events that would be observed as a result of the script's execution.
 
