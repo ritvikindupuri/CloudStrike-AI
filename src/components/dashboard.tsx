@@ -15,14 +15,14 @@ const chartColors = [
     'var(--chart-5)',
 ];
 
-const severityColors = {
+const severityColors: Record<SecurityEvent['severity'], string> = {
     'Critical': 'hsl(var(--destructive))',
     'High': 'hsl(var(--chart-4))',
-    'Medium': 'hsl(var(--chart-2))',
-    'Low': 'hsl(var(--chart-1))',
+    'Medium': 'hsl(var(--chart-5))',
+    'Low': 'hsl(var(--chart-2))',
 }
 
-const statusColors = {
+const statusColors: Record<CloudResource['status'], string> = {
     'Compromised': 'hsl(var(--destructive))',
     'Vulnerable': 'hsl(var(--chart-4))',
     'Investigating': 'hsl(var(--chart-2))',
@@ -67,7 +67,7 @@ const renderActiveShape = (props: any) => {
       />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="hsl(var(--foreground))" className="text-sm">{`${value} Events`}</text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="hsl(var(--foreground))" className="text-sm">{`${value} Instances`}</text>
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="hsl(var(--muted-foreground))" className="text-xs">
         {`(Rate ${(percent * 100).toFixed(2)}%)`}
       </text>
@@ -160,7 +160,7 @@ export function Dashboard() {
                 </Card>
             </div>
 
-            <div className="grid gap-4 mt-4 grid-cols-1 lg:grid-cols-2">
+            <div className="grid gap-4 mt-4 md:grid-cols-2">
                 <Card>
                      <CardHeader>
                         <CardTitle>Top Security Events</CardTitle>
@@ -168,7 +168,7 @@ export function Dashboard() {
                     </CardHeader>
                     <CardContent>
                         <ResponsiveContainer width="100%" height={350}>
-                             <BarChart data={topEvents} layout="horizontal" margin={{ left: 10, right: 20, top: 5, bottom: 60 }}>
+                             <BarChart data={topEvents} layout="horizontal" margin={{ left: 10, right: 20, top: 5, bottom: 80 }}>
                                 <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} interval={0} />
                                 <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted)/0.3)' }} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
@@ -190,9 +190,9 @@ export function Dashboard() {
                        <ResponsiveContainer width="100%" height={350}>
                             <BarChart data={formattedTopProcesses} layout="vertical" margin={{ top: 5, right: 20, left: 40, bottom: 20 }}>
                                <XAxis type="number" hide />
-                                <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} interval={0} width={100} />
+                                <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} interval={0} width={120} />
                                 <Tooltip cursor={{ fill: 'hsl(var(--muted)/0.3)' }} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
-                                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                                <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={16}>
                                      {formattedTopProcesses.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                                     ))}
@@ -208,7 +208,7 @@ export function Dashboard() {
                         <CardDescription>Distribution of security event severity levels.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={300}>
+                        <ResponsiveContainer width="100%" height={350}>
                             <PieChart>
                                 <Pie 
                                     activeIndex={activeIndexSeverity}
@@ -216,8 +216,8 @@ export function Dashboard() {
                                     data={eventSeverityData} 
                                     cx="50%" 
                                     cy="50%" 
-                                    innerRadius={60}
-                                    outerRadius={80} 
+                                    innerRadius={70}
+                                    outerRadius={90} 
                                     dataKey="value"
                                     onMouseEnter={(_, index) => setActiveIndexSeverity(index)}
                                 >
@@ -236,7 +236,7 @@ export function Dashboard() {
                         <CardDescription>Security status of all affected cloud resources.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={300}>
+                        <ResponsiveContainer width="100%" height={350}>
                             <PieChart>
                                 <Pie 
                                     activeIndex={activeIndexStatus}
@@ -244,8 +244,8 @@ export function Dashboard() {
                                     data={resourceStatusData} 
                                     cx="50%" 
                                     cy="50%" 
-                                    innerRadius={60}
-                                    outerRadius={80} 
+                                    innerRadius={70}
+                                    outerRadius={90} 
                                     dataKey="value"
                                     onMouseEnter={(_, index) => setActiveIndexStatus(index)}
                                 >
