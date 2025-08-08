@@ -46,7 +46,7 @@ export const ModelAttackScenarioOutputSchema = z.object({
     metrics: z.object({
         totalEvents: z.number().describe('The total number of events generated as an integer. This should be a high number to reflect the attack.'),
         activeThreats: z.number().describe('The number of active threats detected as an integer.'),
-        blockedAttacks: z.number().describe('The number of attacks automatically blocked as an integer.'),
+        blockedAttacks: z.number().describe('The number of attacks automatically blocked. This should be 0 for the initial scenario.'),
         detectionAccuracy: z.string().describe('The detection accuracy of the system as a percentage, e.g., "99.7%".'),
     }).describe('Key metrics for the dashboard, reflecting the impact of the attack script.'),
     affectedResources: z.array(CloudResourceSchema).describe('A list of 5-10 specific cloud resources that would be affected by this script, including their provider and status.'),

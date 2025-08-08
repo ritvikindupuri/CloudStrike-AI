@@ -79,6 +79,10 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             analysis: {
                 ...data.analysis,
                 suggestedCountermeasure: interactionResult?.modifiedDefenseScript || data.analysis.suggestedCountermeasure
+            },
+            metrics: {
+                ...data.metrics,
+                blockedAttacks: interactionResult?.attacksBlocked || data.metrics.blockedAttacks,
             }
         };
         setData(updatedData);
@@ -212,8 +216,13 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }, [toast]);
     
     const clearSimulation = useCallback(() => {
+        const currentId = data?.id;
+        if (currentId) {
+            const newHistory = history.filter(s => s.id !== currentId);
+            saveHistory(newHistory);
+        }
         setData(null);
-    }, []);
+    }, [data, history]);
     
     const value = useMemo(() => ({
         data,

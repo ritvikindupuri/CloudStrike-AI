@@ -16,6 +16,7 @@ export type InteractionStep = z.infer<typeof InteractionStepSchema>;
 
 export const AnalyzeInteractionOutputSchema = z.object({
     effectivenessScore: z.number().min(0).max(100).describe('A score from 0 (ineffective) to 100 (fully effective) on how well the defense mitigates the attack.'),
+    attacksBlocked: z.number().describe('The integer count of attack actions that were successfully blocked or mitigated by the defense script.'),
     outcomeSummary: z.string().describe('A summary of what the defense script successfully prevented and where it fell short.'),
     modifiedDefenseScript: z.string().describe('An improved version of the defense script that addresses identified weaknesses.'),
     interactionLog: z.array(InteractionStepSchema).describe("A step-by-step log simulating the interaction between the scripts. It should have between 5 and 10 steps."),
