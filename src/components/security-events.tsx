@@ -23,7 +23,8 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { useToast } from '@/hooks/use-toast';
-import { generateResponsePlan, type GenerateResponsePlanOutput } from '@/ai/flows/generate-response-plan-flow';
+import { generateResponsePlan } from '@/ai/flows/generate-response-plan-flow';
+import type { GenerateResponsePlanOutput } from '@/ai/flows/types/generate-response-plan-types';
 
 
 const getSeverityVariant = (severity: SecurityEvent['severity']): 'default' | 'secondary' | 'destructive' | 'outline' => {

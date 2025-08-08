@@ -1,14 +1,8 @@
 import { z } from 'zod';
+import { SecurityEventSchema as BaseSecurityEventSchema } from './simulate-attack-types';
 
-export const SecurityEventSchema = z.object({
-    id: z.string().describe("A unique event identifier."),
-    timestamp: z.string().describe("The event timestamp."),
-    severity: z.enum(['Low', 'Medium', 'High', 'Critical']).describe('The severity of the event.'),
-    description: z.string().describe('A concise description of the event.'),
-    status: z.enum(['Investigating', 'Contained', 'Resolved', 'Action Required']).describe('The current status of the event.'),
-});
-export type GenerateResponsePlanInput = z.infer<typeof SecurityEventSchema>;
-
+export const GenerateResponsePlanInputSchema = BaseSecurityEventSchema;
+export type GenerateResponsePlanInput = z.infer<typeof GenerateResponsePlanInputSchema>;
 
 export const GenerateResponsePlanOutputSchema = z.object({
     suggestedSteps: z.array(z.string()).describe("A list of 3-4 concrete, actionable steps an analyst should take to respond to this specific event."),

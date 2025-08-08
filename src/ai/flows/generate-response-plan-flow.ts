@@ -6,9 +6,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { SecurityEventSchema, GenerateResponsePlanOutputSchema } from './types/generate-response-plan-types';
-
-export { type GenerateResponsePlanInput, type GenerateResponsePlanOutput } from './types/generate-response-plan-types';
+import { GenerateResponsePlanInputSchema, GenerateResponsePlanOutputSchema } from './types/generate-response-plan-types';
 
 export async function generateResponsePlan(input: import('./types/generate-response-plan-types').GenerateResponsePlanInput): Promise<import('./types/generate-response-plan-types').GenerateResponsePlanOutput> {
   return generateResponsePlanFlow(input);
@@ -16,7 +14,7 @@ export async function generateResponsePlan(input: import('./types/generate-respo
 
 const prompt = ai.definePrompt({
     name: 'generateResponsePlanPrompt',
-    input: { schema: SecurityEventSchema },
+    input: { schema: GenerateResponsePlanInputSchema },
     output: { schema: GenerateResponsePlanOutputSchema },
     prompt: `You are a Tier 2 Security Operations Center (SOC) Analyst playbook generator. Your task is to create a concise incident response plan for a given security event.
 
@@ -37,7 +35,7 @@ Based on this event, provide a response plan in JSON format with the following f
 const generateResponsePlanFlow = ai.defineFlow(
   {
     name: 'generateResponsePlanFlow',
-    inputSchema: SecurityEventSchema,
+    inputSchema: GenerateResponsePlanInputSchema,
     outputSchema: GenerateResponsePlanOutputSchema,
   },
   async (input) => {
