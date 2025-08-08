@@ -112,6 +112,10 @@ export function ThreatSandbox() {
                         suggestedCountermeasure: result.modifiedDefenseScript,
                     }
                 });
+                 toast({
+                    title: 'Defense Improved!',
+                    description: 'The AI has updated the countermeasure script with improvements.',
+                });
             }
         } catch (error) {
             console.error("Failed to test countermeasure:", error);
@@ -155,11 +159,11 @@ export function ThreatSandbox() {
                             className="h-24"
                         />
                          <div>
-                            <p className="text-xs text-muted-foreground mb-2">Or try an example:</p>
+                            <p className="text-xs text-muted-foreground mb-2">Or try an example from our library:</p>
                             <div className="flex flex-wrap gap-2">
-                                {attackExamples.slice(0, 3).map((ex, i) => (
-                                    <Button key={i} variant="outline" size="sm" className="text-xs" onClick={() => setDescription(ex)}>
-                                        {ex.split(' ').slice(0, 5).join(' ')}...
+                                {attackExamples.map((ex, i) => (
+                                    <Button key={i} variant="outline" size="sm" className="text-xs text-left h-auto" onClick={() => setDescription(ex)}>
+                                        {ex}
                                     </Button>
                                 ))}
                             </div>
@@ -253,7 +257,7 @@ export function ThreatSandbox() {
                          <Tabs defaultValue="countermeasure" value={interactionResult ? "engagement" : "countermeasure"}>
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="countermeasure">Countermeasure</TabsTrigger>
-                                <TabsTrigger value="engagement" disabled={!data}>Test Effectiveness</TabsTrigger>
+                                <TabsTrigger value="engagement" disabled={!data}>Test & Improve</TabsTrigger>
                             </TabsList>
                             <TabsContent value="countermeasure" className="mt-4">
                                 {data?.analysis.suggestedCountermeasure ? (
@@ -277,7 +281,7 @@ export function ThreatSandbox() {
                                             <Lightbulb className="h-4 w-4" />
                                             <AlertTitle>What is this?</AlertTitle>
                                             <AlertDescription>
-                                                This is the AI's suggested defense script. Click "Test Effectiveness" to see how it performs against the attack.
+                                                This is the AI's suggested defense script. Click "Test & Improve" to see how it performs and to generate an even better version.
                                             </AlertDescription>
                                         </Alert>
                                     </>
@@ -324,7 +328,7 @@ export function ThreatSandbox() {
                                             <Lightbulb className="h-4 w-4" />
                                             <AlertTitle>Improved Defense Script</AlertTitle>
                                             <AlertDescription>
-                                                The AI has suggested an improved version of the defense script based on this engagement analysis. You can find it in the "Countermeasure" tab.
+                                                The AI has suggested an improved version of the defense script based on this engagement analysis. You can find the updated version in the "Countermeasure" tab.
                                             </AlertDescription>
                                         </Alert>
                                     </div>
@@ -334,7 +338,7 @@ export function ThreatSandbox() {
                                         <p>Click below to simulate the engagement.</p>
                                         <Button className="mt-4" onClick={handleTestCountermeasure} variant="secondary" disabled={isTesting}>
                                             {isTesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2" />}
-                                            Test Countermeasure
+                                            Test & Improve
                                         </Button>
                                     </div>
                                 )}
@@ -354,7 +358,7 @@ export function ThreatSandbox() {
                                 disabled={isTesting || !data?.analysis.suggestedCountermeasure}
                                 >
                                 {isTesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2" />}
-                                {interactionResult ? "Re-Test Countermeasure" : "Test Countermeasure"}
+                                {interactionResult ? "Re-Test & Improve" : "Test & Improve Countermeasure"}
                             </Button>
                         </CardFooter>
                     )}
