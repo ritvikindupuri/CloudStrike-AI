@@ -21,9 +21,9 @@ import { useSimulation } from '@/context/simulation-context';
 import { Badge } from './ui/badge';
 import { SessionHistory } from './session-history';
 import { Button } from './ui/button';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
-export function MainLayout({ children }: { children: React.ReactNode }) {
+function MainLayoutComponent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const { data } = useSimulation();
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -54,7 +54,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                          <Logo className="text-primary h-8 w-8"/>
                          <div className="flex flex-col">
                           <h1 className="text-lg font-semibold text-foreground tracking-wide">NetGuard AI</h1>
-                          <span className="text-[10px] uppercase text-muted-foreground tracking-wider">AI Sandbox</span>
+                          <span className="text-[10px] uppercase text-muted-foreground tracking-wider">Threat Modeling Sandbox</span>
                          </div>
                        </div>
                        <Button variant="ghost" size="icon" onClick={() => setIsHistoryOpen(true)}>
@@ -94,3 +94,5 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         </>
     );
 }
+
+export const MainLayout = memo(MainLayoutComponent);
