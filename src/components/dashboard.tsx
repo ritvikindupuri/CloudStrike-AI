@@ -18,16 +18,16 @@ const chartColors = [
 
 const severityColors: Record<string, string> = {
     'Critical': 'hsl(var(--destructive))',
-    'High': 'hsl(var(--chart-5))',
-    'Medium': 'hsl(var(--chart-2))',
-    'Low': 'hsl(var(--chart-1))',
+    'High': 'hsl(30, 90%, 55%)', // A vibrant orange for high
+    'Medium': 'hsl(205, 80%, 55%)', // A clear blue for medium
+    'Low': 'hsl(180, 75%, 45%)',    // A calm teal for low
 }
 
 const statusColors: Record<string, string> = {
     'Compromised': 'hsl(var(--destructive))',
-    'Vulnerable': 'hsl(var(--chart-5))',
-    'Investigating': 'hsl(var(--chart-2))',
-    'Protected': 'hsl(var(--chart-1))',
+    'Vulnerable': 'hsl(30, 90%, 55%)', // A vibrant orange for vulnerable
+    'Investigating': 'hsl(205, 80%, 55%)', // A clear blue for investigating
+    'Protected': 'hsl(180, 75%, 45%)',    // A reassuring teal for protected
 }
 
 const renderActiveShape = (props: any) => {
@@ -210,8 +210,8 @@ export function Dashboard() {
                         <CardTitle>Event Severity Breakdown</CardTitle>
                         <CardDescription>Distribution of security event severity levels.</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <ResponsiveContainer width="100%" height={350}>
+                    <CardContent className="h-[350px]">
+                        <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie 
                                     activeIndex={activeIndexSeverity}
@@ -238,8 +238,8 @@ export function Dashboard() {
                         <CardTitle>Cloud Resource Status</CardTitle>
                         <CardDescription>Security status of all affected cloud resources.</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <ResponsiveContainer width="100%" height={350}>
+                    <CardContent className="h-[350px]">
+                        <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie 
                                     activeIndex={activeIndexStatus}
@@ -299,3 +299,5 @@ export function Dashboard() {
         </main>
     );
 }
+
+    
