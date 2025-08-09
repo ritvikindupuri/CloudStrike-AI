@@ -195,7 +195,7 @@ export function ThreatSandbox() {
                         {attackExamples.map((ex) => (
                            <Card key={ex.id} className={`flex flex-col justify-between ${selectedAttackId === ex.id ? 'border-primary' : ''}`}>
                                <CardHeader className="pb-2">
-                                   <CardTitle className="text-base">{ex.title}</CardTitle>
+                                   <CardTitle className="text-base leading-snug">{ex.title}</CardTitle>
                                    <div className="flex gap-2 pt-1">
                                        <Badge variant="secondary">{ex.provider}</Badge>
                                        <Badge variant="outline">{ex.tactic}</Badge>
@@ -327,7 +327,7 @@ export function ThreatSandbox() {
                                                     <div key={log.step} className="text-xs p-2 flex items-start gap-3 hover:bg-muted/50 rounded-md">
                                                         <div className="pt-0.5">{getActionIcon(log.action)}</div>
                                                         <div className="flex-1">
-                                                            <p><span className="font-bold">{log.action}:</span> {log.description}</p>
+                                                            <p className="break-words"><span className="font-bold">{log.action}:</span> {log.description}</p>
                                                             <p className="text-muted-foreground"><span className="font-semibold">Result:</span> {log.result}</p>
                                                         </div>
                                                     </div>
@@ -372,3 +372,5 @@ export function ThreatSandbox() {
         </main>
     );
 }
+
+    

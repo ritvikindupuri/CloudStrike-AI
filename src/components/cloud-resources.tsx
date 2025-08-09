@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,9 +66,9 @@ export function CloudResources() {
                 {data.affectedResources.map((resource) => (
                     <Card key={resource.resourceId}>
                         <CardHeader className="pb-4">
-                            <CardTitle className="flex items-start gap-3 text-xl">
+                            <CardTitle className="flex items-start gap-3 text-xl leading-snug">
                                 {getProviderIcon(resource.provider)}
-                                <span>{resource.name}</span>
+                                <span className="break-words">{resource.name}</span>
                             </CardTitle>
                              <CardDescription className="flex items-center gap-2 pt-1">
                                 {getServiceIcon(resource.service)}
@@ -85,7 +86,7 @@ export function CloudResources() {
                             </div>
                             <div className="text-sm space-y-1">
                                 <p className="font-medium">Reason:</p>
-                                <p className="text-muted-foreground">{resource.reasonForStatus}</p>
+                                <p className="text-muted-foreground break-words">{resource.reasonForStatus}</p>
                             </div>
                         </CardContent>
                     </Card>
@@ -94,3 +95,5 @@ export function CloudResources() {
         </main>
     );
 }
+
+    

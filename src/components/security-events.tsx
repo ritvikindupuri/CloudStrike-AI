@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import {
@@ -25,7 +26,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { generateResponsePlan } from '@/ai/flows/generate-response-plan-flow';
 import type { GenerateResponsePlanOutput } from '@/ai/flows/types/generate-response-plan-types';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 
 const getSeverityVariant = (severity: SecurityEvent['severity']): 'default' | 'secondary' | 'destructive' | 'outline' => {
@@ -152,42 +153,46 @@ export function SecurityEvents() {
                 </p>
             </header>
              <Card>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[120px]">Event ID</TableHead>
-                            <TableHead className="w-[180px]">Timestamp</TableHead>
-                            <TableHead className="w-[120px]">Severity</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead className="w-[150px]">Status</TableHead>
-                            <TableHead className="w-[100px] text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {data.events.map((event) => (
-                            <TableRow key={event.id}>
-                                <TableCell className="font-mono text-xs">{event.id}</TableCell>
-                                <TableCell className="font-mono text-xs">{new Date(event.timestamp).toLocaleString()}</TableCell>
-                                <TableCell>
-                                    <Badge variant={getSeverityVariant(event.severity)}>
-                                        {event.severity}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>{event.description}</TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-2">
-                                        {getStatusIcon(event.status)}
-                                        <span>{event.status}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <ResponsePlanDialog event={event} />
-                                </TableCell>
+                <CardContent className="p-0">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[120px]">Event ID</TableHead>
+                                <TableHead className="w-[180px]">Timestamp</TableHead>
+                                <TableHead className="w-[120px]">Severity</TableHead>
+                                <TableHead>Description</TableHead>
+                                <TableHead className="w-[150px]">Status</TableHead>
+                                <TableHead className="w-[100px] text-right">Actions</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {data.events.map((event) => (
+                                <TableRow key={event.id}>
+                                    <TableCell className="font-mono text-xs">{event.id}</TableCell>
+                                    <TableCell className="font-mono text-xs">{new Date(event.timestamp).toLocaleString()}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={getSeverityVariant(event.severity)}>
+                                            {event.severity}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>{event.description}</TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            {getStatusIcon(event.status)}
+                                            <span>{event.status}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <ResponsePlanDialog event={event} />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
             </Card>
         </main>
     );
 }
+
+    
