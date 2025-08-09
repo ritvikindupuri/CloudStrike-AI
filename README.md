@@ -1,7 +1,8 @@
 # CloudStrike AI - AI-Powered Threat Modeling Sandbox
 
-![CloudStrike AI Dashboard](https://placehold.co/800x450.png)
-*<p align="center">A dynamic security dashboard populated by AI-generated scenario analysis.</p>*
+
+<img width="201" height="93" alt="Screenshot 2025-08-09 111733" src="https://github.com/user-attachments/assets/d7a1e118-0f6a-42a1-8e7f-6fa97573d0ff" />
+
 
 ---
 
