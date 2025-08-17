@@ -23,6 +23,8 @@ CloudStrike AI is a sophisticated, AI-powered cybersecurity sandbox designed for
 
 CloudStrike AI's intelligence is powered by a series of interconnected AI agents (Genkit flows). These agents work together to create a cohesive and realistic scenario from a single piece of input. **The key innovation is that CloudStrike AI does not use any static mock data.** Instead, it generates a complete, dynamic scenario in real-time.
 
+<img width="892" height="562" alt="Screenshot 2025-08-17 142149" src="https://github.com/user-attachments/assets/082a3219-16d1-4c3c-acd3-a8dee8db94b7" />
+
 Here’s how the different AI components work together:
 
 1.  **Script Generation (`generateAttackScript`):** When a user describes an attack, this agent acts as a "Red Team" expert. It interprets the request and writes a plausible but simulated attack script, ensuring no real harm can be done by using placeholder commands like `Write-Host`.
