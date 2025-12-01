@@ -6,11 +6,11 @@
 
 ---
 
-## 🚀 Overview
+##  Overview
 
 CloudStrike AI is a sophisticated, AI-powered cybersecurity sandbox designed for modern security teams. It allows users to model, analyze, and visualize complex cloud-native attack scenarios in a safe and controlled environment. Instead of relying on static threat intelligence, CloudStrike AI uses generative AI to create dynamic, realistic attack simulations, generate and validate countermeasures, and provide actionable insights, empowering teams to proactively test and strengthen their defenses.
 
-## ✨ Core Features
+##  Core Features
 
 -   **AI-Powered Scenario Generation:** Describe an attack in plain English (e.g., "data exfiltration from an S3 bucket"), and the AI will generate a realistic, simulated PowerShell or shell script from a library of expert-level examples.
 -   **Dynamic Threat Modeling:** Run any script in the sandbox to generate a complete attack scenario, including a list of security events, affected cloud resources, and key performance metrics.
@@ -19,7 +19,7 @@ CloudStrike AI is a sophisticated, AI-powered cybersecurity sandbox designed for
 -   **Interactive Dashboard:** Visualize the impact of an attack with dynamic, Kibana-quality charts for system activity and a real-time log of security events.
 -   **Persistent Session History:** Automatically saves your simulation results, allowing you to load, review, and compare past scenarios at any time.
 
-## 🤖 How the AI Connects Everything
+##  How the AI Connects Everything
 
 CloudStrike AI's intelligence is powered by a series of interconnected AI agents (Genkit flows). These agents work together to create a cohesive and realistic scenario from a single piece of input. **The key innovation is that CloudStrike AI does not use any static mock data.** Instead, it generates a complete, dynamic scenario in real-time.
 
@@ -43,7 +43,7 @@ The `modelAttackScenario` flow is the central orchestrator. It takes a single in
 
 This multi-agent approach allows CloudStrike AI to go beyond simple analysis and create a truly dynamic and interactive learning environment.
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 -   **Frontend:** Next.js (App Router), React, TypeScript
 -   **Styling:** Tailwind CSS, ShadCN UI
@@ -51,7 +51,7 @@ This multi-agent approach allows CloudStrike AI to go beyond simple analysis and
 -   **State Management:** React Context API
 -   **Charts:** Recharts
 
-## ⚙️ Running Locally
+##  Running Locally
 
 1.  **Clone the repository:**
     ```bash
