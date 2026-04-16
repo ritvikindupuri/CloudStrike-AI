@@ -35,18 +35,21 @@ Based on this event, provide a response plan in JSON format with the following f
 `;
 
     const promptConfig = {
-        name: 'generateResponsePlanPrompt',
-        input: { schema: GenerateResponsePlanInputSchema },
         output: { schema: GenerateResponsePlanOutputSchema },
-        prompt: prompt,
     };
     
+    let finalPrompt = prompt
+        .replace('{{{id}}}', input.id)
+        .replace('{{{timestamp}}}', input.timestamp)
+        .replace('{{{severity}}}', input.severity)
+        .replace('{{{description}}}', input.description)
+        .replace('{{{status}}}', input.status);
+
     try {
         const { output } = await ai.generate({
             ...promptConfig,
             model: 'googleai/gemini-1.5-flash',
-            prompt: prompt,
-            input,
+            prompt: finalPrompt,
         });
         return output!;
     } catch (e: any) {
@@ -54,8 +57,7 @@ Based on this event, provide a response plan in JSON format with the following f
              const { output } = await ai.generate({
                 ...promptConfig,
                 model: 'googleai/gemini-pro',
-                prompt: prompt,
-                input,
+                prompt: finalPrompt,
             });
             return output!;
         }
