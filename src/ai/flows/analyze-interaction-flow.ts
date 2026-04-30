@@ -51,10 +51,7 @@ Provide the entire output in the specified JSON format.
 `;
 
     const promptConfig = {
-      name: 'analyzeInteractionPrompt',
-      input: { schema: AnalyzeInteractionInputSchema },
       output: { schema: AnalyzeInteractionOutputSchema },
-      prompt: prompt,
       config: {
           safetySettings: [
               {
@@ -65,12 +62,15 @@ Provide the entire output in the specified JSON format.
       },
     };
 
+    let finalPrompt = prompt
+        .replace('{{{attackScript}}}', input.attackScript)
+        .replace('{{{defenseScript}}}', input.defenseScript);
+
     try {
         const { output } = await ai.generate({
             ...promptConfig,
             model: 'googleai/gemini-1.5-flash',
-            prompt: prompt,
-            input,
+            prompt: finalPrompt,
         });
         return output!;
     } catch (e: any) {
@@ -78,8 +78,7 @@ Provide the entire output in the specified JSON format.
              const { output } = await ai.generate({
                 ...promptConfig,
                 model: 'googleai/gemini-pro',
-                prompt: prompt,
-                input,
+                prompt: finalPrompt,
             });
             return output!;
         }

@@ -38,10 +38,7 @@ Generate the script that simulates this attack.
 `;
 
     const promptConfig = {
-        name: 'generateAttackScriptPrompt',
-        input: { schema: GenerateAttackScriptInputSchema },
         output: { schema: GenerateAttackScriptOutputSchema },
-        prompt: prompt,
         config: {
             safetySettings: [
                 {
@@ -52,12 +49,13 @@ Generate the script that simulates this attack.
         },
     };
 
+    const finalPrompt = prompt.replace('{{{description}}}', input.description);
+
     try {
         const { output } = await ai.generate({
             ...promptConfig,
             model: 'googleai/gemini-1.5-flash',
-            prompt: prompt,
-            input,
+            prompt: finalPrompt,
         });
         return output!;
     } catch (e: any) {
@@ -65,8 +63,7 @@ Generate the script that simulates this attack.
              const { output } = await ai.generate({
                 ...promptConfig,
                 model: 'googleai/gemini-pro',
-                prompt: prompt,
-                input,
+                prompt: finalPrompt,
             });
             return output!;
         }
